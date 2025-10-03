@@ -1,0 +1,831 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Helix - Student Portal</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet" />
+
+    <!-- Firebase SDK -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
+        import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged, sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-auth.js";
+        import { getFirestore, doc, setDoc, getDoc, collection, addDoc, getDocs, updateDoc, deleteDoc, query, orderBy } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-firestore.js";
+        import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-analytics.js";
+
+        // Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyB0--bDqGPckl7pENJLMN_95fDNAaXR4zs",
+            authDomain: "helixfinale.firebaseapp.com",
+            projectId: "helixfinale",
+            storageBucket: "helixfinale.firebasestorage.app",
+            messagingSenderId: "556896526389",
+            appId: "1:556896526389:web:0579fb75c4953f716cd17c",
+            measurementId: "G-HB0DND8V2J"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+        const analytics = getAnalytics(app);
+
+        // Make Firebase services globally available
+        window.firebaseAuth = auth;
+        window.firebaseDb = db;
+        window.firebaseServices = {
+            createUserWithEmailAndPassword,
+            signInWithEmailAndPassword,
+            signOut,
+            onAuthStateChanged,
+            sendPasswordResetEmail,
+            doc,
+            setDoc,
+            getDoc,
+            collection,
+            addDoc,
+            getDocs,
+            updateDoc,
+            deleteDoc,
+            query,
+            orderBy
+        };
+    </script>
+
+    <style>
+        .gradient-bg { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+        .card-hover { transition: all 0.3s ease; }
+        .card-hover:hover { transform: translateY(-2px); box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
+        .fade-in { animation: fadeIn 0.5s ease-in; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* Dark theme styles */
+        .dark { background-color: #1a1a1a; color: #e5e5e5; }
+        .dark .bg-white { background-color: #2d2d2d !important; color: #e5e5e5 !important; }
+        .dark .bg-gray-50 { background-color: #1a1a1a !important; }
+        .dark .text-gray-800 { color: #e5e5e5 !important; }
+        .dark .text-gray-700 { color: #d1d1d1 !important; }
+        .dark .text-gray-600 { color: #a3a3a3 !important; }
+        .dark .text-gray-500 { color: #8a8a8a !important; }
+        .dark .border-gray-300 { border-color: #4a4a4a !important; }
+        .dark .border-gray-200 { border-color: #3a3a3a !important; }
+        .dark .hover\:bg-gray-50:hover { background-color: #3a3a3a !important; }
+        .dark input, .dark textarea { background-color: #3a3a3a !important; color: #e5e5e5 !important; border-color: #4a4a4a !important; }
+        .dark input:focus, .dark textarea:focus { border-color: #60a5fa !important; box-shadow: 0 0 0 2px rgba(96, 165, 250, 0.2) !important; }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <!-- Navigation -->
+    <nav class="gradient-bg text-white shadow-lg">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center space-x-3">
+                    <i class="fas fa-dna text-2xl"></i>
+                    <h1 class="text-xl font-bold">Helix</h1>
+                </div>
+                <div id="nav-menu" class="hidden md:flex space-x-6"></div>
+                <div class="flex items-center space-x-3">
+                    <button id="theme-toggle" onclick="toggleTheme()" class="p-2 rounded-lg hover:bg-white hover:bg-opacity-20 transition duration-300" title="Toggle Theme">
+                        <i id="theme-icon" class="fas fa-moon text-lg"></i>
+                    </button>
+                    <button id="home-button" onclick="goHome()" class="hidden p-2 rounded-lg hover:bg-white hover:bg-opacity-20 transition duration-300" title="Go to Homepage">
+                        <i class="fas fa-home text-lg"></i>
+                    </button>
+                    <div id="auth-buttons" class="flex space-x-3"></div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <!-- Login/Signup Section -->
+        <div id="auth-section" class="fade-in">
+            <div class="max-w-md mx-auto bg-white rounded-lg shadow-md p-8">
+                <div class="text-center mb-8">
+                    <i class="fas fa-dna text-4xl text-blue-600 mb-4"></i>
+                    <h2 class="text-2xl font-bold text-gray-800">Welcome to Helix</h2>
+                    <p class="text-gray-600 mt-2"> Sophomore Student Portal</p>
+                    <div class="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                        <div class="flex items-center justify-center space-x-2 text-blue-700">
+                            <i class="fas fa-cloud text-sm"></i>
+                            <span class="text-sm font-medium">Firebase Backend Active</span>
+                        </div>
+                        <p class="text-xs text-blue-600 mt-1">Real-time cloud database with authentication</p>
+                    </div>
+                </div>
+
+                <!-- Login Form -->
+                <div id="login-form">
+                    <h3 class="text-xl font-semibold mb-4 text-center">Login</h3>
+                    <form onsubmit="handleLogin(event)">
+                        <div class="mb-4">
+                            <label class="block text-gray-700 text-sm font-bold mb-2">Email</label>
+                            <input type="email" id="login-email" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                        </div>
+                        <div class="mb-6">
+                            <label class="block text-gray-700 text-sm font-bold mb-2">Password</label>
+                            <input type="password" id="login-password" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                        </div>
+                        <button type="submit" class="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 transition duration-300">
+                            <i class="fas fa-sign-in-alt mr-2"></i>Login
+                        </button>
+                    </form>
+                    <p class="text-center mt-4 text-gray-600">Don't have an account? <button onclick="showSignup()" class="text-blue-600 hover:underline">Sign up</button></p>
+                    <p class="text-center mt-2 text-gray-600"><button onclick="showForgotPassword()" class="text-blue-600 hover:underline text-sm">Forgot your password?</button></p>
+                </div>
+
+                <!-- Forgot Password Form -->
+                <div id="forgot-password-form" class="hidden">
+                    <h3 class="text-xl font-semibold mb-4 text-center">Reset Password</h3>
+                    <p class="text-gray-600 text-sm mb-4 text-center">Enter your email address and we'll send you a password reset link.</p>
+                    <form onsubmit="handleForgotPassword(event)">
+                        <div class="mb-4">
+                            <label class="block text-gray-700 text-sm font-bold mb-2">Email</label>
+                            <input type="email" id="forgot-email" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                        </div>
+                        <button type="submit" class="w-full bg-orange-600 text-white py-2 px-4 rounded-md hover:bg-orange-700 transition duration-300">
+                            <i class="fas fa-envelope mr-2"></i>Send Reset Email
+                        </button>
+                    </form>
+                    <p class="text-center mt-4 text-gray-600">Remember your password? <button onclick="showLogin()" class="text-blue-600 hover:underline">Back to Login</button></p>
+                </div>
+
+                <!-- Signup Form -->
+                <div id="signup-form" class="hidden">
+                    <h3 class="text-xl font-semibold mb-4 text-center">Sign Up</h3>
+                    <form onsubmit="handleSignup(event)">
+                        <div class="mb-4">
+                            <label class="block text-gray-700 text-sm font-bold mb-2">Full Name</label>
+                            <input type="text" id="signup-name" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                        </div>
+                        <div class="mb-4">
+                            <label class="block text-gray-700 text-sm font-bold mb-2">Email</label>
+                            <input type="email" id="signup-email" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                        </div>
+                        <div class="mb-4">
+                            <label class="block text-gray-700 text-sm font-bold mb-2">Password</label>
+                            <input type="password" id="signup-password" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                        </div>
+                        <div class="mb-4">
+                            <label class="flex items-center"><input type="checkbox" id="admin-signup" onchange="toggleAdminCode()" class="mr-2" /><span class="text-sm text-gray-700">Sign up as Admin</span></label>
+                        </div>
+                        <div id="admin-code-field" class="mb-4 hidden">
+                            <label class="block text-gray-700 text-sm font-bold mb-2">Admin Code</label>
+                            <input type="text" id="admin-code" placeholder="Enter admin code" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                        </div>
+                        <button type="submit" class="w-full bg-green-600 text-white py-2 px-4 rounded-md hover:bg-green-700 transition duration-300">
+                            <i class="fas fa-user-plus mr-2"></i>Sign Up
+                        </button>
+                    </form>
+                    <p class="text-center mt-4 text-gray-600">Already have an account? <button onclick="showLogin()" class="text-blue-600 hover:underline">Login</button></p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Dashboard Section -->
+        <div id="dashboard-section" class="hidden fade-in">
+            <div class="mb-8">
+                <h2 class="text-3xl font-bold text-gray-800 mb-2">Welcome back, <span id="user-name"></span>!</h2>
+                <p class="text-gray-600">Access your course materials, timetable, and announcements</p>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                <div class="bg-white rounded-lg shadow-md p-6 card-hover cursor-pointer" onclick="showSection('timetable')">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <h3 class="text-lg font-semibold text-gray-800">Timetable</h3>
+                            <p class="text-gray-600 text-sm">View your schedule</p>
+                        </div>
+                        <i class="fas fa-calendar-alt text-3xl text-blue-600"></i>
+                    </div>
+                </div>
+                <div class="bg-white rounded-lg shadow-md p-6 card-hover cursor-pointer" onclick="showSection('materials')">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <h3 class="text-lg font-semibold text-gray-800">Course Materials</h3>
+                            <p class="text-gray-600 text-sm">Access resources</p>
+                        </div>
+                        <i class="fas fa-book text-3xl text-green-600"></i>
+                    </div>
+                </div>
+                <div class="bg-white rounded-lg shadow-md p-6 card-hover cursor-pointer" onclick="showSection('announcements')">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <h3 class="text-lg font-semibold text-gray-800">Announcements</h3>
+                            <p class="text-gray-600 text-sm">Latest updates</p>
+                        </div>
+                        <i class="fas fa-bullhorn text-3xl text-purple-600"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Timetable Section (Firestore-driven) -->
+        <div id="timetable-section" class="hidden fade-in">
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-2xl font-bold text-gray-800"><i class="fas fa-calendar-alt text-blue-600 mr-3"></i>Timetable</h2>
+                    <div id="admin-timetable-controls" class="hidden flex items-center gap-2">
+                        <button onclick="addRow()" class="bg-green-600 text-white px-3 py-2 rounded-md hover:bg-green-700 transition"><i class="fas fa-plus mr-2"></i>Add Row</button>
+                        <button onclick="addExamRow()" class="bg-yellow-600 text-white px-3 py-2 rounded-md hover:bg-yellow-700 transition"><i class="fas fa-clipboard-list mr-2"></i>Add Exam Row</button>
+                        <button onclick="resetToDefaults()" class="bg-gray-600 text-white px-3 py-2 rounded-md hover:bg-gray-700 transition"><i class="fas fa-rotate mr-2"></i>Reset Seed</button>
+                    </div>
+                </div>
+
+                <div class="overflow-x-auto">
+                    <table class="w-full border-collapse border border-gray-300">
+                        <thead id="timetable-head"></thead>
+                        <tbody id="timetable-body"></tbody>
+                    </table>
+                    <p id="autosave-indicator" class="text-xs text-gray-500 mt-2 hidden">Saving…</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Materials Section -->
+        <div id="materials-section" class="hidden fade-in">
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-2xl font-bold text-gray-800"><i class="fas fa-book text-green-600 mr-3"></i>Course Materials</h2>
+                    <div id="admin-materials-controls" class="hidden">
+                        <button onclick="uploadMaterial()" class="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 transition duration-300"><i class="fas fa-upload mr-2"></i>Upload Material</button>
+                    </div>
+                </div>
+                <div id="materials-list" class="space-y-4"></div>
+            </div>
+        </div>
+
+        <!-- Announcements Section -->
+        <div id="announcements-section" class="hidden fade-in">
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-2xl font-bold text-gray-800"><i class="fas fa-bullhorn text-purple-600 mr-3"></i>Announcements</h2>
+                    <div id="admin-announcements-controls" class="hidden">
+                        <button onclick="createAnnouncement()" class="bg-purple-600 text-white px-4 py-2 rounded-md hover:bg-purple-700 transition duration-300"><i class="fas fa-plus mr-2"></i>New Announcement</button>
+                    </div>
+                </div>
+                <div id="announcements-list" class="space-y-6"></div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Upload Modal -->
+    <div id="upload-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center z-50">
+        <div class="bg-white rounded-lg p-6 w-full max-w-md mx-4">
+            <h3 class="text-lg font-semibold mb-4">Upload Course Material</h3>
+            <form onsubmit="handleFileUpload(event)">
+                <div class="mb-4">
+                    <label class="block text-gray-700 text-sm font-bold mb-2">File Title</label>
+                    <input type="text" id="file-title" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                </div>
+                <div class="mb-4">
+                    <label class="block text-gray-700 text-sm font-bold mb-2">Select File</label>
+                    <input type="file" id="file-input" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                </div>
+                <div class="flex justify-end space-x-3">
+                    <button type="button" onclick="closeModal('upload-modal')" class="px-4 py-2 text-gray-600 hover:text-gray-800">Cancel</button>
+                    <button type="submit" class="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700">Upload</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Announcement Modal -->
+    <div id="announcement-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center z-50">
+        <div class="bg-white rounded-lg p-6 w-full max-w-md mx-4">
+            <h3 class="text-lg font-semibold mb-4">Create Announcement</h3>
+            <form onsubmit="handleAnnouncementCreate(event)">
+                <div class="mb-4">
+                    <label class="block text-gray-700 text-sm font-bold mb-2">Title</label>
+                    <input type="text" id="announcement-title" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                </div>
+                <div class="mb-4">
+                    <label class="block text-gray-700 text-sm font-bold mb-2">Message</label>
+                    <textarea id="announcement-message" required rows="4" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"></textarea>
+                </div>
+                <div class="flex justify-end space-x-3">
+                    <button type="button" onclick="closeModal('announcement-modal')" class="px-4 py-2 text-gray-600 hover:text-gray-800">Cancel</button>
+                    <button type="submit" class="bg-purple-600 text-white px-4 py-2 rounded-md hover:bg-purple-700">Post</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Global state
+        let currentUser = null;
+        let currentSection = 'dashboard';
+        let currentTimetable = [];
+        let debounceTimer = null;
+
+        // Firebase Backend Functions
+        class FirebaseBackend {
+            static async init() {
+                while (!window.firebaseAuth || !window.firebaseDb) {
+                    await new Promise((resolve) => setTimeout(resolve, 100));
+                }
+                await this.initializeDefaultData();
+                window.firebaseServices.onAuthStateChanged(window.firebaseAuth, async (user) => {
+                    if (user) {
+                        const userDoc = await window.firebaseServices.getDoc(
+                            window.firebaseServices.doc(window.firebaseDb, 'users', user.uid)
+                        );
+                        if (userDoc.exists()) {
+                            currentUser = { uid: user.uid, email: user.email, ...userDoc.data() };
+                            updateUI();
+                        }
+                    } else {
+                        currentUser = null;
+                        updateUI();
+                    }
+                });
+            }
+
+            static async initializeDefaultData() {
+                try {
+                    // Seed Materials
+                    const materialsSnapshot = await window.firebaseServices.getDocs(
+                        window.firebaseServices.collection(window.firebaseDb, 'materials')
+                    );
+                    if (materialsSnapshot.empty) {
+                        const defaults = [
+                            { title: 'Biochemistry Chapter 1 - Introduction', filename: 'biochem-ch1.pdf', uploadDate: new Date(Date.now() - 2*86400000), size: '2.5 MB', uploadedBy: 'admin' },
+                            { title: 'Organic Chemistry Slides - Week 3', filename: 'organic-week3.pptx', uploadDate: new Date(Date.now() - 7*86400000), size: '5.1 MB', uploadedBy: 'admin' },
+                            { title: 'Lab Report Template', filename: 'lab-template.docx', uploadDate: new Date(Date.now() - 14*86400000), size: '1.2 MB', uploadedBy: 'admin' }
+                        ];
+                        for (const m of defaults) {
+                            await window.firebaseServices.addDoc(window.firebaseServices.collection(window.firebaseDb, 'materials'), m);
+                        }
+                    }
+
+                    // Seed Announcements
+                    const announcementsSnapshot = await window.firebaseServices.getDocs(
+                        window.firebaseServices.collection(window.firebaseDb, 'announcements')
+                    );
+                    if (announcementsSnapshot.empty) {
+                        const defaults = [
+                            { title: 'Welcome to Biochemistry Helix!', message: 'Welcome to the new student portal! Here you can access all your course materials, check your timetable, and stay updated with the latest announcements. If you have any questions, please don\'t hesitate to reach out.', date: new Date(Date.now() - 3*86400000), createdBy: 'admin' },
+                            { title: 'Lab Session Update', message: 'Please note that this Friday\'s lab session has been moved to Lab Room 3 due to equipment maintenance in Lab Room 1. The time remains the same (9:00 - 12:00).', date: new Date(Date.now() - 7*86400000), createdBy: 'admin' },
+                            { title: 'Assignment Reminder', message: 'Don\'t forget that your first biochemistry assignment is due next Monday. Please submit your reports using the template provided in the course materials section.', date: new Date(Date.now() - 14*86400000), createdBy: 'admin' }
+                        ];
+                        for (const a of defaults) {
+                            await window.firebaseServices.addDoc(window.firebaseServices.collection(window.firebaseDb, 'announcements'), a);
+                        }
+                    }
+
+                    // Seed Timetable (FULLY Firestore-driven)
+                    const timetableDoc = await window.firebaseServices.getDoc(
+                        window.firebaseServices.doc(window.firebaseDb, 'settings', 'timetable')
+                    );
+                    if (!timetableDoc.exists()) {
+                        const defaultTimetable = [
+                            { time: '9:00 - 10:00', monday: 'Biochemistry Lecture\nRoom A101', tuesday: '-', wednesday: 'Organic Chemistry\nRoom B205', thursday: '-', friday: 'Lab Session\nLab 1' },
+                            { time: '10:00 - 11:00', monday: '-', tuesday: 'Molecular Biology\nRoom C301', wednesday: '-', thursday: 'Biochemistry Lecture\nRoom A101', friday: '-' },
+                            { time: '11:00 - 12:00', monday: 'Tutorial\nRoom D102', tuesday: '-', wednesday: 'Lab Session\nLab 2', thursday: '-', friday: 'Seminar\nRoom E201' },
+                            // Exam block as rows (with Saturday column)
+                            { time: 'Exam Timetable', monday: 'Aug 9 — GST 103/112\nDLI', tuesday: 'Aug 18 — MTH 102\nDLI', wednesday: 'Aug 20 — CHM 102\nDLI', thursday: 'Aug 21 — BIO 102\nDLI', friday: 'Aug 27 — PHY 102\nDLI', saturday: 'Aug 28 — COS 102\nFaculty of Science' }
+                        ];
+                        await window.firebaseServices.setDoc(
+                            window.firebaseServices.doc(window.firebaseDb, 'settings', 'timetable'),
+                            { schedule: defaultTimetable }
+                        );
+                    }
+                } catch (error) {
+                    console.error('Error initializing default data:', error);
+                }
+            }
+
+            static async getMaterials() {
+                try {
+                    const snap = await window.firebaseServices.getDocs(
+                        window.firebaseServices.query(
+                            window.firebaseServices.collection(window.firebaseDb, 'materials'),
+                            window.firebaseServices.orderBy('uploadDate', 'desc')
+                        )
+                    );
+                    return snap.docs.map((d) => ({ id: d.id, ...d.data(), uploadDate: d.data().uploadDate?.toDate?.() || d.data().uploadDate }));
+                } catch (e) {
+                    console.error('Error getting materials:', e);
+                    return [];
+                }
+            }
+
+            static async addMaterial(material) {
+                const docRef = await window.firebaseServices.addDoc(
+                    window.firebaseServices.collection(window.firebaseDb, 'materials'),
+                    { ...material, uploadDate: new Date(), uploadedBy: currentUser?.uid || 'unknown' }
+                );
+                return docRef.id;
+            }
+
+            static async deleteMaterial(id) {
+                await window.firebaseServices.deleteDoc(window.firebaseServices.doc(window.firebaseDb, 'materials', id));
+            }
+
+            static async getAnnouncements() {
+                try {
+                    const snap = await window.firebaseServices.getDocs(
+                        window.firebaseServices.query(
+                            window.firebaseServices.collection(window.firebaseDb, 'announcements'),
+                            window.firebaseServices.orderBy('date', 'desc')
+                        )
+                    );
+                    return snap.docs.map((d) => ({ id: d.id, ...d.data(), date: d.data().date?.toDate?.() || d.data().date }));
+                } catch (e) {
+                    console.error('Error getting announcements:', e);
+                    return [];
+                }
+            }
+
+            static async addAnnouncement(announcement) {
+                const docRef = await window.firebaseServices.addDoc(
+                    window.firebaseServices.collection(window.firebaseDb, 'announcements'),
+                    { ...announcement, date: new Date(), createdBy: currentUser?.uid || 'unknown' }
+                );
+                return docRef.id;
+            }
+
+            static async updateAnnouncement(id, updates) {
+                await window.firebaseServices.updateDoc(
+                    window.firebaseServices.doc(window.firebaseDb, 'announcements', id),
+                    { ...updates, editedAt: new Date() }
+                );
+            }
+
+            static async deleteAnnouncement(id) {
+                await window.firebaseServices.deleteDoc(window.firebaseServices.doc(window.firebaseDb, 'announcements', id));
+            }
+
+            static async getTimetable() {
+                try {
+                    const timetableDoc = await window.firebaseServices.getDoc(
+                        window.firebaseServices.doc(window.firebaseDb, 'settings', 'timetable')
+                    );
+                    if (timetableDoc.exists()) return timetableDoc.data().schedule || [];
+                    return [];
+                } catch (e) {
+                    console.error('Error getting timetable:', e);
+                    return [];
+                }
+            }
+
+            static async saveTimetable(timetable) {
+                await window.firebaseServices.setDoc(
+                    window.firebaseServices.doc(window.firebaseDb, 'settings', 'timetable'),
+                    { schedule: timetable }
+                );
+            }
+
+            static formatDate(date) {
+                if (!date) return 'Unknown';
+                const d = date instanceof Date ? date : new Date(date);
+                const now = new Date();
+                const diff = Math.abs(now - d);
+                const days = Math.ceil(diff / 86400000);
+                if (days === 1) return 'Yesterday';
+                if (days < 7) return `${days} days ago`;
+                if (days < 30) return `${Math.ceil(days / 7)} weeks ago`;
+                return d.toLocaleDateString();
+            }
+        }
+
+        // Theme management
+        let isDarkMode = false;
+        function toggleTheme() {
+            isDarkMode = !isDarkMode;
+            const body = document.body;
+            const themeIcon = document.getElementById('theme-icon');
+            if (isDarkMode) {
+                body.classList.add('dark'); themeIcon.className = 'fas fa-sun text-lg'; localStorage.setItem('theme', 'dark'); showNotification('Dark mode enabled', 'info');
+            } else {
+                body.classList.remove('dark'); themeIcon.className = 'fas fa-moon text-lg'; localStorage.setItem('theme', 'light'); showNotification('Light mode enabled', 'info');
+            }
+        }
+        function loadTheme() {
+            const saved = localStorage.getItem('theme');
+            if (saved === 'dark') { isDarkMode = true; document.body.classList.add('dark'); document.getElementById('theme-icon').className = 'fas fa-sun text-lg'; }
+        }
+        function goHome() { if (currentUser) { showSection('dashboard'); showNotification('Welcome back to the homepage!', 'success'); } }
+
+        // App init
+        document.addEventListener('DOMContentLoaded', async function () { loadTheme(); await FirebaseBackend.init(); updateUI(); });
+
+        // Auth
+        async function handleLogin(e) {
+            e.preventDefault();
+            const email = document.getElementById('login-email').value;
+            const password = document.getElementById('login-password').value;
+            try {
+                await window.firebaseServices.signInWithEmailAndPassword(window.firebaseAuth, email, password);
+                showNotification('Login successful!', 'success');
+                document.getElementById('login-email').value = '';
+                document.getElementById('login-password').value = '';
+            } catch (err) {
+                console.error('Login error:', err); showNotification('Invalid email or password', 'error');
+            }
+        }
+        async function handleSignup(e) {
+            e.preventDefault();
+            const name = document.getElementById('signup-name').value;
+            const email = document.getElementById('signup-email').value;
+            const password = document.getElementById('signup-password').value;
+            const isAdmin = document.getElementById('admin-signup').checked;
+            const adminCode = document.getElementById('admin-code').value;
+            if (isAdmin && adminCode !== 'HELIX28') { showNotification('Invalid admin code', 'error'); return; }
+            try {
+                const cred = await window.firebaseServices.createUserWithEmailAndPassword(window.firebaseAuth, email, password);
+                await window.firebaseServices.setDoc(window.firebaseServices.doc(window.firebaseDb, 'users', cred.user.uid), { name, email, role: isAdmin ? 'admin' : 'student', createdAt: new Date() });
+                showNotification('Account created successfully!', 'success');
+                document.getElementById('signup-name').value = '';
+                document.getElementById('signup-email').value = '';
+                document.getElementById('signup-password').value = '';
+                document.getElementById('admin-signup').checked = false;
+                document.getElementById('admin-code').value = '';
+                document.getElementById('admin-code-field').classList.add('hidden');
+            } catch (err) {
+                console.error('Signup error:', err);
+                if (err.code === 'auth/email-already-in-use') showNotification('Email already exists', 'error');
+                else if (err.code === 'auth/weak-password') showNotification('Password should be at least 6 characters', 'error');
+                else showNotification('Error creating account: ' + err.message, 'error');
+            }
+        }
+        async function logout() { try { await window.firebaseServices.signOut(window.firebaseAuth); showNotification('Logged out successfully', 'success'); } catch { showNotification('Error logging out', 'error'); } }
+
+        // UI updates
+        function updateUI() {
+            const authSection = document.getElementById('auth-section');
+            const dashboardSection = document.getElementById('dashboard-section');
+            const navMenu = document.getElementById('nav-menu');
+            const authButtons = document.getElementById('auth-buttons');
+
+            if (currentUser) {
+                authSection.classList.add('hidden');
+                dashboardSection.classList.remove('hidden');
+                document.getElementById('user-name').textContent = currentUser.name;
+                navMenu.innerHTML = `
+                    <button onclick="showSection('dashboard')" class="hover:text-blue-200 transition">Dashboard</button>
+                    <button onclick="showSection('timetable')" class="hover:text-blue-200 transition">Timetable</button>
+                    <button onclick="showSection('materials')" class="hover:text-blue-200 transition">Materials</button>
+                    <button onclick="showSection('announcements')" class="hover:text-blue-200 transition">Announcements</button>`;
+                authButtons.innerHTML = `
+                    <span class="text-sm">${currentUser.name} (${currentUser.role})</span>
+                    <button onclick="logout()" class="bg-red-500 hover:bg-red-600 px-3 py-1 rounded text-sm transition"><i class="fas fa-sign-out-alt mr-1"></i>Logout</button>`;
+                document.getElementById('home-button').classList.remove('hidden');
+
+                // Toggle admin controls
+                const adminControls = document.querySelectorAll('[id*="admin-"][id*="-controls"]');
+                adminControls.forEach(el => currentUser.role === 'admin' ? el.classList.remove('hidden') : el.classList.add('hidden'));
+
+                showSection('dashboard');
+            } else {
+                authSection.classList.remove('hidden');
+                dashboardSection.classList.add('hidden');
+                navMenu.innerHTML = '';
+                authButtons.innerHTML = '';
+                document.getElementById('home-button').classList.add('hidden');
+                hideAllSections();
+            }
+        }
+
+        function showSection(section) {
+            hideAllSections();
+            currentSection = section;
+            if (section === 'dashboard') {
+                document.getElementById('dashboard-section').classList.remove('hidden');
+            } else {
+                document.getElementById('dashboard-section').classList.add('hidden');
+                document.getElementById(`${section}-section`).classList.remove('hidden');
+                if (section === 'materials') refreshMaterialsList();
+                if (section === 'announcements') refreshAnnouncementsList();
+                if (section === 'timetable') refreshTimetable();
+            }
+        }
+        function hideAllSections() { ['dashboard','timetable','materials','announcements'].forEach(s => document.getElementById(`${s}-section`).classList.add('hidden')); }
+
+        function showSignup() { hideAllAuthForms(); document.getElementById('signup-form').classList.remove('hidden'); }
+        function showLogin() { hideAllAuthForms(); document.getElementById('login-form').classList.remove('hidden'); }
+        function showForgotPassword() { hideAllAuthForms(); document.getElementById('forgot-password-form').classList.remove('hidden'); }
+        function hideAllAuthForms() { ['login-form','signup-form','forgot-password-form'].forEach(id => document.getElementById(id).classList.add('hidden')); }
+        function toggleAdminCode() { const f = document.getElementById('admin-code-field'); document.getElementById('admin-signup').checked ? f.classList.remove('hidden') : f.classList.add('hidden'); }
+        async function handleForgotPassword(e) { e.preventDefault(); const email = document.getElementById('forgot-email').value; try { await window.firebaseServices.sendPasswordResetEmail(window.firebaseAuth, email); showNotification(`Password reset email sent to ${email}!`, 'success'); document.getElementById('forgot-email').value = ''; setTimeout(() => showLogin(), 1500); } catch (err) { showNotification('Error sending reset email: ' + err.message, 'error'); } }
+
+        // Materials
+        function downloadFile(filename) {
+            const link = document.createElement('a'); link.href = `/downloads/${filename}`; link.download = filename; document.body.appendChild(link); link.click(); document.body.removeChild(link); showNotification(`${filename} is downloading...`, 'success');
+        }
+        document.addEventListener('DOMContentLoaded', () => { const inp = document.getElementById('file-input'); if (inp) inp.setAttribute('accept', '*'); });
+        function uploadMaterial() { document.getElementById('upload-modal').classList.remove('hidden'); }
+        async function handleFileUpload(e) {
+            e.preventDefault();
+            const title = document.getElementById('file-title').value;
+            const fileInput = document.getElementById('file-input');
+            const file = fileInput.files[0];
+            if (file) {
+                try {
+                    const newMaterial = { title, filename: file.name, size: `${(file.size/1024/1024).toFixed(1)} MB`, uploadedByName: currentUser.name };
+                    await FirebaseBackend.addMaterial(newMaterial);
+                    await refreshMaterialsList();
+                    closeModal('upload-modal');
+                    showNotification('Material uploaded successfully!', 'success');
+                } catch (err) { console.error('Upload error:', err); showNotification('Error uploading material', 'error'); }
+            }
+        }
+        async function deleteMaterial(materialId) { if (confirm('Delete this material?')) { try { await FirebaseBackend.deleteMaterial(materialId); await refreshMaterialsList(); showNotification('Material deleted', 'success'); } catch { showNotification('Error deleting material', 'error'); } } }
+        async function refreshMaterialsList() {
+            const materials = await FirebaseBackend.getMaterials();
+            const list = document.getElementById('materials-list');
+            if (materials.length === 0) { list.innerHTML = `<div class="text-center py-8 text-gray-500"><i class=\"fas fa-folder-open text-4xl mb-4\"></i><p>No materials uploaded yet.</p></div>`; return; }
+            list.innerHTML = materials.map((m) => `
+                <div class="border border-gray-200 rounded-lg p-4 hover:bg-gray-50 transition">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center space-x-3">
+                            <i class="fas fa-file-${getFileIcon(m.filename)} text-xl"></i>
+                            <div>
+                                <h3 class="font-semibold text-gray-800">${m.title}</h3>
+                                <p class="text-sm text-gray-600">Uploaded ${FirebaseBackend.formatDate(m.uploadDate)} • ${m.size}${m.uploadedByName ? ` • by ${m.uploadedByName}` : ''}</p>
+                            </div>
+                        </div>
+                        <div class="flex space-x-2">
+                            <button onclick="downloadFile('${m.filename}')" class="text-blue-600 hover:text-blue-800 p-2 rounded hover:bg-blue-50" title="Download"><i class="fas fa-download"></i></button>
+                            <button class="${currentUser?.role !== 'admin' ? 'hidden' : ''} text-red-600 hover:text-red-800 p-2 rounded hover:bg-red-50" onclick="deleteMaterial('${m.id}')" title="Delete"><i class="fas fa-trash"></i></button>
+                        </div>
+                    </div>
+                </div>`).join('');
+        }
+        function getFileIcon(filename) { const ext = filename.split('.').pop().toLowerCase(); if (ext==='pdf') return 'pdf text-red-500'; if (ext==='ppt'||ext==='pptx') return 'powerpoint text-orange-500'; if (ext==='doc'||ext==='docx') return 'word text-blue-500'; return 'alt text-gray-500'; }
+
+        // Announcements
+        function createAnnouncement() { document.getElementById('announcement-modal').classList.remove('hidden'); }
+        async function handleAnnouncementCreate(e) {
+            e.preventDefault();
+            const title = document.getElementById('announcement-title').value;
+            const message = document.getElementById('announcement-message').value;
+            try {
+                await FirebaseBackend.addAnnouncement({ title, message, createdByName: currentUser.name });
+                await refreshAnnouncementsList();
+                closeModal('announcement-modal');
+                showNotification('Announcement posted successfully!', 'success');
+            } catch { showNotification('Error creating announcement', 'error'); }
+        }
+        async function editAnnouncement(id) {
+            try {
+                const anns = await FirebaseBackend.getAnnouncements();
+                const a = anns.find(x => x.id === id);
+                if (a) {
+                    const newTitle = prompt('Edit title:', a.title);
+                    const newMessage = prompt('Edit message:', a.message);
+                    if (newTitle !== null && newMessage !== null) {
+                        await FirebaseBackend.updateAnnouncement(id, { title: newTitle, message: newMessage });
+                        await refreshAnnouncementsList();
+                        showNotification('Announcement updated successfully!', 'success');
+                    }
+                }
+            } catch { showNotification('Error updating announcement', 'error'); }
+        }
+        async function deleteAnnouncement(id) { if (confirm('Delete this announcement?')) { try { await FirebaseBackend.deleteAnnouncement(id); await refreshAnnouncementsList(); showNotification('Announcement deleted', 'success'); } catch { showNotification('Error deleting announcement', 'error'); } } }
+        async function refreshAnnouncementsList() {
+            const list = document.getElementById('announcements-list');
+            const anns = await FirebaseBackend.getAnnouncements();
+            const colors = ['blue','green','yellow','purple','indigo'];
+            if (anns.length === 0) { list.innerHTML = `<div class=\"text-center py-8 text-gray-500\"><i class=\"fas fa-bullhorn text-4xl mb-4\"></i><p>No announcements yet.</p></div>`; return; }
+            list.innerHTML = anns.map((a, i) => {
+                const color = colors[i % colors.length];
+                return `
+                    <div class="border-l-4 border-${color}-500 bg-${color}-50 p-4 rounded-r-lg">
+                        <div class="flex justify-between items-start mb-2">
+                            <h3 class="font-semibold text-gray-800">${a.title}</h3>
+                            <div class="flex items-center space-x-2">
+                                <span class="text-sm text-gray-500">${FirebaseBackend.formatDate(a.date)}</span>
+                                <button class="${currentUser?.role !== 'admin' ? 'hidden' : ''} text-blue-600 hover:text-blue-800 p-1 rounded hover:bg-blue-100" onclick="editAnnouncement('${a.id}')" title="Edit"><i class="fas fa-edit"></i></button>
+                                <button class="${currentUser?.role !== 'admin' ? 'hidden' : ''} text-red-600 hover:text-red-800 p-1 rounded hover:bg-red-100" onclick="deleteAnnouncement('${a.id}')" title="Delete"><i class="fas fa-trash"></i></button>
+                            </div>
+                        </div>
+                        <p class="text-gray-700">${a.message}</p>
+                        ${a.createdByName ? `<p class="text-xs text-gray-500 mt-2">Posted by ${a.createdByName}</p>` : ''}
+                        ${a.editedAt ? `<p class="text-xs text-gray-500">Last edited ${FirebaseBackend.formatDate(a.editedAt)}</p>` : ''}
+                    </div>`;
+            }).join('');
+        }
+
+        // ---- Timetable (Firestore-driven + admin-only inline editing) ----
+        function computeAllDays(schedule) {
+            // Collect all keys except 'time', keep preferred order Mon..Sun
+            const pref = ['monday','tuesday','wednesday','thursday','friday','saturday','sunday'];
+            const set = new Set();
+            schedule.forEach(r => Object.keys(r).forEach(k => { if (k !== 'time') set.add(k); }));
+            const days = Array.from(set);
+            // Sort by preferred order, unknowns at end
+            return days.sort((a,b) => (pref.indexOf(a) === -1 ? 99 : pref.indexOf(a)) - (pref.indexOf(b) === -1 ? 99 : pref.indexOf(b)));
+        }
+
+        async function refreshTimetable() {
+            currentTimetable = await FirebaseBackend.getTimetable();
+            renderTimetable();
+        }
+
+        function renderTimetable() {
+            const head = document.getElementById('timetable-head');
+            const body = document.getElementById('timetable-body');
+            const isAdmin = currentUser?.role === 'admin';
+            const days = computeAllDays(currentTimetable);
+
+            // Render header
+            head.innerHTML = `
+                <tr class="bg-blue-50">
+                    <th class="border border-gray-300 px-4 py-3 text-left font-semibold">Time</th>
+                    ${days.map(d => `<th class=\"border border-gray-300 px-4 py-3 text-left font-semibold\">${capitalize(d)}</th>`).join('')}
+                    ${isAdmin ? '<th class="border border-gray-300 px-2 py-3 text-left font-semibold w-12">Actions</th>' : ''}
+                </tr>`;
+
+            // Render rows
+            body.innerHTML = currentTimetable.map((row, rowIndex) => {
+                const cells = days.map(day => {
+                    const val = row[day] ?? '-';
+                    if (isAdmin) {
+                        return `
+                            <td class="border border-gray-300 px-2 py-2 align-top">
+                                <textarea class="w-full p-2 text-sm border-0 resize-y bg-transparent focus:outline-none" rows="2"
+                                oninput="debouncedSaveCell(${rowIndex}, '${day}', this.value)">${escapeHtml(val)}</textarea>
+                            </td>`;
+                    }
+                    const html = (val || '-').replace(/\n/g, '<br><span class="text-sm text-gray-600">').concat(val ? '</span>' : '');
+                    return `<td class="border border-gray-300 px-4 py-3 align-top">${html}</td>`;
+                }).join('');
+                const actions = isAdmin ? `<td class="border border-gray-300 px-2 py-2 text-center">
+                    <button class="text-red-600 hover:text-red-800 p-2" title="Delete row" onclick="deleteRow(${rowIndex})"><i class="fas fa-trash"></i></button>
+                </td>` : '';
+                return `<tr><td class="border border-gray-300 px-4 py-3 font-medium bg-gray-50">${row.time || ''}</td>${cells}${actions}</tr>`;
+            }).join('');
+
+            // Admin toolbar visibility
+            const adminBar = document.getElementById('admin-timetable-controls');
+            if (isAdmin) adminBar.classList.remove('hidden'); else adminBar.classList.add('hidden');
+        }
+
+        function escapeHtml(str) { return (str ?? '').toString().replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+        function capitalize(s) { return s.charAt(0).toUpperCase() + s.slice(1); }
+
+        function debouncedSaveCell(rowIndex, day, value) {
+            document.getElementById('autosave-indicator').classList.remove('hidden');
+            // Ensure row exists
+            if (!currentTimetable[rowIndex]) currentTimetable[rowIndex] = { time: '' };
+            currentTimetable[rowIndex][day] = value;
+            clearTimeout(debounceTimer);
+            debounceTimer = setTimeout(async () => {
+                try {
+                    await FirebaseBackend.saveTimetable(currentTimetable);
+                    document.getElementById('autosave-indicator').classList.add('hidden');
+                } catch (e) {
+                    console.error('Save error', e); showNotification('Error saving timetable', 'error');
+                }
+            }, 500);
+        }
+
+        function addRow() {
+            currentTimetable.push({ time: prompt('Time (e.g., 12:00 - 1:00):', '') || '' });
+            renderTimetable();
+            FirebaseBackend.saveTimetable(currentTimetable).catch(() => showNotification('Error adding row', 'error'));
+        }
+        function addExamRow() {
+            const base = { time: 'Exam Timetable' };
+            ['monday','tuesday','wednesday','thursday','friday','saturday'].forEach(d => base[d] = '-');
+            currentTimetable.push(base);
+            renderTimetable();
+            FirebaseBackend.saveTimetable(currentTimetable).catch(() => showNotification('Error adding exam row', 'error'));
+        }
+        function deleteRow(index) {
+            if (!confirm('Delete this row?')) return;
+            currentTimetable.splice(index, 1);
+            renderTimetable();
+            FirebaseBackend.saveTimetable(currentTimetable).catch(() => showNotification('Error deleting row', 'error'));
+        }
+        async function resetToDefaults() {
+            if (!confirm('Reset timetable to default seed?')) return;
+            await window.firebaseServices.setDoc(
+                window.firebaseServices.doc(window.firebaseDb, 'settings', 'timetable'),
+                { schedule: [
+                    { time: '9:00 - 10:00', monday: 'Biochemistry Lecture\nRoom A101', tuesday: '-', wednesday: 'Organic Chemistry\nRoom B205', thursday: '-', friday: 'Lab Session\nLab 1' },
+                    { time: '10:00 - 11:00', monday: '-', tuesday: 'Molecular Biology\nRoom C301', wednesday: '-', thursday: 'Biochemistry Lecture\nRoom A101', friday: '-' },
+                    { time: '11:00 - 12:00', monday: 'Tutorial\nRoom D102', tuesday: '-', wednesday: 'Lab Session\nLab 2', thursday: '-', friday: 'Seminar\nRoom E201' },
+                    { time: 'Exam Timetable', monday: 'Aug 9 — GST 103/112\nDLI', tuesday: 'Aug 18 — MTH 102\nDLI', wednesday: 'Aug 20 — CHM 102\nDLI', thursday: 'Aug 21 — BIO 102\nDLI', friday: 'Aug 27 — PHY 102\nDLI', saturday: 'Aug 28 — COS 102\nFaculty of Science' }
+                ]}
+            );
+            await refreshTimetable();
+            showNotification('Timetable reset to defaults', 'success');
+        }
+
+        // Modals & Notifications
+        function closeModal(id) { const el = document.getElementById(id); el.classList.add('hidden'); const form = el.querySelector('form'); if (form) form.reset(); }
+        function showNotification(message, type = 'info') {
+            const colors = { success: 'bg-green-500', error: 'bg-red-500', info: 'bg-blue-500' };
+            const n = document.createElement('div');
+            n.className = `fixed top-4 right-4 ${colors[type]} text-white px-6 py-3 rounded-lg shadow-lg z-50 transition-all duration-300`;
+            n.textContent = message; document.body.appendChild(n);
+            setTimeout(() => { n.style.opacity = '0'; setTimeout(() => n.remove(), 300); }, 2500);
+        }
+        document.addEventListener('click', (e) => { document.querySelectorAll('[id$="-modal"]').forEach(m => { if (e.target === m) m.classList.add('hidden'); }); });
+    </script>
+</body>
+</html>
+
