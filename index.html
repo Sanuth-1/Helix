@@ -9,49 +9,78 @@
 
     <!-- Firebase SDK -->
     <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
-        import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged, sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-auth.js";
-        import { getFirestore, doc, setDoc, getDoc, collection, addDoc, getDocs, updateDoc, deleteDoc, query, orderBy } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-firestore.js";
-        import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-analytics.js";
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
+  import { 
+      getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, 
+      onAuthStateChanged, sendPasswordResetEmail 
+  } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-auth.js";
+  import { 
+      getFirestore, doc, setDoc, getDoc, collection, addDoc, getDocs, updateDoc, deleteDoc, query, orderBy 
+  } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-firestore.js";
+  import { 
+      getStorage, ref, uploadBytes, getDownloadURL, deleteObject 
+  } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-storage.js";
+  import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-analytics.js";
 
-        // Firebase configuration
-        const firebaseConfig = {
-            apiKey: "AIzaSyB0--bDqGPckl7pENJLMN_95fDNAaXR4zs",
-            authDomain: "helixfinale.firebaseapp.com",
-            projectId: "helixfinale",
-            storageBucket: "helixfinale.firebasestorage.app",
-            messagingSenderId: "556896526389",
-            appId: "1:556896526389:web:0579fb75c4953f716cd17c",
-            measurementId: "G-HB0DND8V2J"
-        };
+  // --- Firebase configuration ---
+  const firebaseConfig = {
+      apiKey: "AIzaSyB0--bDqGPckl7pENJLMN_95fDNAaXR4zs",
+      authDomain: "helixfinale.firebaseapp.com",
+      projectId: "helixfinale",
+      storageBucket: "helixfinale.appspot.com",
+      messagingSenderId: "556896526389",
+      appId: "1:556896526389:web:0579fb75c4953f716cd17c",
+      measurementId: "G-HB0DND8V2J"
+  };
 
-        // Initialize Firebase
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-        const db = getFirestore(app);
-        const analytics = getAnalytics(app);
+  // --- Initialize Firebase ---
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db = getFirestore(app);
+  const storage = getStorage(app);
+  const analytics = getAnalytics(app);
 
-        // Make Firebase services globally available
-        window.firebaseAuth = auth;
-        window.firebaseDb = db;
-        window.firebaseServices = {
-            createUserWithEmailAndPassword,
-            signInWithEmailAndPassword,
-            signOut,
-            onAuthStateChanged,
-            sendPasswordResetEmail,
-            doc,
-            setDoc,
-            getDoc,
-            collection,
-            addDoc,
-            getDocs,
-            updateDoc,
-            deleteDoc,
-            query,
-            orderBy
-        };
-    </script>
+  window.firebaseAuth = auth;
+  window.firebaseDb = db;
+  window.firebaseStorage = storage;
+  window.firebaseServices = {
+      createUserWithEmailAndPassword,
+      signInWithEmailAndPassword,
+      signOut,
+      onAuthStateChanged,
+      sendPasswordResetEmail,
+      doc,
+      setDoc,
+      getDoc,
+      collection,
+      addDoc,
+      getDocs,
+      updateDoc,
+      deleteDoc,
+      query,
+      orderBy,
+      ref,
+      uploadBytes,
+      getDownloadURL,
+      deleteObject
+  };
+</script>
+
+<!-- ✅ Supabase Integration (Free replacement for Firebase Storage) -->
+<script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+<script>
+  // --- Supabase Setup ---
+  const SUPABASE_URL = "https://pxnamwqazasxmrhiwiou.supabase.co";
+  const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InB4bmFtd3FhemFzeG1yaGl3aW91Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTk1MDMxNDQsImV4cCI6MjA3NTA3OTE0NH0.ne-TXJk7i86k34qATD2lpA2IxdQ4hVWonuY7FMfxMIU";
+  const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+  // --- Test Supabase Connection ---
+  supabaseClient.from('test').select('*').then(() => {
+    console.log('✅ Supabase connected successfully!');
+  }).catch((err) => {
+    console.error('❌ Supabase connection failed:', err);
+  });
+</script>
 
     <style>
         .gradient-bg { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
@@ -611,27 +640,99 @@
         async function handleForgotPassword(e) { e.preventDefault(); const email = document.getElementById('forgot-email').value; try { await window.firebaseServices.sendPasswordResetEmail(window.firebaseAuth, email); showNotification(`Password reset email sent to ${email}!`, 'success'); document.getElementById('forgot-email').value = ''; setTimeout(() => showLogin(), 1500); } catch (err) { showNotification('Error sending reset email: ' + err.message, 'error'); } }
 
         // Materials
-        function downloadFile(filename) {
-            const link = document.createElement('a'); link.href = `/downloads/${filename}`; link.download = filename; document.body.appendChild(link); link.click(); document.body.removeChild(link); showNotification(`${filename} is downloading...`, 'success');
-        }
+       function downloadFile(url, filename) {
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = filename;
+  link.target = '_blank';
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  showNotification(`${filename} is downloading...`, 'success');
+}
+
+
         document.addEventListener('DOMContentLoaded', () => { const inp = document.getElementById('file-input'); if (inp) inp.setAttribute('accept', '*'); });
         function uploadMaterial() { document.getElementById('upload-modal').classList.remove('hidden'); }
-        async function handleFileUpload(e) {
-            e.preventDefault();
-            const title = document.getElementById('file-title').value;
-            const fileInput = document.getElementById('file-input');
-            const file = fileInput.files[0];
-            if (file) {
-                try {
-                    const newMaterial = { title, filename: file.name, size: `${(file.size/1024/1024).toFixed(1)} MB`, uploadedByName: currentUser.name };
-                    await FirebaseBackend.addMaterial(newMaterial);
-                    await refreshMaterialsList();
-                    closeModal('upload-modal');
-                    showNotification('Material uploaded successfully!', 'success');
-                } catch (err) { console.error('Upload error:', err); showNotification('Error uploading material', 'error'); }
+      // Upload file to Supabase instead of Firebase Storage
+async function handleFileUpload(e) {
+  e.preventDefault();
+  const title = document.getElementById('file-title').value;
+  const fileInput = document.getElementById('file-input');
+  const file = fileInput.files[0];
+  if (!file) return showNotification('Please select a file', 'error');
+
+  try {
+    // Upload to Supabase bucket "materials"
+    const { data, error } = await supabaseClient.storage
+      .from('materials')
+      .upload(`uploads/${file.name}`, file, { upsert: true });
+
+    if (error) throw error;
+
+    // Get the public URL
+    const { data: publicData } = supabaseClient.storage
+      .from('materials')
+      .getPublicUrl(`uploads/${file.name}`);
+
+    const downloadURL = publicData.publicUrl;
+
+    // Save file info to Firestore (still using Firebase)
+    const newMaterial = { 
+      title,
+      filename: file.name,
+      url: downloadURL,
+      size: `${(file.size / 1024 / 1024).toFixed(1)} MB`,
+      uploadedByName: currentUser?.name || "Anonymous"
+    };
+
+    await FirebaseBackend.addMaterial(newMaterial);
+    await refreshMaterialsList();
+    closeModal('upload-modal');
+    showNotification('Material uploaded successfully!', 'success');
+  } catch (err) {
+    console.error('Upload error:', err);
+    showNotification('Error uploading material: ' + err.message, 'error');
+  }
+}
+
+
+        async function deleteMaterial(materialId) {
+    if (!confirm('Delete this material?')) return;
+
+    try {
+        // 1. Get material data from Firestore (or Supabase DB)
+        const matSnap = await window.firebaseServices.getDoc(
+            window.firebaseServices.doc(window.firebaseDb, 'materials', materialId)
+        );
+        const mat = matSnap.exists() ? matSnap.data() : null;
+
+        // 2. Delete file from Supabase Storage
+        if (mat && mat.filename) {
+            const { error } = await window.supabase.storage
+                .from('materials') // your Supabase bucket name
+                .remove([mat.filename]);
+
+            if (error) {
+                console.error('Supabase delete error:', error);
+                showNotification('Error deleting file from storage', 'error');
+                return;
             }
         }
-        async function deleteMaterial(materialId) { if (confirm('Delete this material?')) { try { await FirebaseBackend.deleteMaterial(materialId); await refreshMaterialsList(); showNotification('Material deleted', 'success'); } catch { showNotification('Error deleting material', 'error'); } } }
+
+        // 3. Delete record from Firestore (or Supabase DB)
+        await FirebaseBackend.deleteMaterial(materialId);
+
+        // 4. Refresh list
+        await refreshMaterialsList();
+
+        showNotification('Material deleted successfully', 'success');
+    } catch (err) {
+        console.error('Delete error:', err);
+        showNotification('Error deleting material', 'error');
+    }
+}
+
         async function refreshMaterialsList() {
             const materials = await FirebaseBackend.getMaterials();
             const list = document.getElementById('materials-list');
@@ -647,7 +748,7 @@
                             </div>
                         </div>
                         <div class="flex space-x-2">
-                            <button onclick="downloadFile('${m.filename}')" class="text-blue-600 hover:text-blue-800 p-2 rounded hover:bg-blue-50" title="Download"><i class="fas fa-download"></i></button>
+                            <button onclick="downloadFile('${m.url}', '${m.filename}')" class="text-blue-600 hover:text-blue-800 p-2 rounded hover:bg-blue-50" title="Download"><i class="fas fa-download"></i></button>
                             <button class="${currentUser?.role !== 'admin' ? 'hidden' : ''} text-red-600 hover:text-red-800 p-2 rounded hover:bg-red-50" onclick="deleteMaterial('${m.id}')" title="Delete"><i class="fas fa-trash"></i></button>
                         </div>
                     </div>
