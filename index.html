@@ -698,39 +698,38 @@ async function handleFileUpload(e) {
 
 
         async function deleteMaterial(materialId) {
-    if (!confirm('Delete this material?')) return;
+  if (!confirm('Delete this material?')) return;
 
-    try {
-        // 1. Get material data from Firestore (or Supabase DB)
-        const matSnap = await window.firebaseServices.getDoc(
-            window.firebaseServices.doc(window.firebaseDb, 'materials', materialId)
-        );
-        const mat = matSnap.exists() ? matSnap.data() : null;
+  try {
+    // Get the Firestore record
+    const matSnap = await window.firebaseServices.getDoc(
+      window.firebaseServices.doc(window.firebaseDb, 'materials', materialId)
+    );
+    const mat = matSnap.exists() ? matSnap.data() : null;
 
-        // 2. Delete file from Supabase Storage
-        if (mat && mat.filename) {
-            const { error } = await window.supabase.storage
-                .from('materials') // your Supabase bucket name
-                .remove([mat.filename]);
+    // Delete file from Supabase Storage (use correct path!)
+    if (mat && mat.filename) {
+      const filePath = `uploads/${mat.filename}`; // 👈 fixed path
+      const { error } = await supabaseClient.storage
+        .from('materials')
+        .remove([filePath]);
 
-            if (error) {
-                console.error('Supabase delete error:', error);
-                showNotification('Error deleting file from storage', 'error');
-                return;
-            }
-        }
-
-        // 3. Delete record from Firestore (or Supabase DB)
-        await FirebaseBackend.deleteMaterial(materialId);
-
-        // 4. Refresh list
-        await refreshMaterialsList();
-
-        showNotification('Material deleted successfully', 'success');
-    } catch (err) {
-        console.error('Delete error:', err);
-        showNotification('Error deleting material', 'error');
+      if (error) {
+        console.error('Supabase delete error:', error);
+        showNotification('Error deleting file from storage', 'error');
+        return;
+      }
     }
+
+    // Delete Firestore record
+    await FirebaseBackend.deleteMaterial(materialId);
+    await refreshMaterialsList();
+
+    showNotification('Material deleted successfully', 'success');
+  } catch (err) {
+    console.error('Delete error:', err);
+    showNotification('Error deleting material', 'error');
+  }
 }
 
         async function refreshMaterialsList() {
