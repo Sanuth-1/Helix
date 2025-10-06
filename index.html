@@ -1264,7 +1264,6 @@ chatForm.addEventListener('submit', async (e) => {
   body.scrollTop = body.scrollHeight;
 
   try {
-    // 🔥 Send to your serverless Gemini API route (Vercel)
     const res = await fetch("/api/ask", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -1274,11 +1273,9 @@ chatForm.addEventListener('submit', async (e) => {
     const data = await res.json();
     document.getElementById("typing").remove();
 
-    if (data.error) {
-      body.innerHTML += `<div class="mb-2 text-red-600"><b>AI:</b> ${data.error}</div>`;
-    } else {
-      body.innerHTML += `<div class="mb-2 text-gray-700"><b>AI:</b> ${data.reply}</div>`;
-    }
+    const responseText = data.reply || data.error || "No response from Gemini.";
+
+    body.innerHTML += `<div class="mb-2 text-gray-700"><b>AI:</b> ${responseText}</div>`;
   } catch (err) {
     document.getElementById("typing").remove();
     body.innerHTML += `<div class="mb-2 text-red-600"><b>AI:</b> Connection failed: ${err.message}</div>`;
@@ -1288,6 +1285,7 @@ chatForm.addEventListener('submit', async (e) => {
   body.scrollTop = body.scrollHeight;
 });
 </script>
+
 
 
 
