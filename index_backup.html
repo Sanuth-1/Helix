@@ -87,11 +87,6 @@
         .card-hover { transition: all 0.3s ease; }
         .card-hover:hover { transform: translateY(-2px); box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
         .fade-in { animation: fadeIn 0.5s ease-in; }
-        /* Hides login form while Firebase checks auth */
-body.loading #auth-section {
-  display: none !important;
-}
-
         @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
 
         /* Dark theme styles */
@@ -108,59 +103,29 @@ body.loading #auth-section {
         .dark input, .dark textarea { background-color: #3a3a3a !important; color: #e5e5e5 !important; border-color: #4a4a4a !important; }
         .dark input:focus, .dark textarea:focus { border-color: #60a5fa !important; box-shadow: 0 0 0 2px rgba(96, 165, 250, 0.2) !important; }
     </style>
-<!-- App Header -->
-<header class="gradient-bg text-white shadow-lg p-4 flex items-center justify-between relative mb-6">
-  <!-- Logo -->
-  <div class="flex items-center space-x-3">
-    <i class="fas fa-dna text-2xl"></i>
-    <h1 class="text-xl font-bold">Helix</h1>
-  </div>
-
-  <!-- Center Nav (visible on md and up) -->
-  <nav id="nav-menu" class="hidden md:flex items-center space-x-6">
-    <button onclick="showSection('dashboard')" class="hover:text-purple-200 transition">🏠 Dashboard</button>
-    <button onclick="showSection('materials')" class="hover:text-purple-200 transition">📚 Materials</button>
-    <button onclick="showSection('timetable')" class="hover:text-purple-200 transition">🕒 Timetable</button>
-    <button onclick="showSection('announcements')" class="hover:text-purple-200 transition">📢 Announcements</button>
-  </nav>
-
-  <!-- Right Side -->
-  <div class="flex items-center space-x-3 relative">
-    <!-- Hamburger (mobile only) -->
-    <div class="relative md:hidden">
-      <button id="hamburger" class="flex flex-col space-y-1 focus:outline-none">
-        <span class="block w-6 h-0.5 bg-white"></span>
-        <span class="block w-6 h-0.5 bg-white"></span>
-        <span class="block w-6 h-0.5 bg-white"></span>
-      </button>
-
-      <!-- Dropdown for mobile -->
-      <div id="hamburger-menu" class="absolute right-0 mt-3 hidden bg-white text-gray-800 rounded-lg shadow-lg w-48 py-2 z-50">
-        <button onclick="showSection('dashboard')" class="block w-full text-left px-4 py-2 hover:bg-purple-100">🏠 Dashboard</button>
-        <button onclick="showSection('materials')" class="block w-full text-left px-4 py-2 hover:bg-purple-100">📚 Materials</button>
-        <button onclick="showSection('timetable')" class="block w-full text-left px-4 py-2 hover:bg-purple-100">🕒 Timetable</button>
-        <button onclick="showSection('announcements')" class="block w-full text-left px-4 py-2 hover:bg-purple-100">📢 Announcements</button>
-        <hr class="my-1 border-gray-200" />
-        <button onclick="logout()" class="block w-full text-left px-4 py-2 text-red-600 hover:bg-red-100">🚪 Logout</button>
-      </div>
-    </div>
-
-    <!-- Theme toggle -->
-    <button id="theme-toggle" onclick="toggleTheme()" class="p-2 rounded-lg hover:bg-white hover:bg-opacity-20 transition duration-300" title="Toggle Theme">
-      <i id="theme-icon" class="fas fa-moon text-lg"></i>
-    </button>
-<button id="home-button" onclick="goHome()" class="hidden p-2 rounded-lg hover:bg-white hover:bg-opacity-20 transition" title="Go to Homepage">
-  <i class="fas fa-home text-lg"></i>
-</button>
-
-    <!-- Auth/User Info (visible on desktop) -->
-    <div id="auth-buttons" class="hidden md:flex items-center space-x-2">
-      <!-- Populated by JS: username + logout -->
-       
-    </div>
-  </div>
-</header>
-
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <!-- Navigation -->
+    <nav class="gradient-bg text-white shadow-lg">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center space-x-3">
+                    <i class="fas fa-dna text-2xl"></i>
+                    <h1 class="text-xl font-bold">Helix</h1>
+                </div>
+                <div id="nav-menu" class="hidden md:flex space-x-6"></div>
+                <div class="flex items-center space-x-3">
+                    <button id="theme-toggle" onclick="toggleTheme()" class="p-2 rounded-lg hover:bg-white hover:bg-opacity-20 transition duration-300" title="Toggle Theme">
+                        <i id="theme-icon" class="fas fa-moon text-lg"></i>
+                    </button>
+                    <button id="home-button" onclick="goHome()" class="hidden p-2 rounded-lg hover:bg-white hover:bg-opacity-20 transition duration-300" title="Go to Homepage">
+                        <i class="fas fa-home text-lg"></i>
+                    </button>
+                    <div id="auth-buttons" class="flex space-x-3"></div>
+                </div>
+            </div>
+        </div>
+    </nav>
 
     <!-- Main Content -->
     <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -174,7 +139,7 @@ body.loading #auth-section {
                     <div class="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
                         <div class="flex items-center justify-center space-x-2 text-blue-700">
                             <i class="fas fa-cloud text-sm"></i>
-                            <span class="text-sm font-medium">Sanuth inc.</span>
+                            <span class="text-sm font-medium">Firebase Backend Active</span>
                         </div>
                         <p class="text-xs text-blue-600 mt-1">Real-time cloud database with authentication</p>
                     </div>
@@ -220,31 +185,10 @@ body.loading #auth-section {
                 <div id="signup-form" class="hidden">
                     <h3 class="text-xl font-semibold mb-4 text-center">Sign Up</h3>
                     <form onsubmit="handleSignup(event)">
-    <div class="mb-4">
-        <label class="block text-gray-700 text-sm font-bold mb-2">Full Name</label>
-        <input type="text" id="signup-name" required 
-               class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" />
-    </div>
-
-    <div class="mb-4">
-        <label class="block text-gray-700 text-sm font-bold mb-2">Department</label>
-        <input type="text" id="signup-department" required 
-               placeholder="e.g. Biochemistry"
-               class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" />
-    </div>
-
-    <div class="mb-4">
-        <label class="block text-gray-700 text-sm font-bold mb-2">Email</label>
-        <input type="email" id="signup-email" required 
-               class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" />
-    </div>
-
-    <div class="mb-4">
-        <label class="block text-gray-700 text-sm font-bold mb-2">Password</label>
-        <input type="password" id="signup-password" required 
-               class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" />
-    </div>
-
+                        <div class="mb-4">
+                            <label class="block text-gray-700 text-sm font-bold mb-2">Full Name</label>
+                            <input type="text" id="signup-name" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                        </div>
                         <div class="mb-4">
                             <label class="block text-gray-700 text-sm font-bold mb-2">Email</label>
                             <input type="email" id="signup-email" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" />
@@ -269,88 +213,84 @@ body.loading #auth-section {
             </div>
         </div>
 
-       <!-- Dashboard Section -->
-<div id="dashboard-section" class="hidden fade-in">
+        <!-- Dashboard Section -->
+        <div id="dashboard-section" class="hidden fade-in">
+            <div class="mb-8">
+                <h2 class="text-3xl font-bold text-gray-800 mb-2">Welcome back, <span id="user-name"></span>!</h2>
+                <p class="text-gray-600">Access your course materials, timetable, and announcements</p>
+            </div>
+            <!-- Profile Card -->
+<div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 flex items-center gap-4 mb-6">
+  <img src="https://ui-avatars.com/api/?name=Helix+User&background=random" alt="Profile"
+       id="user-avatar"
+       class="w-16 h-16 rounded-full border-2 border-blue-500 object-cover" />
 
-  <!-- Welcome Heading -->
-  <div class="mb-8">
-    <h2 class="text-3xl font-bold text-gray-800 mb-2">
-      Welcome back, <span id="user-name"></span>!
-    </h2>
-    <p class="text-gray-600">Access your courses, announcements, and resources here.</p>
+  <div>
+    <h3 class="text-2xl font-semibold text-gray-800 dark:text-gray-100" id="profile-name">Student Name</h3>
+    <p class="text-sm text-gray-600 dark:text-gray-300" id="profile-department">Department of Biochemistry</p>
+    <span class="inline-block mt-2 text-xs bg-green-100 text-green-800 px-2 py-1 rounded-full">Active</span>
   </div>
-
-  <!-- Profile Card -->
-  <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 flex items-center gap-4 mb-6">
-    <img src="https://ui-avatars.com/api/?name=Helix+User&background=random" 
-         alt="Profile" id="user-avatar"
-         class="w-16 h-16 rounded-full border-2 border-purple-500 object-cover" />
-
-    <div>
-      <h3 id="profile-name" class="text-2xl font-semibold text-gray-800 dark:text-gray-100">
-        Student Name
-      </h3>
-      <p id="profile-department" class="text-sm text-gray-600 dark:text-gray-300">
-        Department of Biochemistry
-      </p>
-      <span class="inline-block mt-2 text-xs bg-green-100 text-green-800 px-2 py-1 rounded-full">
-        Active
-      </span>
-    </div>
-  </div>
-
-  <!-- Quick Access Cards -->
-  <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-    <div onclick="showSection('materials')" 
-         class="bg-white rounded-lg shadow-md p-6 card-hover cursor-pointer hover:bg-purple-50 transition">
-      <h3 class="text-lg font-semibold text-gray-800 mb-1">📚 Course Materials</h3>
-      <p class="text-gray-600 text-sm">Browse and download uploaded resources.</p>
-    </div>
-
-    <div onclick="showSection('timetable')" 
-         class="bg-white rounded-lg shadow-md p-6 card-hover cursor-pointer hover:bg-purple-50 transition">
-      <h3 class="text-lg font-semibold text-gray-800 mb-1">🕒 Timetable</h3>
-      <p class="text-gray-600 text-sm">View your weekly class schedule.</p>
-    </div>
-
-    <div onclick="showSection('announcements')" 
-         class="bg-white rounded-lg shadow-md p-6 card-hover cursor-pointer hover:bg-purple-50 transition">
-      <h3 class="text-lg font-semibold text-gray-800 mb-1">📢 Announcements</h3>
-      <p class="text-gray-600 text-sm">Stay up to date with departmental news.</p>
-    </div>
-  </div>
-
-  <!-- Recent Announcements -->
-  <div class="bg-white rounded-lg shadow-md p-6 mb-8">
-    <h3 class="text-xl font-semibold text-gray-800 mb-4">📢 Recent Announcements</h3>
-    <div id="dashboard-announcements" class="space-y-3">
-      <!-- Fetched dynamically -->
-    </div>
-  </div>
-
-  <!-- Upcoming Class (optional) -->
-  <div class="bg-white rounded-lg shadow-md p-6 mb-8">
-    <h3 class="text-xl font-semibold text-gray-800 mb-4">🗓️ Upcoming Class</h3>
-    <div id="next-class" class="text-gray-700 text-sm">Loading your next class...</div>
-  </div>
-
-  <!-- Quick Tips -->
-  <div class="bg-white rounded-lg shadow-md p-6 mb-8">
-    <h3 class="text-lg font-semibold text-gray-800 mb-3">💡 Quick Tips</h3>
-    <ul class="list-disc list-inside text-gray-600 text-sm space-y-1">
-      <li>Click <strong>Materials</strong> to view and download study files.</li>
-      <li>Check <strong>Announcements</strong> daily for updates.</li>
-      <li>Use the <strong>Theme Toggle</strong> 🌙 for dark or light mode.</li>
-    </ul>
-  </div>
-
-  <!-- Motivational Quote -->
-  <div class="bg-purple-600 text-white rounded-lg shadow-md p-6 mb-6 text-center">
-    <p class="italic text-lg">“Excellence is not an act, but a habit.”</p>
-    <p class="text-sm mt-2">– Aristotle</p>
-  </div>
-
 </div>
+
+            <!-- Dashboard quick stats & recent announcements -->
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+  <div class="bg-white rounded-lg shadow-md p-6 card-hover">
+    <h3 class="text-lg font-semibold text-gray-800 mb-2">📚 Materials</h3>
+    <p id="materials-count" class="text-3xl font-bold text-blue-600">0</p>
+    <p class="text-gray-500 text-sm">Total uploaded resources</p>
+  </div>
+
+  <div class="bg-white rounded-lg shadow-md p-6 card-hover">
+    <h3 class="text-lg font-semibold text-gray-800 mb-2">🕒 Upcoming Classes</h3>
+    <p id="timetable-count" class="text-3xl font-bold text-green-600">0</p>
+    <p class="text-gray-500 text-sm">This week</p>
+  </div>
+
+  <div class="bg-white rounded-lg shadow-md p-6 card-hover">
+    <h3 class="text-lg font-semibold text-gray-800 mb-2">📢 Announcements</h3>
+    <p id="announcements-count" class="text-3xl font-bold text-purple-600">0</p>
+    <p class="text-gray-500 text-sm">Active posts</p>
+  </div>
+</div>
+
+<!-- Recent Announcements Preview -->
+<div class="mt-4 bg-white rounded-lg shadow-md p-6">
+  <h3 class="text-xl font-bold mb-4">Recent Announcements</h3>
+  <div id="dashboard-announcements" class="space-y-4">
+    <!-- JS will fill this -->
+  </div>
+</div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                <div class="bg-white rounded-lg shadow-md p-6 card-hover cursor-pointer" onclick="showSection('timetable')">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <h3 class="text-lg font-semibold text-gray-800">Timetable</h3>
+                            <p class="text-gray-600 text-sm">View your schedule</p>
+                        </div>
+                        <i class="fas fa-calendar-alt text-3xl text-blue-600"></i>
+                    </div>
+                </div>
+                <div class="bg-white rounded-lg shadow-md p-6 card-hover cursor-pointer" onclick="showSection('materials')">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <h3 class="text-lg font-semibold text-gray-800">Course Materials</h3>
+                            <p class="text-gray-600 text-sm">Access resources</p>
+                        </div>
+                        <i class="fas fa-book text-3xl text-green-600"></i>
+                    </div>
+                </div>
+                <div class="bg-white rounded-lg shadow-md p-6 card-hover cursor-pointer" onclick="showSection('announcements')">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <h3 class="text-lg font-semibold text-gray-800">Announcements</h3>
+                            <p class="text-gray-600 text-sm">Latest updates</p>
+                        </div>
+                        <i class="fas fa-bullhorn text-3xl text-purple-600"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
 
         <!-- Timetable Section (Firestore-driven) -->
         <div id="timetable-section" class="hidden fade-in">
@@ -373,16 +313,6 @@ body.loading #auth-section {
                 </div>
             </div>
         </div>
-<!-- Search Bar -->
-<div class="mb-4 flex items-center">
-  <input
-    type="text"
-    id="material-search"
-    placeholder="Search materials..."
-    class="flex-1 border border-gray-300 rounded-lg p-2 focus:outline-none focus:ring focus:ring-blue-300"
-    oninput="filterMaterials()"
-  />
-</div>
 
         <!-- Materials Section -->
         <div id="materials-section" class="hidden fade-in">
@@ -409,8 +339,6 @@ body.loading #auth-section {
                 <div id="announcements-list" class="space-y-6"></div>
             </div>
         </div>
-        <!-- Comment Section (visible only under Announcements page) -->
-
     </main>
 
     <!-- Upload Modal -->
@@ -464,45 +392,26 @@ body.loading #auth-section {
 
         // Firebase Backend Functions
         class FirebaseBackend {
-           static async init() {
-  while (!window.firebaseAuth || !window.firebaseDb) {
-    await new Promise((resolve) => setTimeout(resolve, 100));
-  }
-
-  // Add a 'loading' flag to hide login temporarily
-  document.body.classList.add('loading');
-
-  await this.initializeDefaultData();
-
-  // Wait for Firebase to tell us who’s logged in
-  window.firebaseServices.onAuthStateChanged(window.firebaseAuth, async (user) => {
-    if (user) {
-      const userDoc = await window.firebaseServices.getDoc(
-        window.firebaseServices.doc(window.firebaseDb, 'users', user.uid)
-      );
-
-      if (userDoc.exists()) {
-        currentUser = { uid: user.uid, email: user.email, ...userDoc.data() };
-        updateUI();
-
-        // ✅ Restore the last visited page
-        const savedSection = localStorage.getItem('lastSection');
-        if (savedSection && document.getElementById(`${savedSection}-section`)) {
-          showSection(savedSection);
-        } else {
-          showSection('dashboard');
-        }
-      }
-    } else {
-      currentUser = null;
-      updateUI();
-    }
-
-    // Done checking — show UI now
-    document.body.classList.remove('loading');
-  });
-}
-
+            static async init() {
+                while (!window.firebaseAuth || !window.firebaseDb) {
+                    await new Promise((resolve) => setTimeout(resolve, 100));
+                }
+                await this.initializeDefaultData();
+                window.firebaseServices.onAuthStateChanged(window.firebaseAuth, async (user) => {
+                    if (user) {
+                        const userDoc = await window.firebaseServices.getDoc(
+                            window.firebaseServices.doc(window.firebaseDb, 'users', user.uid)
+                        );
+                        if (userDoc.exists()) {
+                            currentUser = { uid: user.uid, email: user.email, ...userDoc.data() };
+                            updateUI();
+                        }
+                    } else {
+                        currentUser = null;
+                        updateUI();
+                    }
+                });
+            }
 
             static async initializeDefaultData() {
                 try {
@@ -671,27 +580,7 @@ body.loading #auth-section {
         function goHome() { if (currentUser) { showSection('dashboard'); showNotification('Welcome back to the homepage!', 'success'); } }
 
         // App init
-       document.addEventListener('DOMContentLoaded', async function () {
-  // Load saved theme (you already have this)
-  loadTheme();
-
-  // Initialize Firebase & set up auth listener (we must wait for this)
-  await FirebaseBackend.init();
-
-  // Update the UI with the current user info (populates currentUser, etc.)
-  updateUI();
-
-  // --- Restore last visited section (Step #2) ---
-  const savedSection = localStorage.getItem('lastSection');
-  if (savedSection && document.getElementById(`${savedSection}-section`)) {
-    // If savedSection exists and the corresponding DOM section exists, show it
-    showSection(savedSection);
-  } else {
-    // Fallback: show dashboard
-    showSection('dashboard');
-  }
-});
-
+        document.addEventListener('DOMContentLoaded', async function () { loadTheme(); await FirebaseBackend.init(); updateUI(); });
 
         // Auth
         async function handleLogin(e) {
@@ -710,7 +599,6 @@ body.loading #auth-section {
         async function handleSignup(e) {
             e.preventDefault();
             const name = document.getElementById('signup-name').value;
-              const department = document.getElementById('signup-department').value;
             const email = document.getElementById('signup-email').value;
             const password = document.getElementById('signup-password').value;
             const isAdmin = document.getElementById('admin-signup').checked;
@@ -718,10 +606,9 @@ body.loading #auth-section {
             if (isAdmin && adminCode !== 'HELIX28') { showNotification('Invalid admin code', 'error'); return; }
             try {
                 const cred = await window.firebaseServices.createUserWithEmailAndPassword(window.firebaseAuth, email, password);
-                await window.firebaseServices.setDoc(window.firebaseServices.doc(window.firebaseDb, 'users', cred.user.uid), { name, email,department, role: isAdmin ? 'admin' : 'student', createdAt: new Date() });
+                await window.firebaseServices.setDoc(window.firebaseServices.doc(window.firebaseDb, 'users', cred.user.uid), { name, email, role: isAdmin ? 'admin' : 'student', createdAt: new Date() });
                 showNotification('Account created successfully!', 'success');
                 document.getElementById('signup-name').value = '';
-                document.getElementById('signup-department').value = '';
                 document.getElementById('signup-email').value = '';
                 document.getElementById('signup-password').value = '';
                 document.getElementById('admin-signup').checked = false;
@@ -736,33 +623,6 @@ body.loading #auth-section {
         }
         async function logout() { try { await window.firebaseServices.signOut(window.firebaseAuth); showNotification('Logged out successfully', 'success'); } catch { showNotification('Error logging out', 'error'); } }
 
-        async function loadNextClass() {
-  try {
-    const timetable = await FirebaseBackend.getTimetable();
-    const next = timetable[0];
-    if (next) {
-      document.getElementById('next-class').innerHTML = `
-        <strong>${next.course}</strong> <br>
-        ${next.day}, ${next.time} <br>
-        Room: ${next.location || 'N/A'}
-      `;
-    } else {
-      document.getElementById('next-class').textContent = 'No upcoming classes found.';
-    }
-  } catch (err) {
-    document.getElementById('next-class').textContent = 'Error loading timetable.';
-    console.error('loadNextClass error:', err);
-  }
-}
-
-  const list = document.getElementById('announcement-comment-list');
-  list.innerHTML = '';
-
-  
-// Add new comment
-
-
-
         // UI updates
         function updateUI() {
             const authSection = document.getElementById('auth-section');
@@ -770,45 +630,26 @@ body.loading #auth-section {
             const navMenu = document.getElementById('nav-menu');
             const authButtons = document.getElementById('auth-buttons');
 
-           if (currentUser) {
-    authSection.classList.add('hidden');
-    dashboardSection.classList.remove('hidden');
+            if (currentUser) {
+                authSection.classList.add('hidden');
+                dashboardSection.classList.remove('hidden');
+                document.getElementById('user-name').textContent = currentUser.name;
+                navMenu.innerHTML = `
+                    <button onclick="showSection('dashboard')" class="hover:text-blue-200 transition">Dashboard</button>
+                    <button onclick="showSection('timetable')" class="hover:text-blue-200 transition">Timetable</button>
+                    <button onclick="showSection('materials')" class="hover:text-blue-200 transition">Materials</button>
+                    <button onclick="showSection('announcements')" class="hover:text-blue-200 transition">Announcements</button>`;
+                authButtons.innerHTML = `
+                    <span class="text-sm">${currentUser.name} (${currentUser.role})</span>
+                    <button onclick="logout()" class="bg-red-500 hover:bg-red-600 px-3 py-1 rounded text-sm transition"><i class="fas fa-sign-out-alt mr-1"></i>Logout</button>`;
+                document.getElementById('home-button').classList.remove('hidden');
 
-    // ✅ Update all name displays
-    document.getElementById('user-name').textContent = currentUser.name || 'Student';
-    document.getElementById('profile-name').textContent = currentUser.name || 'Student';
-    document.getElementById('user-avatar').src = `https://ui-avatars.com/api/?name=${encodeURIComponent(currentUser.name || 'Student')}&background=random`;
-    document.getElementById('profile-department').textContent = currentUser.department || 'Department not set';
+                // Toggle admin controls
+                const adminControls = document.querySelectorAll('[id*="admin-"][id*="-controls"]');
+                adminControls.forEach(el => currentUser.role === 'admin' ? el.classList.remove('hidden') : el.classList.add('hidden'));
 
-    // ✅ Navigation
-    navMenu.innerHTML = `
-        <button onclick="showSection('dashboard')" class="hover:text-blue-200 transition">Dashboard</button>
-        <button onclick="showSection('timetable')" class="hover:text-blue-200 transition">Timetable</button>
-        <button onclick="showSection('materials')" class="hover:text-blue-200 transition">Materials</button>
-        <button onclick="showSection('announcements')" class="hover:text-blue-200 transition">Announcements</button>`;
-
-    // ✅ Auth buttons
-    authButtons.innerHTML = `
-        <span class="text-sm">${currentUser.name} (${currentUser.role})</span>
-        <button onclick="logout()" class="bg-red-500 hover:bg-red-600 px-3 py-1 rounded text-sm transition">
-            <i class="fas fa-sign-out-alt mr-1"></i>Logout
-        </button>`;
-
-    document.getElementById('home-button').classList.remove('hidden');
-
-    // ✅ Toggle admin controls
-    const adminControls = document.querySelectorAll('[id*="admin-"][id*="-controls"]');
-    adminControls.forEach(el =>
-        currentUser.role === 'admin'
-            ? el.classList.remove('hidden')
-            : el.classList.add('hidden')
-    );
-
-    // ✅ Show dashboard and update stats
-    showSection('dashboard');
-    updateDashboardStats();
-}
- else {
+                showSection('dashboard');
+            } else {
                 authSection.classList.remove('hidden');
                 dashboardSection.classList.add('hidden');
                 navMenu.innerHTML = '';
@@ -817,55 +658,20 @@ body.loading #auth-section {
                 hideAllSections();
             }
         }
-// 👇 Paste this directly below
-async function updateDashboardStats() {
-  try {
-    const materials = await FirebaseBackend.getMaterials();
-    const anns = await FirebaseBackend.getAnnouncements();
-    const timetable = await FirebaseBackend.getTimetable();
-
-    // ✅ Safely update counts
-    const matCount = document.getElementById('materials-count');
-    const annCount = document.getElementById('announcements-count');
-    const timeCount = document.getElementById('timetable-count');
-    const dashContainer = document.getElementById('dashboard-announcements');
-
-    if (matCount) matCount.textContent = materials?.length || 0;
-    if (annCount) annCount.textContent = anns?.length || 0;
-    if (timeCount) timeCount.textContent = timetable?.length || 0;
-
-    if (dashContainer && anns?.length) {
-      dashContainer.innerHTML = anns.slice(0, 3).map(a => `
-        <div class="border-l-4 border-blue-500 pl-3">
-          <h4 class="font-semibold text-gray-800">${a.title}</h4>
-          <p class="text-sm text-gray-600">${a.message.slice(0, 80)}...</p>
-        </div>
-      `).join('');
-    }
-  } catch (err) {
-    console.error('Dashboard stats error:', err);
-  }
-}
 
         function showSection(section) {
-  hideAllSections();
-  currentSection = section;
-
-  // ✅ Save last visited section in browser
-  localStorage.setItem('lastSection', section);
-
-  if (section === 'dashboard') {
-    document.getElementById('dashboard-section').classList.remove('hidden');
-  } else {
-    document.getElementById('dashboard-section').classList.add('hidden');
-    document.getElementById(`${section}-section`).classList.remove('hidden');
-    if (section === 'materials') refreshMaterialsList();
-    if (section === 'announcements') refreshAnnouncementsList();
-    if (section === 'timetable') refreshTimetable();
-  }
-}
-
-
+            hideAllSections();
+            currentSection = section;
+            if (section === 'dashboard') {
+                document.getElementById('dashboard-section').classList.remove('hidden');
+            } else {
+                document.getElementById('dashboard-section').classList.add('hidden');
+                document.getElementById(`${section}-section`).classList.remove('hidden');
+                if (section === 'materials') refreshMaterialsList();
+                if (section === 'announcements') refreshAnnouncementsList();
+                if (section === 'timetable') refreshTimetable();
+            }
+        }
         function hideAllSections() { ['dashboard','timetable','materials','announcements'].forEach(s => document.getElementById(`${s}-section`).classList.add('hidden')); }
 
         function showSignup() { hideAllAuthForms(); document.getElementById('signup-form').classList.remove('hidden'); }
@@ -972,14 +778,13 @@ async function handleFileUpload(e) {
             const materials = await FirebaseBackend.getMaterials();
             const list = document.getElementById('materials-list');
             if (materials.length === 0) { list.innerHTML = `<div class="text-center py-8 text-gray-500"><i class=\"fas fa-folder-open text-4xl mb-4\"></i><p>No materials uploaded yet.</p></div>`; return; }
-           list.innerHTML = materials.map((m) => `
-    <div class="material-item border border-gray-200 rounded-lg p-4 hover:bg-gray-50 transition">
-        <div class="flex items-center justify-between">
-            <div class="flex items-center space-x-3">
-                <i class="fas fa-file-${getFileIcon(m.filename)} text-xl"></i>
-                <div>
-                    <h3 class="material-title font-semibold text-gray-800">${m.title}</h3>
-
+            list.innerHTML = materials.map((m) => `
+                <div class="border border-gray-200 rounded-lg p-4 hover:bg-gray-50 transition">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center space-x-3">
+                            <i class="fas fa-file-${getFileIcon(m.filename)} text-xl"></i>
+                            <div>
+                                <h3 class="font-semibold text-gray-800">${m.title}</h3>
                                 <p class="text-sm text-gray-600">Uploaded ${FirebaseBackend.formatDate(m.uploadDate)} • ${m.size}${m.uploadedByName ? ` • by ${m.uploadedByName}` : ''}</p>
                             </div>
                         </div>
@@ -991,19 +796,6 @@ async function handleFileUpload(e) {
                 </div>`).join('');
         }
         function getFileIcon(filename) { const ext = filename.split('.').pop().toLowerCase(); if (ext==='pdf') return 'pdf text-red-500'; if (ext==='ppt'||ext==='pptx') return 'powerpoint text-orange-500'; if (ext==='doc'||ext==='docx') return 'word text-blue-500'; return 'alt text-gray-500'; }
-function filterMaterials() {
-  const searchInput = document.getElementById('material-search').value.toLowerCase();
-  const materialItems = document.querySelectorAll('#materials-list .material-item');
-
-  materialItems.forEach(item => {
-    const title = item.querySelector('.material-title').textContent.toLowerCase();
-    if (title.includes(searchInput)) {
-      item.classList.remove('hidden');
-    } else {
-      item.classList.add('hidden');
-    }
-  });
-}
 
         // Announcements
         function createAnnouncement() { document.getElementById('announcement-modal').classList.remove('hidden'); }
@@ -1167,140 +959,15 @@ function filterMaterials() {
 
         // Modals & Notifications
         function closeModal(id) { const el = document.getElementById(id); el.classList.add('hidden'); const form = el.querySelector('form'); if (form) form.reset(); }
-       function showNotification(message, type = 'info') {
-  const n = document.getElementById('notification');
-  if (!n) return;
-
-  // pick a color based on type
-  const colors = {
-    info: 'bg-blue-600',
-    success: 'bg-green-600',
-    error: 'bg-red-600'
-  };
-
-  n.className = `fixed top-20 left-6 z-20 text-white px-3 py-2 rounded-md shadow-md text-sm max-w-[75vw] ${colors[type] || colors.info}`;
-  n.textContent = message;
-  n.classList.remove('hidden');
-
-  setTimeout(() => n.classList.add('hidden'), 3000);
-}
-
+        function showNotification(message, type = 'info') {
+            const colors = { success: 'bg-green-500', error: 'bg-red-500', info: 'bg-blue-500' };
+            const n = document.createElement('div');
+            n.className = `fixed top-4 right-4 ${colors[type]} text-white px-6 py-3 rounded-lg shadow-lg z-50 transition-all duration-300`;
+            n.textContent = message; document.body.appendChild(n);
+            setTimeout(() => { n.style.opacity = '0'; setTimeout(() => n.remove(), 300); }, 2500);
+        }
         document.addEventListener('click', (e) => { document.querySelectorAll('[id$="-modal"]').forEach(m => { if (e.target === m) m.classList.add('hidden'); }); });
     </script>
-  <script>
-  const hamburger = document.getElementById('hamburger');
-  const menu = document.getElementById('hamburger-menu');
-
-  // Toggle dropdown
-  hamburger.addEventListener('click', (e) => {
-    e.stopPropagation();
-    menu.classList.toggle('hidden');
-  });
-
-  // Close dropdown on click outside
-  document.addEventListener('click', (e) => {
-    if (!hamburger.contains(e.target) && !menu.contains(e.target)) {
-      menu.classList.add('hidden');
-    }
-  });
-
-  
-</script>
-<!-- ... your other HTML sections (dashboard, materials, etc.) ... -->
-
-<!-- 🔥 Place this near the very bottom -->
-<!-- Notification Bar -->
-<!-- Notification Bar (Left Side) -->
-<div id="notification"
-     class="hidden fixed top-20 left-6 z-20 bg-blue-600 text-white px-3 py-2 rounded-md shadow-md text-sm max-w-[75vw]">
-</div>
-<!-- AI Assistant -->
-<button id="ai-toggle"
-        class="fixed bottom-6 right-6 bg-blue-600 text-white p-3 rounded-full shadow-lg hover:bg-blue-700 z-50">
-  <i class="fas fa-robot"></i>
-</button>
-
-<div id="ai-chat"
-     class="hidden fixed bottom-20 right-6 w-80 bg-white border border-gray-300 rounded-lg shadow-lg flex flex-col z-40">
-  <div class="p-3 border-b font-semibold bg-blue-600 text-white rounded-t-lg">AI Course Assistant</div>
-  <div id="chat-body" class="p-3 h-64 overflow-y-auto text-sm flex-1 bg-gray-50"></div>
-  <form id="chat-form" class="flex border-t">
-    <input id="chat-input" class="flex-1 p-2 outline-none text-sm" placeholder="Ask about your course..." />
-    <button type="submit" class="p-2 bg-blue-600 text-white hover:bg-blue-700">
-      <i class="fas fa-paper-plane"></i>
-    </button>
-  </form>
-</div>
-<!-- AI Assistant (dummy version) -->
-<button id="ai-toggle"
-        class="fixed bottom-6 right-6 bg-blue-600 text-white p-3 rounded-full shadow-lg hover:bg-blue-700">
-  <i class="fas fa-robot"></i>
-</button>
-<script type="module">
-// ✅ AI Chatbox connected to Gemini via /api/ask backend
-
-// UI elements
-const toggleBtn = document.getElementById('ai-toggle');
-const chatBox = document.getElementById('ai-chat');
-const chatForm = document.getElementById('chat-form');
-const input = document.getElementById('chat-input');
-const body = document.getElementById('chat-body');
-
-// Toggle chatbox open/close
-toggleBtn.addEventListener('click', () => {
-  chatBox.classList.toggle('hidden');
-});
-
-// Handle chat submit
-chatForm.addEventListener('submit', async (e) => {
-  e.preventDefault();
-  const msg = input.value.trim();
-  if (!msg) return;
-
-  // Display user message
-  input.value = "";
-  body.innerHTML += `<div class="mb-2"><b>You:</b> ${msg}</div>`;
-  body.innerHTML += `<div id="typing" class="mb-2 text-gray-500 italic">AI is thinking...</div>`;
-  body.scrollTop = body.scrollHeight;
-
-  try {
-    // 🔥 Send to your serverless Gemini API route (Vercel)
-    const res = await fetch("/api/ask", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ prompt: msg }),
-    });
-
-    const data = await res.json();
-    document.getElementById("typing").remove();
-
-    if (data.error) {
-      body.innerHTML += `<div class="mb-2 text-red-600"><b>AI:</b> ${data.error}</div>`;
-    } else {
-      body.innerHTML += `<div class="mb-2 text-gray-700"><b>AI:</b> ${data.reply}</div>`;
-    }
-  } catch (err) {
-    document.getElementById("typing").remove();
-    body.innerHTML += `<div class="mb-2 text-red-600"><b>AI:</b> Connection failed: ${err.message}</div>`;
-    console.error(err);
-  }
-
-  body.scrollTop = body.scrollHeight;
-});
-</script>
-
-
-
-
-
-
-
-
-
-
-
-
 </body>
 </html>
-
 
