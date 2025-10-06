@@ -1237,11 +1237,16 @@ function filterMaterials() {
   <i class="fas fa-robot"></i>
 </button>
 <script type="module">
+// ✅ Gemini chat with memory
+
 const toggleBtn = document.getElementById('ai-toggle');
 const chatBox = document.getElementById('ai-chat');
 const chatForm = document.getElementById('chat-form');
 const input = document.getElementById('chat-input');
 const body = document.getElementById('chat-body');
+
+// 🧠 local memory of conversation
+let conversation = [];
 
 toggleBtn.addEventListener('click', () => {
   chatBox.classList.toggle('hidden');
@@ -1257,25 +1262,27 @@ chatForm.addEventListener('submit', async (e) => {
   body.innerHTML += `<div id="typing" class="mb-2 text-gray-500 italic">AI is thinking...</div>`;
   body.scrollTop = body.scrollHeight;
 
+  // add user message to conversation
+  conversation.push({ role: "user", parts: [{ text: msg }] });
+
   try {
     const res = await fetch("/api/ask", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ prompt: msg }),
+      body: JSON.stringify({ conversation }),
     });
 
     const data = await res.json();
     document.getElementById("typing").remove();
 
-    // --- pick the real text from whatever structure arrives ---
-    let text = "";
-    if (typeof data === "string") text = data;
-    else if (typeof data.reply === "string") text = data.reply;
-    else if (data.reply?.candidates?.[0]?.content?.parts?.[0]?.text)
-      text = data.reply.candidates[0].content.parts[0].text;
-    else if (data.candidates?.[0]?.content?.parts?.[0]?.text)
-      text = data.candidates[0].content.parts[0].text;
-    else text = JSON.stringify(data, null, 2); // fallback for debugging
+    const text =
+      data.reply?.text ||
+      data.reply ||
+      data.error ||
+      JSON.stringify(data, null, 2);
+
+    // add AI reply to conversation
+    conversation.push({ role: "model", parts: [{ text }] });
 
     body.innerHTML += `<div class="mb-2 text-gray-700"><b>AI:</b> ${text}</div>`;
   } catch (err) {
@@ -1286,6 +1293,7 @@ chatForm.addEventListener('submit', async (e) => {
   body.scrollTop = body.scrollHeight;
 });
 </script>
+
 
 
 
