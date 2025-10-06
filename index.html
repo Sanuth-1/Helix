@@ -107,6 +107,40 @@ body.loading #auth-section {
         .dark .hover\:bg-gray-50:hover { background-color: #3a3a3a !important; }
         .dark input, .dark textarea { background-color: #3a3a3a !important; color: #e5e5e5 !important; border-color: #4a4a4a !important; }
         .dark input:focus, .dark textarea:focus { border-color: #60a5fa !important; box-shadow: 0 0 0 2px rgba(96, 165, 250, 0.2) !important; }
+
+        /* === Hamburger Animation === */
+.hamburger .line {
+  width: 1.5rem;
+  height: 0.15rem;
+  background-color: white;
+  border-radius: 2px;
+  transition: all 0.3s ease;
+}
+
+.hamburger.active .line:nth-child(1) {
+  transform: translateY(6px) rotate(45deg);
+}
+
+.hamburger.active .line:nth-child(2) {
+  opacity: 0;
+}
+
+.hamburger.active .line:nth-child(3) {
+  transform: translateY(-6px) rotate(-45deg);
+}
+#hamburger-menu {
+  transform-origin: top right;
+  transition: all 0.25s ease;
+}
+#hamburger-menu.hidden {
+  opacity: 0;
+  transform: scale(0.95);
+}
+#hamburger-menu:not(.hidden) {
+  opacity: 1;
+  transform: scale(1);
+}
+
     </style>
 <!-- App Header -->
 <header class="gradient-bg text-white shadow-lg p-4 flex items-center justify-between relative mb-6">
@@ -128,11 +162,12 @@ body.loading #auth-section {
   <div class="flex items-center space-x-3 relative">
     <!-- Hamburger (mobile only) -->
     <div class="relative md:hidden">
-      <button id="hamburger" class="flex flex-col space-y-1 focus:outline-none">
-        <span class="block w-6 h-0.5 bg-white"></span>
-        <span class="block w-6 h-0.5 bg-white"></span>
-        <span class="block w-6 h-0.5 bg-white"></span>
-      </button>
+     <button id="hamburger" class="hamburger flex flex-col space-y-1 focus:outline-none">
+  <span class="line"></span>
+  <span class="line"></span>
+  <span class="line"></span>
+</button>
+
 
       <!-- Dropdown for mobile -->
       <div id="hamburger-menu" class="absolute right-0 mt-3 hidden bg-white text-gray-800 rounded-lg shadow-lg w-48 py-2 z-50">
@@ -373,29 +408,42 @@ body.loading #auth-section {
                 </div>
             </div>
         </div>
-<!-- Search Bar -->
-<div class="mb-4 flex items-center">
-  <input
-    type="text"
-    id="material-search"
-    placeholder="Search materials..."
-    class="flex-1 border border-gray-300 rounded-lg p-2 focus:outline-none focus:ring focus:ring-blue-300"
-    oninput="filterMaterials()"
-  />
-</div>
 
-        <!-- Materials Section -->
-        <div id="materials-section" class="hidden fade-in">
-            <div class="bg-white rounded-lg shadow-md p-6">
-                <div class="flex justify-between items-center mb-6">
-                    <h2 class="text-2xl font-bold text-gray-800"><i class="fas fa-book text-green-600 mr-3"></i>Course Materials</h2>
-                    <div id="admin-materials-controls" class="hidden">
-                        <button onclick="uploadMaterial()" class="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 transition duration-300"><i class="fas fa-upload mr-2"></i>Upload Material</button>
-                    </div>
-                </div>
-                <div id="materials-list" class="space-y-4"></div>
-            </div>
-        </div>
+       <!-- Materials Section -->
+<div id="materials-section" class="hidden fade-in">
+  <div class="bg-white rounded-lg shadow-md p-6">
+    <div class="flex justify-between items-center mb-6">
+      <h2 class="text-2xl font-bold text-gray-800">
+        <i class="fas fa-book text-green-600 mr-3"></i>Course Materials
+      </h2>
+      <div id="admin-materials-controls" class="hidden">
+        <button onclick="uploadMaterial()" class="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 transition duration-300">
+          <i class="fas fa-upload mr-2"></i>Upload Material
+        </button>
+      </div>
+    </div>
+
+    <!-- ✅ Search Bar only visible on Materials page -->
+    <div class="mb-4 flex items-center">
+      <input
+        type="text"
+        id="material-search"
+        placeholder="Search materials..."
+        class="flex-1 border border-gray-300 rounded-lg p-2 focus:outline-none focus:ring focus:ring-blue-300"
+        oninput="filterMaterials()"
+      />
+    </div>
+    <!-- ✅ Loading indicator -->
+    <div id="materials-loading" class="hidden text-center py-6 text-gray-500">
+      <i class="fas fa-spinner fa-spin mr-2"></i>Loading materials...
+    </div>
+
+    <!-- Materials list -->
+    <div id="materials-list" class="space-y-4"></div>
+
+    <div id="materials-list" class="space-y-4"></div>
+  </div>
+</div>
 
         <!-- Announcements Section -->
         <div id="announcements-section" class="hidden fade-in">
@@ -1188,14 +1236,29 @@ function filterMaterials() {
         document.addEventListener('click', (e) => { document.querySelectorAll('[id$="-modal"]').forEach(m => { if (e.target === m) m.classList.add('hidden'); }); });
     </script>
   <script>
-  const hamburger = document.getElementById('hamburger');
-  const menu = document.getElementById('hamburger-menu');
+ const hamburger = document.getElementById('hamburger');
+const menu = document.getElementById('hamburger-menu');
 
-  // Toggle dropdown
-  hamburger.addEventListener('click', (e) => {
-    e.stopPropagation();
-    menu.classList.toggle('hidden');
+hamburger.addEventListener('click', (e) => {
+  e.stopPropagation();
+  menu.classList.toggle('hidden');
+  hamburger.classList.toggle('active'); // ✅ Toggle the X animation
+});
+
+document.addEventListener('click', (e) => {
+  if (!hamburger.contains(e.target) && !menu.contains(e.target)) {
+    menu.classList.add('hidden');
+    hamburger.classList.remove('active'); // ✅ Reset to hamburger
+  }
+});
+// ✅ Close hamburger after clicking a menu item
+menu.querySelectorAll('button').forEach(btn => {
+  btn.addEventListener('click', () => {
+    menu.classList.add('hidden');       // Hide the dropdown
+    hamburger.classList.remove('active'); // Revert icon to hamburger
   });
+});
+
 
   // Close dropdown on click outside
   document.addEventListener('click', (e) => {
@@ -1237,7 +1300,7 @@ function filterMaterials() {
   <i class="fas fa-robot"></i>
 </button>
 <script type="module">
-// ✅ Gemini chat with persistent memory using localStorage
+// ✅ Gemini chat with conversation memory (fixed format)
 
 const toggleBtn = document.getElementById('ai-toggle');
 const chatBox = document.getElementById('ai-chat');
@@ -1245,19 +1308,8 @@ const chatForm = document.getElementById('chat-form');
 const input = document.getElementById('chat-input');
 const body = document.getElementById('chat-body');
 
-// 🧠 Load past conversation from localStorage
-let conversation = JSON.parse(localStorage.getItem("gemini_conversation") || "[]");
-
-// 🔁 Rebuild chat UI on load
-conversation.forEach(msg => {
-  const who = msg.role === "user" ? "You" : "AI";
-  const color = msg.role === "user" ? "font-bold" : "text-gray-700";
-  const text = msg.parts[0].text;
-  body.innerHTML += `<div class="mb-2 ${color}"><b>${who}:</b> ${text}</div>`;
-});
-
-// scroll to bottom
-body.scrollTop = body.scrollHeight;
+// 🧠 Keep all messages in memory
+let conversation = [];
 
 toggleBtn.addEventListener('click', () => {
   chatBox.classList.toggle('hidden');
@@ -1273,15 +1325,14 @@ chatForm.addEventListener('submit', async (e) => {
   body.innerHTML += `<div id="typing" class="mb-2 text-gray-500 italic">AI is thinking...</div>`;
   body.scrollTop = body.scrollHeight;
 
-  // Add the user's message to memory
+  // Add the user's message to the conversation
   conversation.push({ role: "user", parts: [{ text: msg }] });
-  localStorage.setItem("gemini_conversation", JSON.stringify(conversation));
 
   try {
     const res = await fetch("/api/ask", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ conversation }),
+      body: JSON.stringify({ conversation }), // ✅ send correctly
     });
 
     const data = await res.json();
@@ -1293,9 +1344,8 @@ chatForm.addEventListener('submit', async (e) => {
       data?.error ||
       "No response from Gemini.";
 
-    // Add Gemini’s reply to memory
+    // Add AI reply to conversation memory
     conversation.push({ role: "model", parts: [{ text }] });
-    localStorage.setItem("gemini_conversation", JSON.stringify(conversation));
 
     body.innerHTML += `<div class="mb-2 text-gray-700"><b>AI:</b> ${text}</div>`;
   } catch (err) {
