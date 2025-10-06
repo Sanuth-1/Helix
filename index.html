@@ -1237,7 +1237,7 @@ function filterMaterials() {
   <i class="fas fa-robot"></i>
 </button>
 <script type="module">
-// ✅ Gemini chat with memory
+// ✅ Gemini chat with conversation memory (fixed format)
 
 const toggleBtn = document.getElementById('ai-toggle');
 const chatBox = document.getElementById('ai-chat');
@@ -1245,7 +1245,7 @@ const chatForm = document.getElementById('chat-form');
 const input = document.getElementById('chat-input');
 const body = document.getElementById('chat-body');
 
-// 🧠 local memory of conversation
+// 🧠 Keep all messages in memory
 let conversation = [];
 
 toggleBtn.addEventListener('click', () => {
@@ -1262,32 +1262,33 @@ chatForm.addEventListener('submit', async (e) => {
   body.innerHTML += `<div id="typing" class="mb-2 text-gray-500 italic">AI is thinking...</div>`;
   body.scrollTop = body.scrollHeight;
 
-  // add user message to conversation
+  // Add the user's message to the conversation
   conversation.push({ role: "user", parts: [{ text: msg }] });
 
   try {
     const res = await fetch("/api/ask", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ conversation }),
+      body: JSON.stringify({ conversation }), // ✅ send correctly
     });
 
     const data = await res.json();
     document.getElementById("typing").remove();
 
     const text =
-      data.reply?.text ||
-      data.reply ||
-      data.error ||
-      JSON.stringify(data, null, 2);
+      data?.reply?.text ||
+      data?.reply ||
+      data?.error ||
+      "No response from Gemini.";
 
-    // add AI reply to conversation
+    // Add AI reply to conversation memory
     conversation.push({ role: "model", parts: [{ text }] });
 
     body.innerHTML += `<div class="mb-2 text-gray-700"><b>AI:</b> ${text}</div>`;
   } catch (err) {
     document.getElementById("typing").remove();
     body.innerHTML += `<div class="mb-2 text-red-600"><b>AI:</b> Connection failed: ${err.message}</div>`;
+    console.error(err);
   }
 
   body.scrollTop = body.scrollHeight;
