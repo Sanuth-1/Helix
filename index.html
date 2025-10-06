@@ -1237,7 +1237,7 @@ function filterMaterials() {
   <i class="fas fa-robot"></i>
 </button>
 <script type="module">
-// ✅ Gemini chat with conversation memory (fixed format)
+// ✅ Gemini chat with persistent memory using localStorage
 
 const toggleBtn = document.getElementById('ai-toggle');
 const chatBox = document.getElementById('ai-chat');
@@ -1245,8 +1245,19 @@ const chatForm = document.getElementById('chat-form');
 const input = document.getElementById('chat-input');
 const body = document.getElementById('chat-body');
 
-// 🧠 Keep all messages in memory
-let conversation = [];
+// 🧠 Load past conversation from localStorage
+let conversation = JSON.parse(localStorage.getItem("gemini_conversation") || "[]");
+
+// 🔁 Rebuild chat UI on load
+conversation.forEach(msg => {
+  const who = msg.role === "user" ? "You" : "AI";
+  const color = msg.role === "user" ? "font-bold" : "text-gray-700";
+  const text = msg.parts[0].text;
+  body.innerHTML += `<div class="mb-2 ${color}"><b>${who}:</b> ${text}</div>`;
+});
+
+// scroll to bottom
+body.scrollTop = body.scrollHeight;
 
 toggleBtn.addEventListener('click', () => {
   chatBox.classList.toggle('hidden');
@@ -1262,14 +1273,15 @@ chatForm.addEventListener('submit', async (e) => {
   body.innerHTML += `<div id="typing" class="mb-2 text-gray-500 italic">AI is thinking...</div>`;
   body.scrollTop = body.scrollHeight;
 
-  // Add the user's message to the conversation
+  // Add the user's message to memory
   conversation.push({ role: "user", parts: [{ text: msg }] });
+  localStorage.setItem("gemini_conversation", JSON.stringify(conversation));
 
   try {
     const res = await fetch("/api/ask", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ conversation }), // ✅ send correctly
+      body: JSON.stringify({ conversation }),
     });
 
     const data = await res.json();
@@ -1281,8 +1293,9 @@ chatForm.addEventListener('submit', async (e) => {
       data?.error ||
       "No response from Gemini.";
 
-    // Add AI reply to conversation memory
+    // Add Gemini’s reply to memory
     conversation.push({ role: "model", parts: [{ text }] });
+    localStorage.setItem("gemini_conversation", JSON.stringify(conversation));
 
     body.innerHTML += `<div class="mb-2 text-gray-700"><b>AI:</b> ${text}</div>`;
   } catch (err) {
