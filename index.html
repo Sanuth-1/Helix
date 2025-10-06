@@ -1273,9 +1273,13 @@ chatForm.addEventListener('submit', async (e) => {
     const data = await res.json();
     document.getElementById("typing").remove();
 
-    const responseText = data.reply || data.error || "No response from Gemini.";
+    // ✅ Fixed: handle object or string correctly
+    const text =
+      typeof data === "string"
+        ? data
+        : data.reply || data.error || JSON.stringify(data);
 
-    body.innerHTML += `<div class="mb-2 text-gray-700"><b>AI:</b> ${responseText}</div>`;
+    body.innerHTML += `<div class="mb-2 text-gray-700"><b>AI:</b> ${text}</div>`;
   } catch (err) {
     document.getElementById("typing").remove();
     body.innerHTML += `<div class="mb-2 text-red-600"><b>AI:</b> Connection failed: ${err.message}</div>`;
