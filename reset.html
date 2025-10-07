@@ -4,6 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Reset Password | Helix Class Portal</title>
+<script src="https://kit.fontawesome.com/a2d9a1b93b.js" crossorigin="anonymous"></script>
 
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js"></script>
@@ -12,12 +13,13 @@
   <script>
     // Firebase config (same as your index.html)
     const firebaseConfig = {
-      apiKey: "YOUR_API_KEY",
-      authDomain: "YOUR_AUTH_DOMAIN",
-      projectId: "YOUR_PROJECT_ID",
-      storageBucket: "YOUR_STORAGE_BUCKET",
-      messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
-      appId: "YOUR_APP_ID"
+      apiKey: "AIzaSyB0--bDqGPckl7pENJLMN_95fDNAaXR4zs",
+    authDomain: "helixfinale.firebaseapp.com",
+    projectId: "helixfinale",
+    storageBucket: "helixfinale.appspot.com",
+    messagingSenderId: "556896526389",
+    appId: "1:556896526389:web:0579fb75c4953f716cd17c",
+    measurementId: "G-HB0DND8V2J"
     };
     firebase.initializeApp(firebaseConfig);
 
@@ -65,30 +67,98 @@
 <body class="min-h-screen bg-gradient-to-r from-blue-600 via-indigo-700 to-purple-700 flex items-center justify-center">
   <div class="bg-white shadow-lg rounded-xl p-8 w-full max-w-md text-center">
     <h1 class="text-2xl font-bold text-gray-800 mb-4">Reset Your Password</h1>
-    <form onsubmit="resetPassword(event)" class="space-y-5">
-      
-      <!-- New Password -->
-      <div class="relative">
-        <input type="password" id="new-password" placeholder="New Password"
-          class="w-full border border-gray-300 rounded-lg px-3 py-2 pr-10 focus:outline-none focus:ring-2 focus:ring-purple-600" required>
-        <i id="eye1" class="fa-solid fa-eye absolute right-3 top-3 text-gray-500 cursor-pointer"
-           onclick="togglePassword('new-password', 'eye1')"></i>
-      </div>
-
-      <!-- Confirm Password -->
-      <div class="relative">
-        <input type="password" id="confirm-password" placeholder="Confirm Password"
-          class="w-full border border-gray-300 rounded-lg px-3 py-2 pr-10 focus:outline-none focus:ring-2 focus:ring-purple-600" required>
-        <i id="eye2" class="fa-solid fa-eye absolute right-3 top-3 text-gray-500 cursor-pointer"
-           onclick="togglePassword('confirm-password', 'eye2')"></i>
-      </div>
-
-      <!-- Submit -->
-      <button type="submit"
-        class="w-full bg-purple-700 hover:bg-purple-800 text-white font-semibold py-2 rounded-lg transition">
-        Reset Password
-      </button>
-    </form>
+    <form id="reset-form" class="space-y-5">
+  <div class="relative">
+    <input id="new-password" type="password" placeholder="New Password"
+           class="w-full border rounded px-3 py-2 pr-10" required>
+    <i id="eye1" class="fa-solid fa-eye absolute right-3 top-3 text-gray-500 cursor-pointer"
+       onclick="togglePassword('new-password','eye1')"></i>
   </div>
+  <div class="relative">
+    <input id="confirm-password" type="password" placeholder="Confirm Password"
+           class="w-full border rounded px-3 py-2 pr-10" required>
+    <i id="eye2" class="fa-solid fa-eye absolute right-3 top-3 text-gray-500 cursor-pointer"
+       onclick="togglePassword('confirm-password','eye2')"></i>
+  </div>
+  <button type="submit" class="w-full bg-purple-700 text-white py-2 rounded">
+    Reset Password
+  </button>
+  <div id="reset-message" class="text-sm mt-2"></div>
+</form>
+
+  </div>
+
+  <script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+  import { getAuth, confirmPasswordReset } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
+  // --- your actual Firebase config ---
+  const firebaseConfig = {
+    apiKey: "AIzaSyB0--bDqGPckl7pENJLMN_95fDNAaXR4zs",
+    authDomain: "helixfinale.firebaseapp.com",
+    projectId: "helixfinale",
+    storageBucket: "helixfinale.appspot.com",
+    messagingSenderId: "556896526389",
+    appId: "1:556896526389:web:0579fb75c4953f716cd17c",
+    measurementId: "G-HB0DND8V2J"
+  };
+
+  // initialize Firebase (module style)
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+
+  // read query params from Firebase reset link
+  const params = new URLSearchParams(window.location.search);
+  const mode = params.get('mode');
+  const oobCode = params.get('oobCode');
+
+  // expose eye toggle globally
+  window.togglePassword = function (inputId, iconId) {
+    const input = document.getElementById(inputId);
+    const icon = document.getElementById(iconId);
+    if (input.type === 'password') {
+      input.type = 'text';
+      icon.classList.replace('fa-eye', 'fa-eye-slash');
+    } else {
+      input.type = 'password';
+      icon.classList.replace('fa-eye-slash', 'fa-eye');
+    }
+  };
+
+  // wait for DOM, attach submit handler
+  document.addEventListener('DOMContentLoaded', () => {
+    const form = document.getElementById('reset-form');
+    const newPw = document.getElementById('new-password');
+    const confirmPw = document.getElementById('confirm-password');
+    const msg = document.getElementById('reset-message');
+
+    if (!form) return;
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      msg.textContent = '';
+
+      if (!oobCode || mode !== 'resetPassword') {
+        msg.textContent = 'Invalid or expired reset link.';
+        return;
+      }
+      if (newPw.value !== confirmPw.value) {
+        msg.textContent = 'Passwords do not match.';
+        return;
+      }
+
+      try {
+        await confirmPasswordReset(auth, oobCode, newPw.value);
+        msg.style.color = 'green';
+        msg.textContent = 'Password reset successful. Redirecting...';
+        setTimeout(() => (window.location.href = '/index.html'), 1500);
+      } catch (err) {
+        msg.style.color = 'red';
+        msg.textContent = 'Error: ' + err.message;
+      }
+    });
+  });
+</script>
+
 </body>
 </html>
