@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Reset Password | Helix Class Portal</title>
+
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <script>
+    // Firebase config (same as your index.html)
+    const firebaseConfig = {
+      apiKey: "YOUR_API_KEY",
+      authDomain: "YOUR_AUTH_DOMAIN",
+      projectId: "YOUR_PROJECT_ID",
+      storageBucket: "YOUR_STORAGE_BUCKET",
+      messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
+      appId: "YOUR_APP_ID"
+    };
+    firebase.initializeApp(firebaseConfig);
+
+    // Parse reset link query
+    const urlParams = new URLSearchParams(window.location.search);
+    const oobCode = urlParams.get('oobCode');
+
+    async function resetPassword(event) {
+      event.preventDefault();
+      const newPassword = document.getElementById('new-password').value;
+      const confirmPassword = document.getElementById('confirm-password').value;
+
+      if (newPassword !== confirmPassword) {
+        alert('Passwords do not match!');
+        return;
+      }
+
+      try {
+        const auth = firebase.auth();
+        await auth.confirmPasswordReset(oobCode, newPassword);
+        alert('Password reset successful! Redirecting to login...');
+        window.location.href = 'index.html';
+      } catch (error) {
+        alert('Error: ' + error.message);
+      }
+    }
+
+    function togglePassword(id, iconId) {
+      const input = document.getElementById(id);
+      const icon = document.getElementById(iconId);
+      if (input.type === "password") {
+        input.type = "text";
+        icon.classList.remove("fa-eye");
+        icon.classList.add("fa-eye-slash");
+      } else {
+        input.type = "password";
+        icon.classList.remove("fa-eye-slash");
+        icon.classList.add("fa-eye");
+      }
+    }
+  </script>
+
+  <script src="https://kit.fontawesome.com/a2d9a1b93b.js" crossorigin="anonymous"></script>
+</head>
+<body class="min-h-screen bg-gradient-to-r from-blue-600 via-indigo-700 to-purple-700 flex items-center justify-center">
+  <div class="bg-white shadow-lg rounded-xl p-8 w-full max-w-md text-center">
+    <h1 class="text-2xl font-bold text-gray-800 mb-4">Reset Your Password</h1>
+    <form onsubmit="resetPassword(event)" class="space-y-5">
+      
+      <!-- New Password -->
+      <div class="relative">
+        <input type="password" id="new-password" placeholder="New Password"
+          class="w-full border border-gray-300 rounded-lg px-3 py-2 pr-10 focus:outline-none focus:ring-2 focus:ring-purple-600" required>
+        <i id="eye1" class="fa-solid fa-eye absolute right-3 top-3 text-gray-500 cursor-pointer"
+           onclick="togglePassword('new-password', 'eye1')"></i>
+      </div>
+
+      <!-- Confirm Password -->
+      <div class="relative">
+        <input type="password" id="confirm-password" placeholder="Confirm Password"
+          class="w-full border border-gray-300 rounded-lg px-3 py-2 pr-10 focus:outline-none focus:ring-2 focus:ring-purple-600" required>
+        <i id="eye2" class="fa-solid fa-eye absolute right-3 top-3 text-gray-500 cursor-pointer"
+           onclick="togglePassword('confirm-password', 'eye2')"></i>
+      </div>
+
+      <!-- Submit -->
+      <button type="submit"
+        class="w-full bg-purple-700 hover:bg-purple-800 text-white font-semibold py-2 rounded-lg transition">
+        Reset Password
+      </button>
+    </form>
+  </div>
+</body>
+</html>

@@ -7,6 +7,21 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet" />
 
+<!-- Web App Manifest -->
+  <link rel="manifest" href="/images/site.webmanifest" />
+
+  <!-- Apple Touch Icon (for iOS) -->
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png" />
+
+  <!-- Standard PNG Favicons -->
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32.png" />
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16.png" />
+
+  <!-- Fallback Legacy Icon -->
+  <link rel="shortcut icon" href="/images/favicon.ico" type="image/x-icon" />
+
+  <!-- Mobile Browser Theme -->
+  <meta name="theme-color" content="#6D28D9" />
     <!-- Firebase SDK -->
     <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
@@ -143,7 +158,9 @@ body.loading #auth-section {
 
     </style>
 <!-- App Header -->
-<header class="gradient-bg text-white shadow-lg p-4 flex items-center justify-between relative mb-6">
+<header id="navbar" class="hidden w-full bg-gradient-to-r from-blue-600 via-indigo-700 to-purple-700 text-white flex items-center justify-between px-6 py-3 shadow-md">
+
+
   <!-- Logo -->
   <div class="flex items-center space-x-3">
     <i class="fas fa-dna text-2xl"></i>
@@ -819,6 +836,10 @@ body.loading #auth-section {
             const authButtons = document.getElementById('auth-buttons');
 
            if (currentUser) {
+            // show navbar + hamburger after login
+const navbarEl = document.getElementById('navbar');
+if (navbarEl) navbarEl.classList.remove('hidden');
+
     authSection.classList.add('hidden');
     dashboardSection.classList.remove('hidden');
 
@@ -857,6 +878,10 @@ body.loading #auth-section {
     updateDashboardStats();
 }
  else {
+  // hide navbar on login page
+const navbarEl = document.getElementById('navbar');
+if (navbarEl) navbarEl.classList.add('hidden');
+
                 authSection.classList.remove('hidden');
                 dashboardSection.classList.add('hidden');
                 navMenu.innerHTML = '';
@@ -921,7 +946,29 @@ async function updateDashboardStats() {
         function showForgotPassword() { hideAllAuthForms(); document.getElementById('forgot-password-form').classList.remove('hidden'); }
         function hideAllAuthForms() { ['login-form','signup-form','forgot-password-form'].forEach(id => document.getElementById(id).classList.add('hidden')); }
         function toggleAdminCode() { const f = document.getElementById('admin-code-field'); document.getElementById('admin-signup').checked ? f.classList.remove('hidden') : f.classList.add('hidden'); }
-        async function handleForgotPassword(e) { e.preventDefault(); const email = document.getElementById('forgot-email').value; try { await window.firebaseServices.sendPasswordResetEmail(window.firebaseAuth, email); showNotification(`Password reset email sent to ${email}!`, 'success'); document.getElementById('forgot-email').value = ''; setTimeout(() => showLogin(), 1500); } catch (err) { showNotification('Error sending reset email: ' + err.message, 'error'); } }
+       async function handleForgotPassword(e) {
+  e.preventDefault();
+  const email = document.getElementById('forgot-email').value.trim();
+
+  try {
+    // Send password reset email with redirect to your custom reset page
+    await window.firebaseServices.sendPasswordResetEmail(
+      window.firebaseAuth,
+      email,
+      {
+        url: window.location.origin + '/reset.html',
+        handleCodeInApp: true
+      }
+    );
+
+    showNotification(`Password reset email sent to ${email}!`, 'success');
+    document.getElementById('forgot-email').value = '';
+    setTimeout(() => showLogin(), 1500);
+  } catch (err) {
+    showNotification('Error sending reset email: ' + err.message, 'error');
+  }
+}
+
 
         // Materials
        function downloadFile(url, filename) {
