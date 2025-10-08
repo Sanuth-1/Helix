@@ -872,7 +872,7 @@ window.firebaseServices.onAuthStateChanged(window.firebaseAuth, async (user) => 
 });
 
 
-  // --- Restore last visited section (Step #2) ---
+  // --- Restde last visited section (Step #2) ---
   const savedSection = localStorage.getItem('lastSection');
   if (savedSection && document.getElementById(`${savedSection}-section`)) {
     // If savedSection exists and the corresponding DOM section exists, show it
