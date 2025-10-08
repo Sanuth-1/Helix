@@ -81,6 +81,8 @@
   };
 </script>
 
+
+
 <!-- ✅ Supabase Integration (Free replacement for Firebase Storage) -->
 <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
 <script>
@@ -122,6 +124,49 @@ body.loading #auth-section {
         .dark .hover\:bg-gray-50:hover { background-color: #3a3a3a !important; }
         .dark input, .dark textarea { background-color: #3a3a3a !important; color: #e5e5e5 !important; border-color: #4a4a4a !important; }
         .dark input:focus, .dark textarea:focus { border-color: #60a5fa !important; box-shadow: 0 0 0 2px rgba(96, 165, 250, 0.2) !important; }
+/* Smooth spin */
+@keyframes spin-slow {
+  to { transform: rotate(360deg); }
+}
+.animate-spin-slow {
+  animation: spin-slow 2.5s linear infinite;
+}
+
+/* 🌟 Glowing pulse for the DNA icon */
+@keyframes glow {
+  0%, 100% {
+    text-shadow: 0 0 5px rgba(255, 255, 255, 0.6),
+                 0 0 10px rgba(255, 255, 255, 0.3),
+                 0 0 20px rgba(147, 51, 234, 0.4);
+    opacity: 1;
+  }
+  50% {
+    text-shadow: 0 0 10px rgba(255, 255, 255, 0.9),
+                 0 0 25px rgba(147, 51, 234, 0.6),
+                 0 0 40px rgba(147, 51, 234, 0.8);
+    opacity: 0.9;
+  }
+}
+.glow-pulse {
+  animation: glow 2.5s ease-in-out infinite;
+}
+
+/* 🌙 Dark & Light theme adaptive loading screen */
+#loading-screen {
+  background: linear-gradient(135deg, #7e22ce, #9333ea);
+  transition: opacity 0.5s ease, background 0.4s ease;
+  color: white;
+}
+
+.dark #loading-screen {
+  background: linear-gradient(135deg, #1e1b4b, #3b0764);
+  color: #e9d5ff;
+}
+
+#loading-screen.hidden {
+  opacity: 0;
+  pointer-events: none;
+}
 
         /* === Hamburger Animation === */
 .hamburger .line {
@@ -155,9 +200,77 @@ body.loading #auth-section {
   opacity: 1;
   transform: scale(1);
 }
+/* Spinner animation */
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+.animate-spin {
+  animation: spin 1s linear infinite;
+}
+@keyframes spin-slow {
+  to { transform: rotate(360deg); }
+}
+.animate-spin-slow {
+  animation: spin-slow 2.5s linear infinite;
+}
+
+#loading-screen.hidden {
+  opacity: 0;
+  pointer-events: none;
+}
+
+@keyframes spin-slow {
+  to { transform: rotate(360deg); }
+}
+.animate-spin-slow {
+  animation: spin-slow 2.5s linear infinite;
+}
+
+/* 🌟 Soft glowing pulse for the DNA icon */
+@keyframes glow {
+  0%, 100% {
+    text-shadow: 0 0 5px rgba(255, 255, 255, 0.6),
+                 0 0 10px rgba(255, 255, 255, 0.3),
+                 0 0 20px rgba(147, 51, 234, 0.4);
+    opacity: 1;
+  }
+  50% {
+    text-shadow: 0 0 10px rgba(255, 255, 255, 0.9),
+                 0 0 25px rgba(147, 51, 234, 0.6),
+                 0 0 40px rgba(147, 51, 234, 0.8);
+    opacity: 0.9;
+  }
+}
+
+.glow-pulse {
+  animation: glow 2.5s ease-in-out infinite;
+}
+
+#loading-screen.hidden {
+  opacity: 0;
+  pointer-events: none;
+}
+
 
     </style>
+    <style>
+  .hidden {
+    display: none !important;
+  }
+</style>
+
 <!-- App Header -->
+<!-- Helix Loading Screen -->
+<div id="loading-screen" class="fixed inset-0 flex flex-col items-center justify-center bg-purple-700 text-white z-50 transition-opacity duration-500">
+  <div class="flex flex-col items-center space-y-3">
+    <i class="fas fa-dna text-5xl animate-spin-slow glow-pulse"></i>
+    <h2 class="text-2xl font-extrabold tracking-wide">Helix Portal</h2>
+    <p class="text-sm opacity-80">Preparing your dashboard...</p>
+  </div>
+</div>
+
+
+
 <header id="navbar" class="hidden w-full bg-gradient-to-r from-blue-600 via-indigo-700 to-purple-700 text-white flex items-center justify-between px-6 py-3 shadow-md">
 
 
@@ -322,7 +435,7 @@ body.loading #auth-section {
         </div>
 
        <!-- Dashboard Section -->
-<div id="dashboard-section" class="hidden fade-in">
+<div id="dashboard-section" class="hidden">
 
   <!-- Welcome Heading -->
   <div class="mb-8">
@@ -405,7 +518,7 @@ body.loading #auth-section {
 </div>
 
         <!-- Timetable Section (Firestore-driven) -->
-        <div id="timetable-section" class="hidden fade-in">
+        <div id="timetable-section" class="hidden">
             <div class="bg-white rounded-lg shadow-md p-6">
                 <div class="flex justify-between items-center mb-6">
                     <h2 class="text-2xl font-bold text-gray-800"><i class="fas fa-calendar-alt text-blue-600 mr-3"></i>Timetable</h2>
@@ -427,7 +540,7 @@ body.loading #auth-section {
         </div>
 
        <!-- Materials Section -->
-<div id="materials-section" class="hidden fade-in">
+<div id="materials-section" class="hidden">
   <div class="bg-white rounded-lg shadow-md p-6">
     <div class="flex justify-between items-center mb-6">
       <h2 class="text-2xl font-bold text-gray-800">
@@ -463,7 +576,7 @@ body.loading #auth-section {
 </div>
 
         <!-- Announcements Section -->
-        <div id="announcements-section" class="hidden fade-in">
+        <div id="announcements-section" class="hidden">
             <div class="bg-white rounded-lg shadow-md p-6">
                 <div class="flex justify-between items-center mb-6">
                     <h2 class="text-2xl font-bold text-gray-800"><i class="fas fa-bullhorn text-purple-600 mr-3"></i>Announcements</h2>
@@ -745,6 +858,19 @@ body.loading #auth-section {
 
   // Update the UI with the current user info (populates currentUser, etc.)
   updateUI();
+window.firebaseServices.onAuthStateChanged(window.firebaseAuth, async (user) => {
+  if (user) {
+    currentUser = user;
+    updateUI(user);
+  } else {
+    currentUser = null;
+    updateUI(null);
+  }
+  document.getElementById('loading-screen').classList.add('hidden');
+
+  document.body.classList.remove('loading');
+});
+
 
   // --- Restore last visited section (Step #2) ---
   const savedSection = localStorage.getItem('lastSection');
@@ -766,7 +892,8 @@ body.loading #auth-section {
             try {
                 await window.firebaseServices.signInWithEmailAndPassword(window.firebaseAuth, email, password);
                 showNotification('Login successful!', 'success');
-                document.getElementById('login-email').value = '';
+                document.getElementById('login-form').classList.add('hidden');
+    document.getElementById('dashboard-section').classList.remove('hidden');
                 document.getElementById('login-password').value = '';
             } catch (err) {
                 console.error('Login error:', err); showNotification('Invalid email or password', 'error');
@@ -799,7 +926,22 @@ body.loading #auth-section {
                 else showNotification('Error creating account: ' + err.message, 'error');
             }
         }
-        async function logout() { try { await window.firebaseServices.signOut(window.firebaseAuth); showNotification('Logged out successfully', 'success'); } catch { showNotification('Error logging out', 'error'); } }
+       async function logout() {
+  try {
+    await window.firebaseServices.signOut(window.firebaseAuth);
+    showNotification('Logged out successfully!', 'success');
+
+    document.getElementById('login-form').classList.remove('hidden'); 
+    ['dashboard', 'materials', 'timetable', 'announcements'].forEach(id => {
+      const div = document.getElementById(id);
+      if (div) div.classList.add('hidden');
+    });
+  } catch (err) {
+    console.error('Logout error:', err);
+    showNotification('Error logging out.', 'error');
+  }
+}
+
 
         async function loadNextClass() {
   try {
@@ -946,29 +1088,7 @@ async function updateDashboardStats() {
         function showForgotPassword() { hideAllAuthForms(); document.getElementById('forgot-password-form').classList.remove('hidden'); }
         function hideAllAuthForms() { ['login-form','signup-form','forgot-password-form'].forEach(id => document.getElementById(id).classList.add('hidden')); }
         function toggleAdminCode() { const f = document.getElementById('admin-code-field'); document.getElementById('admin-signup').checked ? f.classList.remove('hidden') : f.classList.add('hidden'); }
-       async function handleForgotPassword(e) {
-  e.preventDefault();
-  const email = document.getElementById('forgot-email').value.trim();
-
-  try {
-    // Send password reset email with redirect to your custom reset page
-    await window.firebaseServices.sendPasswordResetEmail(
-      window.firebaseAuth,
-      email,
-      {
-        url: window.location.origin + '/reset.html',
-        handleCodeInApp: true
-      }
-    );
-
-    showNotification(`Password reset email sent to ${email}!`, 'success');
-    document.getElementById('forgot-email').value = '';
-    setTimeout(() => showLogin(), 1500);
-  } catch (err) {
-    showNotification('Error sending reset email: ' + err.message, 'error');
-  }
-}
-
+        async function handleForgotPassword(e) { e.preventDefault(); const email = document.getElementById('forgot-email').value; try { await window.firebaseServices.sendPasswordResetEmail(window.firebaseAuth, email); showNotification(`Password reset email sent to ${email}!`, 'success'); document.getElementById('forgot-email').value = ''; setTimeout(() => showLogin(), 1500); } catch (err) { showNotification('Error sending reset email: ' + err.message, 'error'); } }
 
         // Materials
        function downloadFile(url, filename) {
