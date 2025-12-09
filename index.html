@@ -2079,18 +2079,30 @@ function updateBadge() {
 
 function toggleNotifications() {
   const dropdown = document.getElementById('notification-dropdown');
+  const btn = document.getElementById('notification-btn');
+  
+  // 1. Toggle the dropdown visibility
   dropdown.classList.toggle('hidden');
-  // Clear badge when opened (optional, or clear on specific read)
+
+  // 2. Clear badge count when opening
   if (!dropdown.classList.contains('hidden')) {
     notifState.count = 0;
     updateBadge();
+    
+    // 3. 📱 MOBILE FIX: Ask for permission here (User Gesture)
+    if ("Notification" in window && Notification.permission === "default") {
+        Notification.requestPermission().then(permission => {
+            if (permission === "granted") {
+                notifState.hasPermission = true;
+                // Send a test so they know it worked
+                new Notification("Notifications Enabled", { 
+                    body: "You will now receive alerts for new materials!",
+                    icon: '/images/favicon-96x96.png'
+                });
+            }
+        });
+    }
   }
-}
-
-function clearNotifications() {
-  document.getElementById('notification-list').innerHTML = '<div class="p-4 text-center text-gray-500 text-sm">No new notifications</div>';
-  notifState.count = 0;
-  updateBadge();
 }
 
 // Close dropdown if clicking outside
