@@ -1969,7 +1969,7 @@ function initRealTimeListeners() {
 
   // Use a time slightly in the past to ensure we catch immediate uploads
  // Look back 24 hours (just for testing) to make sure we catch it
-const startTime = new Date(Date.now() - (1 * 10 * 1 * 1)); 
+const startTime = new Date(Date.now() - (1 * 10 * 1 * 100)); 
 
   // 1. Listener for MATERIALS
   window.firebaseServices.onSnapshot(
