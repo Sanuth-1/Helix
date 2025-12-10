@@ -22,7 +22,7 @@ export default async function handler(req, res) {
     }
 
     // 2. Get the API Key from Vercel Environment Variables
-    const apiKey = process.env.GEMINI_API_KEY;
+    const apiKey = "AIzaSyDX6xyjDAbFdZIy-u7kVuoquggzQMBs0B4";
     if (!apiKey) {
         console.error("Server Error: Missing GEMINI_API_KEY environment variable.");
         return res.status(500).json({ error: 'Server configuration error: Missing API Key' });
