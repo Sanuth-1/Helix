@@ -1,2196 +1,850 @@
-<!DOCTYPE html>
+<!DOCTYPE html5>
 <html lang="en">
 <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
     <title>Helix - Student Portal</title>
+    
+    <!-- 1. Modern Tech Font (Outfit) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet" />
+    <script>
+        window.addEventListener('load', function() {
+            if (typeof tailwind !== 'undefined') {
+                tailwind.config = {
+                    darkMode: 'class',
+                    theme: {
+                        extend: {
+                            fontFamily: { sans: ['Outfit', 'sans-serif'] },
+                            colors: {
+                                helix: { 50: '#f5f3ff', 100: '#ede9fe', 500: '#8b5cf6', 600: '#7c3aed', 700: '#6d28d9', 900: '#4c1d95' }
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    </script>
 
-<!-- Web App Manifest -->
-  <link rel="manifest" href="/images/site.webmanifest" />
+    <!-- Icons -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet" />
 
-  <!-- Apple Touch Icon (for iOS) -->
-  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png" />
-
-  <!-- Standard PNG Favicons -->
-  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32.png" />
-  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16.png" />
-
-  <!-- Fallback Legacy Icon -->
-  <link rel="shortcut icon" href="/images/favicon.ico" type="image/x-icon" />
-
-  <!-- Mobile Browser Theme -->
-  <meta name="theme-color" content="#6D28D9" />
     <!-- Firebase SDK -->
     <script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
-  import { 
-      getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, 
-      onAuthStateChanged, sendPasswordResetEmail 
-  } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-auth.js";
-  
-  // 👇 UPDATED IMPORTS (Added 'where' and 'onSnapshot')
-  import { 
-      getFirestore, doc, setDoc, getDoc, collection, addDoc, getDocs, updateDoc, deleteDoc, query, orderBy, where, onSnapshot 
-  } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-firestore.js";
-  
-  import { 
-      getStorage, ref, uploadBytes, getDownloadURL, deleteObject 
-  } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-storage.js";
-  import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-analytics.js";
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
+        import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged, sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-auth.js";
+        import { getFirestore, doc, setDoc, getDoc, collection, addDoc, getDocs, updateDoc, deleteDoc, query, orderBy, where, onSnapshot } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-firestore.js";
+        import { getStorage, ref, uploadBytes, getDownloadURL, deleteObject } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-storage.js";
+        import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-analytics.js";
 
-  // --- Firebase configuration ---
-  const firebaseConfig = {
-      apiKey: "AIzaSyB0--bDqGPckl7pENJLMN_95fDNAaXR4zs",
-      authDomain: "helixfinale.firebaseapp.com",
-      projectId: "helixfinale",
-      storageBucket: "helixfinale.appspot.com",
-      messagingSenderId: "556896526389",
-      appId: "1:556896526389:web:0579fb75c4953f716cd17c",
-      measurementId: "G-HB0DND8V2J"
-  };
+        const firebaseConfig = {
+            apiKey: "AIzaSyB0--bDqGPckl7pENJLMN_95fDNAaXR4zs",
+            authDomain: "helixfinale.firebaseapp.com",
+            projectId: "helixfinale",
+            storageBucket: "helixfinale.appspot.com",
+            messagingSenderId: "556896526389",
+            appId: "1:556896526389:web:0579fb75c4953f716cd17c",
+            measurementId: "G-HB0DND8V2J"
+        };
 
-  // --- Initialize Firebase ---
-  const app = initializeApp(firebaseConfig);
-  const auth = getAuth(app);
-  const db = getFirestore(app);
-  const storage = getStorage(app);
-  const analytics = getAnalytics(app);
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+        const storage = getStorage(app);
 
-  window.firebaseAuth = auth;
-  window.firebaseDb = db;
-  window.firebaseStorage = storage;
-  
-  // 👇 UPDATED SERVICE OBJECT
-  window.firebaseServices = {
-      createUserWithEmailAndPassword,
-      signInWithEmailAndPassword,
-      signOut,
-      onAuthStateChanged,
-      sendPasswordResetEmail,
-      doc,
-      setDoc,
-      getDoc,
-      collection,
-      addDoc,
-      getDocs,
-      updateDoc,
-      deleteDoc,
-      query,
-      orderBy,
-      where,       // <--- Vital for Notifications
-      onSnapshot,  // <--- Vital for Notifications
-      ref,
-      uploadBytes,
-      getDownloadURL,
-      deleteObject
-  };
-</script>
+        window.firebaseAuth = auth;
+        window.firebaseDb = db;
+        window.firebaseServices = {
+            createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged, sendPasswordResetEmail,
+            doc, setDoc, getDoc, collection, addDoc, getDocs, updateDoc, deleteDoc, query, orderBy, where, onSnapshot,
+            ref, uploadBytes, getDownloadURL, deleteObject
+        };
+    </script>
 
+    <!-- Supabase -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script>
+        let supabaseClient = null;
+        const SUPABASE_URL = "https://pxnamwqazasxmrhiwiou.supabase.co";
+        const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InB4bmFtd3FhemFzeG1yaGl3aW91Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTk1MDMxNDQsImV4cCI6MjA3NTA3OTE0NH0.ne-TXJk7i86k34qATD2lpA2IxdQ4hVWonuY7FMfxMIU"; 
 
-
-<!-- ✅ Supabase Integration (Free replacement for Firebase Storage) -->
-<script src="https://unpkg.com/@supabase/supabase-js@2"></script>
-<script>
-  // --- Supabase Setup ---
-  const SUPABASE_URL = "https://pxnamwqazasxmrhiwiou.supabase.co";
-  const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InB4bmFtd3FhemFzeG1yaGl3aW91Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTk1MDMxNDQsImV4cCI6MjA3NTA3OTE0NH0.ne-TXJk7i86k34qATD2lpA2IxdQ4hVWonuY7FMfxMIU";
-  const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-
-  // --- Test Supabase Connection ---
-  supabaseClient.from('test').select('*').then(() => {
-    console.log('✅ Supabase connected successfully!');
-  }).catch((err) => {
-    console.error('❌ Supabase connection failed:', err);
-  });
-</script>
+        window.addEventListener('load', () => {
+            if (typeof supabase !== 'undefined') {
+                supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+            }
+        });
+    </script>
 
     <style>
-        .gradient-bg { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
-        .card-hover { transition: all 0.3s ease; }
-        .card-hover:hover { transform: translateY(-2px); box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
-        .fade-in { animation: fadeIn 0.5s ease-in; }
-        /* Hides login form while Firebase checks auth */
-body.loading #auth-section {
-  display: none !important;
-}
-
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-
-        /* Dark theme styles */
-        .dark { background-color: #1a1a1a; color: #e5e5e5; }
-        .dark .bg-white { background-color: #2d2d2d !important; color: #e5e5e5 !important; }
-        .dark .bg-gray-50 { background-color: #1a1a1a !important; }
-        .dark .text-gray-800 { color: #e5e5e5 !important; }
-        .dark .text-gray-700 { color: #d1d1d1 !important; }
-        .dark .text-gray-600 { color: #a3a3a3 !important; }
-        .dark .text-gray-500 { color: #8a8a8a !important; }
-        .dark .border-gray-300 { border-color: #4a4a4a !important; }
-        .dark .border-gray-200 { border-color: #3a3a3a !important; }
-        .dark .hover\:bg-gray-50:hover { background-color: #3a3a3a !important; }
-        .dark input, .dark textarea { background-color: #3a3a3a !important; color: #e5e5e5 !important; border-color: #4a4a4a !important; }
-        .dark input:focus, .dark textarea:focus { border-color: #60a5fa !important; box-shadow: 0 0 0 2px rgba(96, 165, 250, 0.2) !important; }
-/* Smooth spin */
-@keyframes spin-slow {
-  to { transform: rotate(360deg); }
-}
-.animate-spin-slow {
-  animation: spin-slow 2.5s linear infinite;
-}
-
-/* 🌟 Glowing pulse for the DNA icon */
-@keyframes glow {
-  0%, 100% {
-    text-shadow: 0 0 5px rgba(255, 255, 255, 0.6),
-                 0 0 10px rgba(255, 255, 255, 0.3),
-                 0 0 20px rgba(147, 51, 234, 0.4);
-    opacity: 1;
-  }
-  50% {
-    text-shadow: 0 0 10px rgba(255, 255, 255, 0.9),
-                 0 0 25px rgba(147, 51, 234, 0.6),
-                 0 0 40px rgba(147, 51, 234, 0.8);
-    opacity: 0.9;
-  }
-}
-/* Clean up Timetable Inputs */
-#timetable-body textarea {
-    resize: none; /* Hides the little drag handle in the corner */
-    overflow: hidden; /* Hides the scrollbars */
-    line-height: 1.4;
-}
-
-/* Hide scrollbars for Webkit browsers (Chrome/Edge/Safari) */
-#timetable-body textarea::-webkit-scrollbar {
-    display: none;
-}
-.glow-pulse {
-  animation: glow 2.5s ease-in-out infinite;
-}
-
-/* 🌙 Dark & Light theme adaptive loading screen */
-#loading-screen {
-  background: linear-gradient(135deg, #7e22ce, #9333ea);
-  transition: opacity 0.5s ease, background 0.4s ease;
-  color: white;
-}
-
-.dark #loading-screen {
-  background: linear-gradient(135deg, #1e1b4b, #3b0764);
-  color: #e9d5ff;
-}
-
-#loading-screen.hidden {
-  opacity: 0;
-  pointer-events: none;
-}
-
-        /* === Hamburger Animation === */
-.hamburger .line {
-  width: 1.5rem;
-  height: 0.15rem;
-  background-color: white;
-  border-radius: 2px;
-  transition: all 0.3s ease;
-}
-
-.hamburger.active .line:nth-child(1) {
-  transform: translateY(6px) rotate(45deg);
-}
-
-.hamburger.active .line:nth-child(2) {
-  opacity: 0;
-}
-
-.hamburger.active .line:nth-child(3) {
-  transform: translateY(-6px) rotate(-45deg);
-}
-#hamburger-menu {
-  transform-origin: top right;
-  transition: all 0.25s ease;
-}
-#hamburger-menu.hidden {
-  opacity: 0;
-  transform: scale(0.95);
-}
-#hamburger-menu:not(.hidden) {
-  opacity: 1;
-  transform: scale(1);
-}
-/* Spinner animation */
-@keyframes spin {
-  to { transform: rotate(360deg); }
-}
-.animate-spin {
-  animation: spin 1s linear infinite;
-}
-@keyframes spin-slow {
-  to { transform: rotate(360deg); }
-}
-.animate-spin-slow {
-  animation: spin-slow 2.5s linear infinite;
-}
-
-#loading-screen.hidden {
-  opacity: 0;
-  pointer-events: none;
-}
-
-@keyframes spin-slow {
-  to { transform: rotate(360deg); }
-}
-.animate-spin-slow {
-  animation: spin-slow 2.5s linear infinite;
-}
-
-/* 🌟 Soft glowing pulse for the DNA icon */
-@keyframes glow {
-  0%, 100% {
-    text-shadow: 0 0 5px rgba(255, 255, 255, 0.6),
-                 0 0 10px rgba(255, 255, 255, 0.3),
-                 0 0 20px rgba(147, 51, 234, 0.4);
-    opacity: 1;
-  }
-  50% {
-    text-shadow: 0 0 10px rgba(255, 255, 255, 0.9),
-                 0 0 25px rgba(147, 51, 234, 0.6),
-                 0 0 40px rgba(147, 51, 234, 0.8);
-    opacity: 0.9;
-  }
-}
-/* Card Icon Float Animation */
-.card-hover:hover i {
-    transform: translateY(-5px) scale(1.1);
-    transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-}
-.glow-pulse {
-  animation: glow 2.5s ease-in-out infinite;
-}
-
-#loading-screen.hidden {
-  opacity: 0;
-  pointer-events: none;
-}
-
-
+        body { background-color: #f8fafc; color: #1e293b; overflow-x: hidden; }
+        .dark body { background-color: #0f172a; color: #f1f5f9; }
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        .dark ::-webkit-scrollbar-thumb { background: #334155; }
+        #timetable-body textarea { resize: none; overflow: hidden; line-height: 1.4; }
+        #timetable-body textarea::-webkit-scrollbar { display: none; }
+        .fade-in { animation: fadeIn 0.4s ease-out forwards; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes spin-slow { to { transform: rotate(360deg); } }
+        .animate-spin-slow { animation: spin-slow 3s linear infinite; }
+        @keyframes shimmer { 0% { background-position: -1000px 0; } 100% { background-position: 1000px 0; } }
+        .skeleton { animation: shimmer 2s infinite linear; background: linear-gradient(to right, #f1f5f9 4%, #e2e8f0 25%, #f1f5f9 36%); background-size: 1000px 100%; }
+        .dark .skeleton { background: linear-gradient(to right, #1e293b 4%, #334155 25%, #1e293b 36%); }
+        .glass { background: rgba(255, 255, 255, 0.7); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.5); }
+        .dark .glass { background: rgba(15, 23, 42, 0.7); border: 1px solid rgba(255, 255, 255, 0.1); }
+        .dark input, .dark textarea, .dark select { background-color: #1e293b !important; color: white !important; border-color: #334155 !important; }
+        .dark .bg-white { background-color: #1e293b !important; border-color: #334155 !important; }
+        .dark .text-gray-800 { color: #f1f5f9 !important; }
+        .dark .text-gray-600 { color: #94a3b8 !important; }
     </style>
-    <style>
-  .hidden {
-    display: none !important;
-  }
-</style>
+</head>
+<body class="transition-colors duration-300 antialiased selection:bg-purple-500 selection:text-white">
 
-<!-- App Header -->
-<!-- Helix Loading Screen -->
-<div id="loading-screen" class="fixed inset-0 flex flex-col items-center justify-center bg-purple-700 text-white z-50 transition-opacity duration-500">
-  <div class="flex flex-col items-center space-y-3">
-    <i class="fas fa-dna text-5xl animate-spin-slow glow-pulse"></i>
-    <h2 class="text-2xl font-extrabold tracking-wide">Helix Portal</h2>
-    <p class="text-sm opacity-80">Preparing your dashboard...</p>
-  </div>
-</div>
-
-
-
-<header id="navbar" class="sticky top-0 z-50 w-full bg-gradient-to-r from-blue-600/95 via-indigo-700/95 to-purple-700/95 backdrop-blur-md text-white shadow-md transition-all">
-  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-    <div class="flex items-center justify-between h-16">
-      
-      <div class="flex items-center space-x-3 cursor-pointer" onclick="showSection('dashboard')">
-        <i class="fas fa-dna text-2xl animate-pulse"></i>
-        <h1 class="text-xl font-bold tracking-wide">Helix</h1>
-      </div>
-
-      <div class="flex items-center space-x-4">
-        
-        <button id="theme-toggle" onclick="toggleTheme()" class="p-2 rounded-lg hover:bg-white/20 transition text-blue-100" title="Toggle Theme">
-          <i id="theme-icon" class="fas fa-moon text-lg"></i>
-        </button>
-
-        <div class="relative">
-          <button id="notification-btn" onclick="toggleNotifications()" class="p-2 rounded-lg hover:bg-white/20 transition relative text-blue-100" title="Notifications">
-            <i class="fas fa-bell text-lg"></i>
-            <span id="notification-badge" class="hidden absolute top-1 right-1 h-2.5 w-2.5 bg-red-500 rounded-full border-2 border-purple-700"></span>
-          </button>
-          
-          <div id="notification-dropdown" class="hidden absolute right-0 mt-3 w-80 bg-white dark:bg-gray-800 rounded-xl shadow-2xl overflow-hidden z-50 border border-gray-200 dark:border-gray-700">
-            <div class="p-3 border-b border-gray-100 dark:border-gray-700 font-semibold text-gray-700 dark:text-gray-200 flex justify-between items-center bg-gray-50 dark:bg-gray-900/50">
-              <span>Notifications</span>
-              <button onclick="clearNotifications()" class="text-xs text-blue-600 dark:text-blue-400 hover:underline">Clear all</button>
-            </div>
-            <div id="notification-list" class="max-h-64 overflow-y-auto">
-              <div class="p-6 text-center text-gray-400 text-sm">No new notifications</div>
-            </div>
-          </div>
-        </div>
-
-        <div class="relative">
-          <button id="hamburger" class="p-2 rounded-lg hover:bg-white/20 transition focus:outline-none">
-            <i class="fas fa-bars text-xl"></i>
-          </button>
-
-          <div id="hamburger-menu" class="hidden absolute right-0 top-full mt-3 w-56 bg-white dark:bg-gray-800 rounded-xl shadow-2xl py-2 z-50 border border-gray-100 dark:border-gray-700 origin-top-right">
-            
-            <div class="px-4 py-3 border-b border-gray-100 dark:border-gray-700 mb-2">
-                <p class="text-sm font-bold text-gray-800 dark:text-white truncate" id="mobile-user-name">Student</p>
-                <p class="text-xs text-gray-500 dark:text-gray-400 truncate" id="mobile-user-dept">Department</p>
-            </div>
-
-            <button onclick="showSection('dashboard')" class="block w-full text-left px-4 py-2.5 text-gray-700 dark:text-gray-200 hover:bg-blue-50 dark:hover:bg-gray-700 hover:text-blue-600 transition flex items-center gap-3">
-                <div class="w-6 text-center"><i class="fas fa-home"></i></div> Dashboard
-            </button>
-            <button onclick="showSection('materials')" class="block w-full text-left px-4 py-2.5 text-gray-700 dark:text-gray-200 hover:bg-blue-50 dark:hover:bg-gray-700 hover:text-blue-600 transition flex items-center gap-3">
-                <div class="w-6 text-center"><i class="fas fa-book"></i></div> Materials
-            </button>
-            <button onclick="showSection('timetable')" class="block w-full text-left px-4 py-2.5 text-gray-700 dark:text-gray-200 hover:bg-blue-50 dark:hover:bg-gray-700 hover:text-blue-600 transition flex items-center gap-3">
-                <div class="w-6 text-center"><i class="fas fa-clock"></i></div> Timetable
-            </button>
-            <button onclick="showSection('announcements')" class="block w-full text-left px-4 py-2.5 text-gray-700 dark:text-gray-200 hover:bg-blue-50 dark:hover:bg-gray-700 hover:text-blue-600 transition flex items-center gap-3">
-                <div class="w-6 text-center"><i class="fas fa-bullhorn"></i></div> Announcements
-            </button>
-            
-            <hr class="my-2 border-gray-100 dark:border-gray-700" />
-            
-            <button onclick="logout()" class="block w-full text-left px-4 py-2.5 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition flex items-center gap-3">
-                <div class="w-6 text-center"><i class="fas fa-sign-out-alt"></i></div> Logout
-            </button>
-          </div>
-        </div>
-
-      </div>
+    <!-- LOADING SCREEN -->
+    <div id="loading-screen" class="fixed inset-0 z-[100] flex flex-col items-center justify-center bg-helix-700 text-white transition-opacity duration-500">
+        <i class="fas fa-dna text-6xl animate-spin-slow mb-4 text-purple-300"></i>
+        <h2 class="text-3xl font-bold tracking-tight">Helix</h2>
+        <p class="text-sm opacity-70 mt-2 font-light">Initializing Portal...</p>
     </div>
-  </div>
-</header>
 
-
-    <!-- Main Content -->
-    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-
-    <div id="auth-section" class="fade-in min-h-[80vh] flex items-center justify-center hidden">
-        <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl overflow-hidden flex max-w-4xl w-full border border-gray-100 dark:border-gray-700">
-            
-            <div class="hidden md:flex md:w-1/2 bg-gradient-to-br from-blue-600 to-purple-700 p-12 flex-col justify-between text-white relative">
-                <div class="absolute top-0 left-0 w-32 h-32 bg-white opacity-10 rounded-full -translate-x-10 -translate-y-10"></div>
-                <div>
-                    <i class="fas fa-dna text-5xl mb-6 animate-pulse"></i>
-                    <h2 class="text-4xl font-bold mb-2">Helix Portal</h2>
-                    <p class="text-blue-100">Biochemistry Department</p>
+    <!-- NAVBAR -->
+    <header id="navbar" class="hidden sticky top-0 z-50 w-full bg-helix-700/90 backdrop-blur-md text-white shadow-lg border-b border-white/10">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <div class="flex items-center space-x-3 cursor-pointer group" onclick="showSection('dashboard')">
+                    <div class="w-10 h-10 bg-white/10 rounded-xl flex items-center justify-center group-hover:bg-white/20 transition">
+                        <i class="fas fa-dna text-2xl"></i>
+                    </div>
+                    <h1 class="text-xl font-bold tracking-wide">Helix</h1>
                 </div>
-                <div class="text-sm opacity-80"><p>&copy; 2025 Sanuth Inc.</p></div>
-            </div>
-
-            <div class="w-full md:w-1/2 p-8 md:p-12 relative">
-                
-                <div id="login-form">
-                    <h3 class="text-2xl font-bold mb-6 text-gray-800 dark:text-white">Student Login</h3>
-                    <form onsubmit="handleLogin(event)" class="space-y-4">
-                        <div>
-                            <label class="block text-gray-700 dark:text-gray-300 text-sm font-bold mb-2">Email</label>
-                            <input type="email" id="login-email" required class="w-full px-4 py-3 rounded-lg bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 focus:border-blue-500 focus:bg-white dark:focus:bg-gray-600 focus:ring-2 focus:ring-blue-200 transition-all outline-none" placeholder="student@unilag.edu.ng" />
+                <div class="flex items-center space-x-3">
+                    <button onclick="showSection('profile')" class="hidden md:flex w-10 h-10 rounded-full hover:bg-white/10 items-center justify-center transition text-blue-100" title="Edit Profile"><i class="fas fa-cog"></i></button>
+                    <button onclick="toggleTheme()" class="w-10 h-10 rounded-full hover:bg-white/10 flex items-center justify-center transition" title="Toggle Theme"><i id="theme-icon" class="fas fa-moon"></i></button>
+                    <div class="relative">
+                        <button id="notification-btn" onclick="toggleNotifications()" class="w-10 h-10 rounded-full hover:bg-white/10 flex items-center justify-center transition relative"><i class="fas fa-bell"></i><span id="notification-badge" class="hidden absolute top-2 right-2 w-2.5 h-2.5 bg-red-500 rounded-full border-2 border-helix-700"></span></button>
+                        <div id="notification-dropdown" class="hidden absolute right-0 mt-4 w-80 bg-white dark:bg-gray-800 rounded-2xl shadow-2xl overflow-hidden z-50 border border-gray-100 dark:border-gray-700 animate-in fade-in slide-in-from-top-2">
+                            <div class="p-4 border-b border-gray-100 dark:border-gray-700 font-bold text-gray-800 dark:text-white flex justify-between items-center bg-gray-50 dark:bg-gray-900/50"><span>Notifications</span><button onclick="clearNotifications()" class="text-xs text-purple-600 hover:underline">Clear</button></div>
+                            <div id="notification-list" class="max-h-64 overflow-y-auto p-2 space-y-1"><div class="p-6 text-center text-gray-400 text-sm">No new notifications</div></div>
                         </div>
-                        <div>
-                            <label class="block text-gray-700 dark:text-gray-300 text-sm font-bold mb-2">Password</label>
-                            <input type="password" id="login-password" required class="w-full px-4 py-3 rounded-lg bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 focus:border-blue-500 focus:bg-white dark:focus:bg-gray-600 focus:ring-2 focus:ring-blue-200 transition-all outline-none" placeholder="••••••••" />
+                    </div>
+                    <div class="relative">
+                        <button id="hamburger" class="w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center transition border border-white/10"><i class="fas fa-bars"></i></button>
+                        <div id="hamburger-menu" class="hidden absolute right-0 top-full mt-4 w-64 bg-white dark:bg-gray-800 rounded-2xl shadow-2xl p-2 z-50 border border-gray-100 dark:border-gray-700 origin-top-right transform transition-all">
+                            <div class="px-4 py-3 mb-2 border-b border-gray-100 dark:border-gray-700"><p class="text-sm font-bold text-gray-900 dark:text-white truncate" id="mobile-user-name">Student</p><p class="text-xs text-gray-500 dark:text-gray-400 truncate" id="mobile-user-dept">Biochemistry</p></div>
+                            <div class="space-y-1">
+                                <button onclick="showSection('dashboard')" class="w-full text-left px-4 py-2.5 rounded-xl text-gray-700 dark:text-gray-200 hover:bg-purple-50 dark:hover:bg-gray-700/50 hover:text-purple-600 transition flex items-center gap-3 font-medium"><i class="fas fa-home w-5"></i> Dashboard</button>
+                                <button onclick="showSection('materials')" class="w-full text-left px-4 py-2.5 rounded-xl text-gray-700 dark:text-gray-200 hover:bg-purple-50 dark:hover:bg-gray-700/50 hover:text-purple-600 transition flex items-center gap-3 font-medium"><i class="fas fa-book w-5"></i> Materials</button>
+                                <button onclick="showSection('timetable')" class="w-full text-left px-4 py-2.5 rounded-xl text-gray-700 dark:text-gray-200 hover:bg-purple-50 dark:hover:bg-gray-700/50 hover:text-purple-600 transition flex items-center gap-3 font-medium"><i class="fas fa-clock w-5"></i> Timetable</button>
+                                <button onclick="showSection('announcements')" class="w-full text-left px-4 py-2.5 rounded-xl text-gray-700 dark:text-gray-200 hover:bg-purple-50 dark:hover:bg-gray-700/50 hover:text-purple-600 transition flex items-center gap-3 font-medium"><i class="fas fa-bullhorn w-5"></i> Alerts</button>
+                                <button onclick="showSection('profile')" class="w-full text-left px-4 py-2.5 rounded-xl text-gray-700 dark:text-gray-200 hover:bg-purple-50 dark:hover:bg-gray-700/50 hover:text-purple-600 transition flex items-center gap-3 font-medium"><i class="fas fa-user-cog w-5"></i> My Profile</button>
+                            </div>
+                            <div class="mt-2 pt-2 border-t border-gray-100 dark:border-gray-700"><button onclick="logout()" class="w-full text-left px-4 py-2.5 rounded-xl text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition flex items-center gap-3 font-medium"><i class="fas fa-sign-out-alt w-5"></i> Logout</button></div>
                         </div>
-                        <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-lg transition-all transform hover:scale-[1.02] shadow-lg shadow-blue-500/30">
-                            Sign In
-                        </button>
-                    </form>
-                    <div class="mt-6 text-center space-y-2">
-                        <p class="text-gray-500 text-sm">New here? <button onclick="showSignup()" class="text-blue-600 font-bold hover:underline">Create Account</button></p>
-                        <button onclick="showForgotPassword()" class="text-sm text-gray-400 hover:text-gray-600">Forgot Password?</button>
                     </div>
                 </div>
+            </div>
+        </div>
+    </header>
 
-                <div id="signup-form" class="hidden">
-                    <h3 class="text-2xl font-bold mb-6 text-gray-800 dark:text-white">Create Account</h3>
-                    <form onsubmit="handleSignup(event)" class="space-y-4">
-                        <input type="text" id="signup-name" required placeholder="Full Name" class="w-full px-4 py-3 rounded-lg bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 focus:border-green-500 outline-none" />
-                        <input type="text" id="signup-department" required placeholder="Department" class="w-full px-4 py-3 rounded-lg bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 focus:border-green-500 outline-none" />
-                        <input type="email" id="signup-email" required placeholder="Email Address" class="w-full px-4 py-3 rounded-lg bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 focus:border-green-500 outline-none" />
-                        <input type="password" id="signup-password" required placeholder="Create Password" class="w-full px-4 py-3 rounded-lg bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 focus:border-green-500 outline-none" />
+    <!-- MAIN CONTENT -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 min-h-screen">
+
+        <!-- AUTH SECTION -->
+        <div id="auth-section" class="fade-in min-h-[80vh] flex items-center justify-center hidden">
+            <div class="bg-white dark:bg-gray-800 rounded-3xl shadow-2xl overflow-hidden flex max-w-5xl w-full border border-gray-100 dark:border-gray-700">
+                <div class="hidden md:flex md:w-5/12 bg-gradient-to-br from-helix-600 to-indigo-600 p-12 flex-col justify-between text-white relative overflow-hidden">
+                    <div class="absolute top-[-20%] left-[-20%] w-64 h-64 bg-white/10 rounded-full blur-3xl"></div>
+                    <div class="relative z-10"><div class="w-16 h-16 bg-white/20 rounded-2xl flex items-center justify-center mb-6 backdrop-blur-md"><i class="fas fa-dna text-4xl"></i></div><h2 class="text-4xl font-extrabold mb-4">Helix Portal</h2><p class="text-purple-100 text-lg leading-relaxed">Your centralized academic hub.</p></div>
+                    <div class="text-sm opacity-60">© 2025 Sanuth Inc.</div>
+                </div>
+                <div class="w-full md:w-7/12 p-8 md:p-16 bg-white dark:bg-gray-800 flex items-center">
+                    <div class="w-full max-w-md mx-auto">
+                        <div id="login-form">
+                            <h3 class="text-3xl font-bold mb-2 text-gray-900 dark:text-white">Welcome Back</h3>
+                            <form onsubmit="handleLogin(event)" class="space-y-5">
+                                <div><label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Email</label><input type="email" id="login-email" required class="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 focus:ring-2 focus:ring-purple-500 outline-none transition"></div>
+                                <div><label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Password</label><input type="password" id="login-password" required class="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 focus:ring-2 focus:ring-purple-500 outline-none transition"></div>
+                                <button type="submit" class="w-full bg-helix-600 hover:bg-helix-700 text-white font-bold py-3.5 rounded-xl shadow-lg transition">Sign In</button>
+                            </form>
+                            <div class="mt-6 flex flex-col items-center gap-2 text-sm"><p class="text-gray-500">Don't have an account? <button onclick="showSignup()" class="text-purple-600 font-bold hover:underline">Sign up</button></p><button onclick="showForgotPassword()" class="text-gray-400 hover:text-gray-600 transition">Forgot Password?</button></div>
+                        </div>
+                        <div id="forgot-password-form" class="hidden">
+                            <h3 class="text-3xl font-bold mb-2 text-gray-900 dark:text-white">Reset Password</h3>
+                            <form onsubmit="handleForgotPassword(event)" class="space-y-5">
+                                <div><label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Email</label><input type="email" id="forgot-email" required class="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 focus:ring-2 focus:ring-purple-500 outline-none transition"></div>
+                                <button type="submit" class="w-full bg-orange-500 hover:bg-orange-600 text-white font-bold py-3.5 rounded-xl shadow-lg transition">Send Reset Link</button>
+                            </form>
+                            <p class="mt-6 text-center text-sm text-gray-500"><button onclick="showLogin()" class="text-purple-600 font-bold hover:underline">Login</button></p>
+                        </div>
+                        <div id="signup-form" class="hidden">
+                            <h3 class="text-3xl font-bold mb-2 text-gray-900 dark:text-white">Create Account</h3>
+                            <form onsubmit="handleSignup(event)" class="space-y-4">
+                                <input type="text" id="signup-name" required placeholder="Full Name" class="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 focus:ring-2 focus:ring-purple-500 outline-none">
+                                <input type="text" id="signup-department" required placeholder="Department" class="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 focus:ring-2 focus:ring-purple-500 outline-none">
+                                <input type="email" id="signup-email" required placeholder="Email Address" class="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 focus:ring-2 focus:ring-purple-500 outline-none">
+                                <input type="password" id="signup-password" required placeholder="Password" class="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 focus:ring-2 focus:ring-purple-500 outline-none">
+                                <div class="flex items-center gap-2"><input type="checkbox" id="admin-signup" onchange="toggleAdminCode()" class="rounded text-purple-600 focus:ring-purple-500"><label for="admin-signup" class="text-sm text-gray-600 dark:text-gray-400">I am an Admin</label></div>
+                                <div id="admin-code-field" class="hidden"><input type="text" id="admin-code" placeholder="Enter Admin Code" class="w-full px-4 py-2 rounded-xl border border-red-200 bg-red-50 text-red-600 placeholder-red-300 focus:border-red-500 outline-none"></div>
+                                <button type="submit" class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3.5 rounded-xl shadow-lg transition">Create Account</button>
+                            </form>
+                            <p class="mt-6 text-center text-sm text-gray-500"><button onclick="showLogin()" class="text-purple-600 font-bold hover:underline">Login</button></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- DASHBOARD -->
+        <div id="dashboard-section" class="hidden fade-in space-y-8">
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                <div><h2 class="text-3xl md:text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-helix-600 to-blue-500 dark:from-purple-400 dark:to-blue-400">Hello, <span id="user-name">Student</span></h2><p class="text-gray-500 dark:text-gray-400 mt-1">Here is what's happening today.</p></div>
+                <div onclick="showSection('profile')" class="cursor-pointer bg-white dark:bg-gray-800 p-2 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 flex items-center gap-3 pr-4 hover:shadow-md transition">
+                    <img src="" id="user-avatar" class="w-10 h-10 rounded-lg bg-gray-200 object-cover">
+                    <div><p class="text-sm font-bold text-gray-900 dark:text-white" id="profile-name">Student</p><p class="text-xs text-gray-500 dark:text-gray-400" id="profile-department">Dept</p></div>
+                </div>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div onclick="showSection('materials')" class="group bg-white dark:bg-gray-800 rounded-2xl p-6 border border-gray-100 dark:border-gray-700 shadow-sm hover:shadow-xl hover:border-blue-500/30 transition-all cursor-pointer relative overflow-hidden">
+                    <div class="absolute top-0 right-0 w-32 h-32 bg-blue-500/5 rounded-full -translate-y-10 translate-x-10 group-hover:scale-150 transition-transform duration-500"></div>
+                    <div class="flex justify-between items-start relative z-10"><div><p class="text-xs font-bold text-blue-500 uppercase tracking-wider mb-1">Resources</p><h3 id="materials-count" class="text-4xl font-extrabold text-gray-800 dark:text-white">0</h3></div><div class="w-12 h-12 rounded-xl bg-blue-50 dark:bg-blue-900/20 flex items-center justify-center text-blue-500 group-hover:scale-110 transition-transform"><i class="fas fa-book text-xl"></i></div></div>
+                </div>
+                <div onclick="showSection('timetable')" class="group bg-white dark:bg-gray-800 rounded-2xl p-6 border border-gray-100 dark:border-gray-700 shadow-sm hover:shadow-xl hover:border-green-500/30 transition-all cursor-pointer relative overflow-hidden">
+                    <div class="absolute top-0 right-0 w-32 h-32 bg-green-500/5 rounded-full -translate-y-10 translate-x-10 group-hover:scale-150 transition-transform duration-500"></div>
+                    <div class="flex justify-between items-start relative z-10"><div class="w-full"><p class="text-xs font-bold text-green-500 uppercase tracking-wider mb-1">Up Next</p><div id="next-class" class="mt-1"><span class="text-2xl font-bold text-gray-800 dark:text-white">Loading...</span></div></div></div>
+                </div>
+                <div onclick="showSection('announcements')" class="group bg-white dark:bg-gray-800 rounded-2xl p-6 border border-gray-100 dark:border-gray-700 shadow-sm hover:shadow-xl hover:border-purple-500/30 transition-all cursor-pointer relative overflow-hidden">
+                    <div class="absolute top-0 right-0 w-32 h-32 bg-purple-500/5 rounded-full -translate-y-10 translate-x-10 group-hover:scale-150 transition-transform duration-500"></div>
+                    <div class="flex justify-between items-start relative z-10"><div><p class="text-xs font-bold text-purple-500 uppercase tracking-wider mb-1">Alerts</p><h3 id="announcements-count" class="text-4xl font-extrabold text-gray-800 dark:text-white">0</h3></div><div class="w-12 h-12 rounded-xl bg-purple-50 dark:bg-purple-900/20 flex items-center justify-center text-purple-500 group-hover:scale-110 transition-transform"><i class="fas fa-bullhorn text-xl"></i></div></div>
+                </div>
+            </div>
+            <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 p-6">
+                <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-2"><i class="fas fa-rss text-orange-500"></i> Latest Updates</h3>
+                <div id="dashboard-announcements" class="space-y-4"></div>
+            </div>
+        </div>
+
+        <!-- PROFILE -->
+        <div id="profile-section" class="hidden fade-in">
+            <div class="max-w-2xl mx-auto bg-white dark:bg-gray-800 rounded-2xl shadow-lg border border-gray-100 dark:border-gray-700 p-8">
+                <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-6 flex items-center gap-3"><span class="w-10 h-10 rounded-lg bg-indigo-100 dark:bg-indigo-900/30 flex items-center justify-center text-indigo-600"><i class="fas fa-user-cog"></i></span>Edit Profile</h2>
+                <form onsubmit="saveProfile(event)" class="space-y-6">
+                    <div class="flex flex-col items-center mb-6">
+                        <div class="relative group cursor-pointer" onclick="document.getElementById('avatar-input').click()">
+                            <img id="edit-profile-avatar" src="" class="w-28 h-28 rounded-full border-4 border-gray-100 dark:border-gray-700 shadow-md object-cover transition-opacity duration-300">
+                            <div class="absolute inset-0 bg-black/50 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300"><i class="fas fa-camera text-white text-2xl"></i></div>
+                            <input type="file" id="avatar-input" class="hidden" accept="image/*" onchange="handleAvatarUpload(event)">
+                        </div>
+                        <p class="text-sm text-gray-500 dark:text-gray-400 mt-3">Click to upload new picture</p>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div><label class="block text-sm font-bold mb-2 text-gray-700 dark:text-gray-300">Full Name</label><input type="text" id="edit-name" required class="w-full px-4 py-3 rounded-xl border dark:border-gray-600 bg-gray-50 dark:bg-gray-700 outline-none focus:ring-2 focus:ring-indigo-500 dark:text-white"></div>
+                        <div><label class="block text-sm font-bold mb-2 text-gray-700 dark:text-gray-300">Department</label><input type="text" id="edit-dept" required class="w-full px-4 py-3 rounded-xl border dark:border-gray-600 bg-gray-50 dark:bg-gray-700 outline-none focus:ring-2 focus:ring-indigo-500 dark:text-white"></div>
+                    </div>
+                    <div><label class="block text-sm font-bold mb-2 text-gray-700 dark:text-gray-300">Email Address</label><input type="email" id="edit-email" disabled class="w-full px-4 py-3 rounded-xl border dark:border-gray-600 bg-gray-100 dark:bg-gray-800 text-gray-500 cursor-not-allowed"></div>
+                    <div class="pt-4 flex gap-4"><button type="button" onclick="showSection('dashboard')" class="flex-1 py-3 rounded-xl border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 font-bold hover:bg-gray-50 dark:hover:bg-gray-700 transition">Cancel</button><button type="submit" class="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white py-3 rounded-xl font-bold shadow-lg shadow-indigo-500/30 transition transform hover:scale-[1.02]">Save Changes</button></div>
+                </form>
+            </div>
+        </div>
+
+        <!-- TIMETABLE -->
+        <div id="timetable-section" class="hidden fade-in">
+            <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg border border-gray-100 dark:border-gray-700 p-6">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-2xl font-bold text-gray-900 dark:text-white flex items-center gap-3"><span class="w-10 h-10 rounded-lg bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center text-blue-600"><i class="fas fa-calendar-alt"></i></span>Weekly Schedule</h2>
+                    <div class="flex gap-2">
+                        <!-- AI FEATURES -->
+                        <button onclick="generateStudyPlan()" class="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg text-sm font-bold shadow-lg transition flex items-center gap-2"><i class="fas fa-magic"></i> Study Plan</button>
+                        <button onclick="generateQuiz()" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg text-sm font-bold shadow-lg transition flex items-center gap-2"><i class="fas fa-brain"></i> ✨ Quiz</button>
                         
-                        <div class="flex items-center space-x-2">
-                            <input type="checkbox" id="admin-signup" onchange="toggleAdminCode()" class="w-4 h-4 text-green-600 rounded" />
-                            <label for="admin-signup" class="text-sm text-gray-600 dark:text-gray-400">Admin Account</label>
-                        </div>
-                        <div id="admin-code-field" class="hidden">
-                            <input type="text" id="admin-code" placeholder="Admin Code" class="w-full px-4 py-2 rounded-lg bg-red-50 border border-red-200 text-red-600 placeholder-red-300 focus:border-red-500 outline-none" />
-                        </div>
-
-                        <button type="submit" class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3 rounded-lg transition-all shadow-lg shadow-green-500/30">
-                            Sign Up
-                        </button>
-                    </form>
-                    <p class="mt-4 text-center text-gray-500 text-sm">Have an account? <button onclick="showLogin()" class="text-green-600 font-bold hover:underline">Login</button></p>
-                </div>
-
-                <div id="forgot-password-form" class="hidden text-center">
-                    <h3 class="text-2xl font-bold mb-4 text-gray-800 dark:text-white">Reset Password</h3>
-                    <p class="text-gray-500 mb-6">Enter your email to receive reset instructions.</p>
-                    <form onsubmit="handleForgotPassword(event)" class="space-y-4">
-                        <input type="email" id="forgot-email" required placeholder="Email Address" class="w-full px-4 py-3 rounded-lg bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 focus:border-orange-500 outline-none" />
-                        <button type="submit" class="w-full bg-orange-500 hover:bg-orange-600 text-white font-bold py-3 rounded-lg shadow-lg shadow-orange-500/30">
-                            Send Link
-                        </button>
-                    </form>
-                    <button onclick="showLogin()" class="mt-6 text-blue-600 text-sm hover:underline">Back to Login</button>
-                </div>
-
-            </div>
-        </div>
-    </div>
-
-    <div id="dashboard-section" class="hidden fade-in">
-        <div class="mb-8">
-            
-            <h2 class="text-3xl font-extrabold mb-2 text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600 dark:from-blue-400 dark:to-purple-400">
-                Welcome back, <span id="user-name">Student</span>!
-            </h2>
-            <p class="text-gray-600 dark:text-gray-400">Your academic command center.</p>
-        </div>
-
-        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-6 flex items-center gap-5 mb-8 transform hover:scale-[1.01] transition-all">
-            <img src="https://ui-avatars.com/api/?name=User&background=random" alt="Profile" id="user-avatar" class="w-20 h-20 rounded-full border-4 border-white dark:border-gray-700 shadow-lg object-cover" />
-            <div>
-                <h3 id="profile-name" class="text-2xl font-bold text-gray-800 dark:text-white">Loading...</h3>
-                <p id="profile-department" class="text-blue-600 dark:text-blue-400 font-medium">Department</p>
-                <div class="mt-2 flex items-center space-x-2">
-                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                        <span class="w-2 h-2 mr-1.5 bg-green-500 rounded-full animate-pulse"></span> Active
-                    </span>
-                </div>
-            </div>
-        </div>
-
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-            <div onclick="showSection('materials')" class="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6 border-l-4 border-blue-500 card-hover cursor-pointer group">
-                <div class="flex justify-between items-start">
-                    <div>
-                        <p class="text-gray-500 dark:text-gray-400 text-sm font-bold uppercase tracking-wider">Materials</p>
-                        <h3 id="materials-count" class="text-4xl font-extrabold text-gray-800 dark:text-white mt-1">0</h3>
-                    </div>
-                    <div class="p-3 bg-blue-50 dark:bg-gray-700 rounded-lg group-hover:bg-blue-100 transition-colors">
-                        <i class="fas fa-book text-blue-600 text-xl"></i>
-                    </div>
-                </div>
-            </div>
-
-            <div onclick="showSection('timetable')" class="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6 border-l-4 border-green-500 card-hover cursor-pointer group">
-                <div class="flex justify-between items-start">
-                    <div>
-                        <p class="text-gray-500 dark:text-gray-400 text-sm font-bold uppercase tracking-wider">Upcoming</p>
-                        <div id="next-class" class="mt-1">
-                            <span class="text-sm text-gray-400">Loading...</span>
+                        <div id="admin-timetable-controls" class="hidden flex gap-2">
+                            <button onclick="openAddRowModal()" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg text-sm font-bold shadow-lg transition"><i class="fas fa-plus"></i></button>
+                            <button onclick="addExamRow()" class="bg-yellow-600 hover:bg-yellow-700 text-white px-4 py-2 rounded-lg text-sm font-bold shadow-lg transition"><i class="fas fa-scroll"></i></button>
+                            <button onclick="resetToDefaults()" class="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-lg text-sm font-bold shadow-lg transition"><i class="fas fa-undo"></i></button>
                         </div>
                     </div>
                 </div>
-            </div>
-
-            <div onclick="showSection('announcements')" class="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6 border-l-4 border-purple-500 card-hover cursor-pointer group">
-                <div class="flex justify-between items-start">
-                    <div>
-                        <p class="text-gray-500 dark:text-gray-400 text-sm font-bold uppercase tracking-wider">Alerts</p>
-                        <h3 id="announcements-count" class="text-4xl font-extrabold text-gray-800 dark:text-white mt-1">0</h3>
-                    </div>
-                    <div class="p-3 bg-purple-50 dark:bg-gray-700 rounded-lg group-hover:bg-purple-100 transition-colors">
-                        <i class="fas fa-bullhorn text-purple-600 text-xl"></i>
-                    </div>
-                </div>
+                <div class="overflow-hidden rounded-xl border border-gray-200 dark:border-gray-700"><div class="overflow-x-auto"><table class="w-full text-left border-collapse"><thead id="timetable-head"></thead><tbody id="timetable-body"></tbody></table></div></div>
             </div>
         </div>
-        
-        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6 border border-gray-100 dark:border-gray-700">
-            <h3 class="text-lg font-bold text-gray-800 dark:text-white mb-4 flex items-center">
-                <i class="fas fa-rss text-orange-500 mr-2"></i> Recent Updates
-            </h3>
-            <div id="dashboard-announcements" class="space-y-4">
+
+        <!-- MATERIALS -->
+        <div id="materials-section" class="hidden fade-in">
+            <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg border border-gray-100 dark:border-gray-700 p-6">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-2xl font-bold text-gray-900 dark:text-white flex items-center gap-3"><span class="w-10 h-10 rounded-lg bg-green-100 dark:bg-green-900/30 flex items-center justify-center text-green-600"><i class="fas fa-book"></i></span>Course Materials</h2>
+                    <div class="flex gap-2">
+                        <button onclick="analyzeMaterials()" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-bold shadow-lg transition flex items-center gap-2"><i class="fas fa-lightbulb"></i> ✨ Analyze Topics</button>
+                        <div id="admin-materials-controls" class="hidden">
+                            <button onclick="uploadMaterial()" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-bold shadow-lg transition"><i class="fas fa-upload mr-2"></i>Upload</button>
+                        </div>
+                    </div>
                 </div>
+                <div id="admin-drag-drop-controls" class="hidden mb-6"><div id="drop-zone" onclick="uploadMaterial()" class="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-xl p-8 text-center transition hover:border-green-500 hover:bg-green-50 dark:hover:bg-green-900/10 cursor-pointer"><i class="fas fa-cloud-upload-alt text-3xl text-gray-400 mb-2"></i><p class="text-gray-600 dark:text-gray-300 font-medium">Drag & Drop files here</p></div></div>
+                <div class="mb-6 relative"><i class="fas fa-search absolute left-4 top-3.5 text-gray-400"></i><input type="text" id="material-search" oninput="filterMaterials()" placeholder="Search documents..." class="w-full pl-10 pr-4 py-3 rounded-xl bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 focus:ring-2 focus:ring-green-500 outline-none transition"></div>
+                <div id="materials-list" class="space-y-3"></div>
+            </div>
+        </div>
+
+        <!-- ANNOUNCEMENTS -->
+        <div id="announcements-section" class="hidden fade-in">
+            <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg border border-gray-100 dark:border-gray-700 p-6">
+                <div class="flex justify-between items-center mb-8">
+                    <h2 class="text-2xl font-bold text-gray-900 dark:text-white flex items-center gap-3"><span class="w-10 h-10 rounded-lg bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center text-purple-600"><i class="fas fa-bullhorn"></i></span>Announcements</h2>
+                    <div id="admin-announcements-controls" class="hidden"><button onclick="createAnnouncement()" class="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg font-bold shadow-lg transition"><i class="fas fa-plus mr-2"></i>Post</button></div>
+                </div>
+                <div id="announcements-list" class="space-y-6"></div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- AI CHAT -->
+    <button id="ai-toggle" class="fixed bottom-6 right-6 bg-helix-600 hover:bg-helix-700 text-white p-4 rounded-full shadow-2xl z-40 transition hover:scale-110"><i class="fas fa-robot text-xl"></i></button>
+    <div id="ai-chat" class="hidden fixed bottom-24 right-6 w-96 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl shadow-2xl flex flex-col z-40 h-[500px] overflow-hidden">
+        <div class="p-4 bg-helix-600 text-white font-bold flex justify-between items-center"><span>AI Assistant</span><button onclick="document.getElementById('ai-chat').classList.add('hidden')" class="hover:text-gray-200"><i class="fas fa-times"></i></button></div>
+        <div id="chat-body" class="flex-1 p-4 overflow-y-auto bg-gray-50 dark:bg-gray-900 space-y-3"><div class="p-3 rounded-lg bg-white dark:bg-gray-800 shadow-sm text-sm text-gray-700 dark:text-gray-200 max-w-[85%]">Hello! I can help you find course materials or answer questions about your schedule.</div></div>
+        <form id="chat-form" class="p-3 border-t border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 flex gap-2"><input id="chat-input" class="flex-1 px-4 py-2 rounded-full bg-gray-100 dark:bg-gray-700 border-none outline-none text-sm dark:text-white" placeholder="Ask me anything..."><button type="submit" class="w-10 h-10 rounded-full bg-helix-600 text-white flex items-center justify-center hover:bg-helix-700 transition"><i class="fas fa-paper-plane text-sm"></i></button></form>
+    </div>
+
+    <!-- MODALS -->
+    <!-- Unified AI Modal -->
+    <div id="ai-content-modal" class="fixed inset-0 z-[100] hidden">
+        <div class="fixed inset-0 bg-gray-900/60 backdrop-blur-sm transition-opacity" onclick="closeModal('ai-content-modal')"></div>
+        <div class="fixed inset-0 z-10 w-screen overflow-y-auto">
+            <div class="flex min-h-full items-center justify-center p-4">
+                <div class="relative transform overflow-hidden rounded-2xl bg-white dark:bg-gray-800 text-left shadow-2xl transition-all sm:w-full sm:max-w-2xl border border-gray-100 dark:border-gray-700 p-8">
+                    <div class="flex justify-between items-start mb-6">
+                        <h3 class="text-2xl font-bold text-gray-900 dark:text-white flex items-center gap-2" id="ai-modal-title"><span class="text-purple-500">✨</span> AI Result</h3>
+                        <button onclick="closeModal('ai-content-modal')" class="text-gray-400 hover:text-gray-600 dark:hover:text-white"><i class="fas fa-times text-xl"></i></button>
+                    </div>
+                    <div id="ai-modal-content" class="prose dark:prose-invert max-w-none text-sm text-gray-700 dark:text-gray-300"></div>
+                </div>
+            </div>
         </div>
     </div>
 
-    <div id="timetable-section" class="hidden fade-in">
-        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 border border-gray-100 dark:border-gray-700">
-            <div class="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
-                <h2 class="text-2xl font-bold text-gray-800 dark:text-white flex items-center">
-                    <div class="w-10 h-10 rounded-lg bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center mr-3 text-blue-600">
-                        <i class="fas fa-calendar-alt"></i>
-                    </div>
-                    Weekly Schedule
-                </h2>
-                <div id="admin-timetable-controls" class="hidden flex flex-wrap gap-2">
-                    <button onclick="addRow()" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg text-sm font-bold shadow-lg shadow-green-500/20 transition-all"><i class="fas fa-plus mr-2"></i>Row</button>
-                    <button onclick="addExamRow()" class="bg-yellow-600 hover:bg-yellow-700 text-white px-4 py-2 rounded-lg text-sm font-bold shadow-lg shadow-yellow-500/20 transition-all"><i class="fas fa-scroll mr-2"></i>Exam</button>
-                    <button onclick="resetToDefaults()" class="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-lg text-sm font-bold shadow-lg transition-all"><i class="fas fa-undo mr-2"></i>Reset</button>
+    <!-- Delete Modal -->
+    <div id="delete-modal" class="fixed inset-0 z-[100] hidden">
+        <div class="fixed inset-0 bg-gray-900/60 backdrop-blur-sm transition-opacity" onclick="closeDeleteModal()"></div>
+        <div class="fixed inset-0 z-10 w-screen overflow-y-auto">
+            <div class="flex min-h-full items-center justify-center p-4">
+                <div class="relative transform overflow-hidden rounded-2xl bg-white dark:bg-gray-800 text-left shadow-2xl transition-all sm:w-full sm:max-w-md border border-gray-100 dark:border-gray-700 p-6">
+                    <div class="text-center"><div class="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-red-100 dark:bg-red-900/30 mb-4"><i class="fas fa-exclamation-triangle text-red-600 dark:text-red-400 text-xl"></i></div><h3 class="text-xl font-bold text-gray-900 dark:text-white">Delete Item?</h3><p class="text-sm text-gray-500 dark:text-gray-400 mt-2">This action is permanent.</p></div>
+                    <div class="mt-6 flex gap-3"><button onclick="closeDeleteModal()" class="flex-1 py-2.5 rounded-xl border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 font-semibold hover:bg-gray-50 dark:hover:bg-gray-700 transition">Cancel</button><button onclick="confirmDeleteAction()" class="flex-1 py-2.5 rounded-xl bg-red-600 text-white font-semibold hover:bg-red-700 transition shadow-lg shadow-red-500/20">Delete</button></div>
                 </div>
-            </div>
-            <div class="overflow-hidden rounded-lg border border-gray-200 dark:border-gray-700">
-                <div class="overflow-x-auto">
-                    <table class="w-full text-left border-collapse">
-                        <thead id="timetable-head"></thead>
-                        <tbody id="timetable-body"></tbody>
-                    </table>
-                </div>
-            </div>
-            <p id="autosave-indicator" class="text-xs text-green-500 mt-3 hidden flex items-center"><i class="fas fa-check-circle mr-1"></i> Changes saved automatically</p>
-        </div>
-    </div>
-
-    <div id="materials-section" class="hidden fade-in">
-        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 border border-gray-100 dark:border-gray-700">
-            <div class="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
-                <h2 class="text-2xl font-bold text-gray-800 dark:text-white flex items-center">
-                    <div class="w-10 h-10 rounded-lg bg-green-100 dark:bg-green-900/30 flex items-center justify-center mr-3 text-green-600">
-                        <i class="fas fa-book-open"></i>
-                    </div>
-                    Course Materials
-                </h2>
-                <div id="admin-materials-controls" class="hidden">
-                    <button onclick="uploadMaterial()" class="bg-green-600 hover:bg-green-700 text-white px-5 py-2.5 rounded-lg font-bold shadow-lg shadow-green-500/30 transition-transform hover:scale-105">
-                        <i class="fas fa-cloud-upload-alt mr-2"></i>Upload File
-                    </button>
-                </div>
-            </div>
-
-            <div class="mb-6 relative">
-                <i class="fas fa-search absolute left-4 top-3.5 text-gray-400"></i>
-                <input type="text" id="material-search" oninput="filterMaterials()" placeholder="Search lectures, slides, docs..." 
-                    class="w-full pl-10 pr-4 py-3 rounded-lg bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 focus:ring-2 focus:ring-green-500 outline-none transition-all dark:text-white" />
-            </div>
-<div id="admin-drag-drop-controls" class="hidden mb-6">
-    <div id="drop-zone" onclick="uploadMaterial()" 
-         class="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-xl p-8 text-center transition-all duration-300 hover:border-green-500 hover:bg-green-50 dark:hover:bg-green-900/10 dark:hover:border-green-500 cursor-pointer group relative overflow-hidden">
-        
-        <div class="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000"></div>
-
-        <div class="flex flex-col items-center justify-center space-y-3 relative z-10">
-            <div class="w-16 h-16 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
-                <i class="fas fa-cloud-upload-alt text-3xl text-green-600 dark:text-green-400"></i>
-            </div>
-            <div>
-                <p class="text-lg font-bold text-gray-700 dark:text-gray-200 group-hover:text-green-700 dark:group-hover:text-green-400 transition-colors">
-                    Drag & Drop materials here
-                </p>
-                <p class="text-sm text-gray-500 dark:text-gray-400">
-                    or click to browse
-                </p>
             </div>
         </div>
     </div>
-</div>
-            <div id="materials-list" class="space-y-3">
-                </div>
-        </div>
-    </div>
-
-    <div id="announcements-section" class="hidden fade-in">
-        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 border border-gray-100 dark:border-gray-700">
-            <div class="flex justify-between items-center mb-8">
-                <h2 class="text-2xl font-bold text-gray-800 dark:text-white flex items-center">
-                    <div class="w-10 h-10 rounded-lg bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center mr-3 text-purple-600">
-                        <i class="fas fa-bullhorn"></i>
-                    </div>
-                    Announcements
-                </h2>
-                <div id="admin-announcements-controls" class="hidden">
-                    <button onclick="createAnnouncement()" class="bg-purple-600 hover:bg-purple-700 text-white px-5 py-2.5 rounded-lg font-bold shadow-lg shadow-purple-500/30 transition-transform hover:scale-105">
-                        <i class="fas fa-plus mr-2"></i>New Post
-                    </button>
-                </div>
-            </div>
-            <div id="announcements-list" class="space-y-6">
-                </div>
-        </div>
-    </div>
-
-</main>
 
     <!-- Upload Modal -->
-    <div id="upload-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center z-50">
-        <div class="bg-white rounded-lg p-6 w-full max-w-md mx-4">
-            <h3 class="text-lg font-semibold mb-4">Upload Course Material</h3>
+    <div id="upload-modal" class="fixed inset-0 z-[90] hidden flex items-center justify-center bg-gray-900/60 backdrop-blur-sm">
+        <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 w-full max-w-md shadow-2xl border border-gray-100 dark:border-gray-700">
+            <h3 class="text-xl font-bold mb-4 text-gray-900 dark:text-white">Upload Material</h3>
             <form onsubmit="handleFileUpload(event)">
-                <div class="mb-4">
-                    <label class="block text-gray-700 text-sm font-bold mb-2">File Title</label>
-                    <input type="text" id="file-title" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" />
-                </div>
-                <div class="mb-4">
-                    <label class="block text-gray-700 text-sm font-bold mb-2">Select File</label>
-                    <input type="file" id="file-input" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" />
-                </div>
-               <div class="flex justify-end space-x-3">
-    <button type="button" onclick="closeModal('upload-modal')" class="px-4 py-2 text-gray-600 hover:text-gray-800">Cancel</button>
-
-    <button type="submit" id="upload-btn" class="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 flex items-center justify-center min-w-[100px]">
-        <span id="upload-text">Upload</span>
-        <i id="upload-spinner" class="fas fa-spinner fa-spin ml-2 hidden"></i>
-    </button>
-    </div>
+                <div class="mb-4"><label class="block text-sm font-bold mb-2 text-gray-700 dark:text-gray-300">Title</label><input type="text" id="file-title" required class="w-full px-4 py-2 rounded-xl border dark:border-gray-600 bg-gray-50 dark:bg-gray-700 outline-none focus:ring-2 focus:ring-green-500"></div>
+                <div class="mb-6"><label class="block text-sm font-bold mb-2 text-gray-700 dark:text-gray-300">File</label><input type="file" id="file-input" required class="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-green-50 file:text-green-700 hover:file:bg-green-100 transition"></div>
+                <div class="flex justify-end gap-3"><button type="button" onclick="closeModal('upload-modal')" class="px-4 py-2 text-gray-600 dark:text-gray-400 hover:text-gray-900">Cancel</button><button type="submit" id="upload-btn" class="bg-green-600 text-white px-6 py-2 rounded-xl font-bold hover:bg-green-700 flex items-center gap-2"><span id="upload-text">Upload</span> <i id="upload-spinner" class="fas fa-spinner fa-spin hidden"></i></button></div>
             </form>
         </div>
     </div>
 
     <!-- Announcement Modal -->
-    <div id="announcement-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center z-50">
-        <div class="bg-white rounded-lg p-6 w-full max-w-md mx-4">
-            <h3 class="text-lg font-semibold mb-4">Create Announcement</h3>
+    <div id="announcement-modal" class="fixed inset-0 z-[90] hidden flex items-center justify-center bg-gray-900/60 backdrop-blur-sm">
+        <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 w-full max-w-md shadow-2xl border border-gray-100 dark:border-gray-700">
+            <h3 class="text-xl font-bold mb-4 text-gray-900 dark:text-white">New Announcement</h3>
             <form onsubmit="handleAnnouncementCreate(event)">
-                <div class="mb-4">
-                    <label class="block text-gray-700 text-sm font-bold mb-2">Title</label>
-                    <input type="text" id="announcement-title" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" />
-                </div>
-                <div class="mb-4">
-                    <label class="block text-gray-700 text-sm font-bold mb-2">Message</label>
-                    <textarea id="announcement-message" required rows="4" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"></textarea>
-                </div>
-                <div class="flex justify-end space-x-3">
-                    <button type="button" onclick="closeModal('announcement-modal')" class="px-4 py-2 text-gray-600 hover:text-gray-800">Cancel</button>
-                    <button type="submit" class="bg-purple-600 text-white px-4 py-2 rounded-md hover:bg-purple-700">Post</button>
-                </div>
+                <div class="mb-4"><label class="block text-sm font-bold mb-2 text-gray-700 dark:text-gray-300">Title</label><input type="text" id="announcement-title" required class="w-full px-4 py-2 rounded-xl border dark:border-gray-600 bg-gray-50 dark:bg-gray-700 outline-none focus:ring-2 focus:ring-purple-500"></div>
+                <div class="mb-6"><label class="block text-sm font-bold mb-2 text-gray-700 dark:text-gray-300">Message</label><textarea id="announcement-message" required rows="4" class="w-full px-4 py-2 rounded-xl border dark:border-gray-600 bg-gray-50 dark:bg-gray-700 outline-none focus:ring-2 focus:ring-purple-500"></textarea></div>
+                <div class="flex justify-end gap-3"><button type="button" onclick="closeModal('announcement-modal')" class="px-4 py-2 text-gray-600 dark:text-gray-400 hover:text-gray-900">Cancel</button><button type="submit" class="bg-purple-600 text-white px-6 py-2 rounded-xl font-bold hover:bg-purple-700">Post</button></div>
             </form>
         </div>
     </div>
-<div id="delete-modal" class="fixed inset-0 z-[60] hidden" aria-labelledby="modal-title" role="dialog" aria-modal="true">
-  <div class="fixed inset-0 bg-gray-900/75 backdrop-blur-sm transition-opacity" onclick="closeDeleteModal()"></div>
 
-  <div class="fixed inset-0 z-10 w-screen overflow-y-auto">
-    <div class="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0">
-      
-      <div class="relative transform overflow-hidden rounded-2xl bg-white dark:bg-gray-800 text-left shadow-2xl transition-all sm:my-8 sm:w-full sm:max-w-lg border border-gray-100 dark:border-gray-700">
-        <div class="bg-white dark:bg-gray-800 px-4 pb-4 pt-5 sm:p-6 sm:pb-4">
-          <div class="sm:flex sm:items-start">
-            <div class="mx-auto flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full bg-red-100 dark:bg-red-900/30 sm:mx-0 sm:h-10 sm:w-10">
-              <i class="fas fa-exclamation-triangle text-red-600 dark:text-red-400 text-lg"></i>
-            </div>
-            
-            <div class="mt-3 text-center sm:ml-4 sm:mt-0 sm:text-left">
-              <h3 class="text-xl font-bold leading-6 text-gray-900 dark:text-white" id="modal-title">Delete Item?</h3>
-              <div class="mt-2">
-                <p class="text-sm text-gray-500 dark:text-gray-400">
-                  Are you sure you want to delete this? This action cannot be undone and will permanently remove the data from the server.
-                </p>
-              </div>
-            </div>
-          </div>
+    <!-- Add Row Modal -->
+    <div id="add-row-modal" class="fixed inset-0 z-[90] hidden flex items-center justify-center bg-gray-900/60 backdrop-blur-sm">
+        <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 w-full max-w-md shadow-2xl border border-gray-100 dark:border-gray-700">
+            <h3 class="text-xl font-bold mb-4 text-gray-900 dark:text-white">Add Timetable Row</h3>
+            <form onsubmit="handleAddRow(event)">
+                <div class="mb-6"><label class="block text-sm font-bold mb-2 text-gray-700 dark:text-gray-300">Time Range</label><input type="text" id="new-row-time" required placeholder="e.g. 10:00 - 11:00" class="w-full px-4 py-2 rounded-xl border dark:border-gray-600 bg-gray-50 dark:bg-gray-700 outline-none focus:ring-2 focus:ring-blue-500 dark:text-white"></div>
+                <div class="flex justify-end gap-3"><button type="button" onclick="closeModal('add-row-modal')" class="px-4 py-2 text-gray-600 dark:text-gray-400 hover:text-gray-900">Cancel</button><button type="submit" class="bg-blue-600 text-white px-6 py-2 rounded-xl font-bold hover:bg-blue-700">Add Row</button></div>
+            </form>
         </div>
-        
-        <div class="bg-gray-50 dark:bg-gray-700/50 px-4 py-3 sm:flex sm:flex-row-reverse sm:px-6">
-          <button type="button" onclick="confirmDeleteAction()" 
-                  class="inline-flex w-full justify-center rounded-lg bg-red-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-red-500 sm:ml-3 sm:w-auto transition-transform active:scale-95">
-            Yes, Delete it
-          </button>
-          <button type="button" onclick="closeDeleteModal()" 
-                  class="mt-3 inline-flex w-full justify-center rounded-lg bg-white dark:bg-gray-700 px-3 py-2 text-sm font-semibold text-gray-900 dark:text-gray-200 shadow-sm ring-1 ring-inset ring-gray-300 dark:ring-gray-600 hover:bg-gray-50 dark:hover:bg-gray-600 sm:mt-0 sm:w-auto transition-colors">
-            Cancel
-          </button>
-        </div>
-      </div>
     </div>
-  </div>
-</div>
+
+    <!-- NOTIFICATION POPUP -->
+    <div id="notification" class="fixed top-24 right-6 z-[80] hidden transform transition-all duration-300 translate-x-full"></div>
+
+    <!-- MAIN SCRIPT -->
     <script>
-        // Global state
         let currentUser = null;
-        let currentSection = 'dashboard';
         let currentTimetable = [];
+        let pendingDelete = null;
         let debounceTimer = null;
+        const notifState = { count: 0, items: [], hasPermission: false };
 
-        // Firebase Backend Functions
-        class FirebaseBackend {
-           static async init() {
-  while (!window.firebaseAuth || !window.firebaseDb) {
-    await new Promise((resolve) => setTimeout(resolve, 100));
-  }
-
-  // Add a 'loading' flag to hide login temporarily
-  document.body.classList.add('loading');
-
-  await this.initializeDefaultData();
-
-  // Wait for Firebase to tell us who’s logged in
-  window.firebaseServices.onAuthStateChanged(window.firebaseAuth, async (user) => {
-    if (user) {
-      const userDoc = await window.firebaseServices.getDoc(
-        window.firebaseServices.doc(window.firebaseDb, 'users', user.uid)
-      );
-
-      if (userDoc.exists()) {
-        currentUser = { uid: user.uid, email: user.email, ...userDoc.data() };
-        updateUI();
-
-        // ✅ Restore the last visited page
-        const savedSection = localStorage.getItem('lastSection');
-        if (savedSection && document.getElementById(`${savedSection}-section`)) {
-          showSection(savedSection);
-        } else {
-          showSection('dashboard');
-        }
-      }
-    } else {
-      currentUser = null;
-      updateUI();
-    }
-
-    // Done checking — show UI now
-    document.body.classList.remove('loading');
-  });
-}
-
-
-            static async initializeDefaultData() {
-                try {
-                    // Seed Materials
-                    const materialsSnapshot = await window.firebaseServices.getDocs(
-                        window.firebaseServices.collection(window.firebaseDb, 'materials')
-                    );
-                    if (materialsSnapshot.empty) {
-                        const defaults = [
-                            { title: 'Biochemistry Chapter 1 - Introduction', filename: 'biochem-ch1.pdf', uploadDate: new Date(Date.now() - 2*86400000), size: '2.5 MB', uploadedBy: 'admin' },
-                            { title: 'Organic Chemistry Slides - Week 3', filename: 'organic-week3.pptx', uploadDate: new Date(Date.now() - 7*86400000), size: '5.1 MB', uploadedBy: 'admin' },
-                            { title: 'Lab Report Template', filename: 'lab-template.docx', uploadDate: new Date(Date.now() - 14*86400000), size: '1.2 MB', uploadedBy: 'admin' }
-                        ];
-                        for (const m of defaults) {
-                            await window.firebaseServices.addDoc(window.firebaseServices.collection(window.firebaseDb, 'materials'), m);
-                        }
-                    }
-
-                    // Seed Announcements
-                    const announcementsSnapshot = await window.firebaseServices.getDocs(
-                        window.firebaseServices.collection(window.firebaseDb, 'announcements')
-                    );
-                    if (announcementsSnapshot.empty) {
-                        const defaults = [
-                            { title: 'Welcome to Biochemistry Helix!', message: 'Welcome to the new student portal! Here you can access all your course materials, check your timetable, and stay updated with the latest announcements. If you have any questions, please don\'t hesitate to reach out.', date: new Date(Date.now() - 3*86400000), createdBy: 'admin' },
-                            { title: 'Lab Session Update', message: 'Please note that this Friday\'s lab session has been moved to Lab Room 3 due to equipment maintenance in Lab Room 1. The time remains the same (9:00 - 12:00).', date: new Date(Date.now() - 7*86400000), createdBy: 'admin' },
-                            { title: 'Assignment Reminder', message: 'Don\'t forget that your first biochemistry assignment is due next Monday. Please submit your reports using the template provided in the course materials section.', date: new Date(Date.now() - 14*86400000), createdBy: 'admin' }
-                        ];
-                        for (const a of defaults) {
-                            await window.firebaseServices.addDoc(window.firebaseServices.collection(window.firebaseDb, 'announcements'), a);
-                        }
-                    }
-
-                    // Seed Timetable (FULLY Firestore-driven)
-                    const timetableDoc = await window.firebaseServices.getDoc(
-                        window.firebaseServices.doc(window.firebaseDb, 'settings', 'timetable')
-                    );
-                    if (!timetableDoc.exists()) {
-                        const defaultTimetable = [
-                            { time: '9:00 - 10:00', monday: 'Biochemistry Lecture\nRoom A101', tuesday: '-', wednesday: 'Organic Chemistry\nRoom B205', thursday: '-', friday: 'Lab Session\nLab 1' },
-                            { time: '10:00 - 11:00', monday: '-', tuesday: 'Molecular Biology\nRoom C301', wednesday: '-', thursday: 'Biochemistry Lecture\nRoom A101', friday: '-' },
-                            { time: '11:00 - 12:00', monday: 'Tutorial\nRoom D102', tuesday: '-', wednesday: 'Lab Session\nLab 2', thursday: '-', friday: 'Seminar\nRoom E201' },
-                            // Exam block as rows (with Saturday column)
-                            { time: 'Exam Timetable', monday: 'Aug 9 — GST 103/112\nDLI', tuesday: 'Aug 18 — MTH 102\nDLI', wednesday: 'Aug 20 — CHM 102\nDLI', thursday: 'Aug 21 — BIO 102\nDLI', friday: 'Aug 27 — PHY 102\nDLI', saturday: 'Aug 28 — COS 102\nFaculty of Science' }
-                        ];
-                        await window.firebaseServices.setDoc(
-                            window.firebaseServices.doc(window.firebaseDb, 'settings', 'timetable'),
-                            { schedule: defaultTimetable }
-                        );
-                    }
-                } catch (error) {
-                    console.error('Error initializing default data:', error);
-                }
-            }
-
-            static async getMaterials() {
-                try {
-                    const snap = await window.firebaseServices.getDocs(
-                        window.firebaseServices.query(
-                            window.firebaseServices.collection(window.firebaseDb, 'materials'),
-                            window.firebaseServices.orderBy('uploadDate', 'desc')
-                        )
-                    );
-                    return snap.docs.map((d) => ({ id: d.id, ...d.data(), uploadDate: d.data().uploadDate?.toDate?.() || d.data().uploadDate }));
-                } catch (e) {
-                    console.error('Error getting materials:', e);
-                    return [];
-                }
-            }
-
-            static async addMaterial(material) {
-                const docRef = await window.firebaseServices.addDoc(
-                    window.firebaseServices.collection(window.firebaseDb, 'materials'),
-                    { ...material, uploadDate: new Date(), uploadedBy: currentUser?.uid || 'unknown' }
-                );
-                return docRef.id;
-            }
-
-            static async deleteMaterial(id) {
-                await window.firebaseServices.deleteDoc(window.firebaseServices.doc(window.firebaseDb, 'materials', id));
-            }
-
-            static async getAnnouncements() {
-                try {
-                    const snap = await window.firebaseServices.getDocs(
-                        window.firebaseServices.query(
-                            window.firebaseServices.collection(window.firebaseDb, 'announcements'),
-                            window.firebaseServices.orderBy('date', 'desc')
-                        )
-                    );
-                    return snap.docs.map((d) => ({ id: d.id, ...d.data(), date: d.data().date?.toDate?.() || d.data().date }));
-                } catch (e) {
-                    console.error('Error getting announcements:', e);
-                    return [];
-                }
-            }
-
-            static async addAnnouncement(announcement) {
-                const docRef = await window.firebaseServices.addDoc(
-                    window.firebaseServices.collection(window.firebaseDb, 'announcements'),
-                    { ...announcement, date: new Date(), createdBy: currentUser?.uid || 'unknown' }
-                );
-                return docRef.id;
-            }
-
-            static async updateAnnouncement(id, updates) {
-                await window.firebaseServices.updateDoc(
-                    window.firebaseServices.doc(window.firebaseDb, 'announcements', id),
-                    { ...updates, editedAt: new Date() }
-                );
-            }
-
-            static async deleteAnnouncement(id) {
-                await window.firebaseServices.deleteDoc(window.firebaseServices.doc(window.firebaseDb, 'announcements', id));
-            }
-
-            static async getTimetable() {
-                try {
-                    const timetableDoc = await window.firebaseServices.getDoc(
-                        window.firebaseServices.doc(window.firebaseDb, 'settings', 'timetable')
-                    );
-                    if (timetableDoc.exists()) return timetableDoc.data().schedule || [];
-                    return [];
-                } catch (e) {
-                    console.error('Error getting timetable:', e);
-                    return [];
-                }
-            }
-
-            static async saveTimetable(timetable) {
-                await window.firebaseServices.setDoc(
-                    window.firebaseServices.doc(window.firebaseDb, 'settings', 'timetable'),
-                    { schedule: timetable }
-                );
-            }
-
-            static formatDate(date) {
-                if (!date) return 'Unknown';
-                const d = date instanceof Date ? date : new Date(date);
-                const now = new Date();
-                const diff = Math.abs(now - d);
-                const days = Math.ceil(diff / 86400000);
-                if (days === 1) return 'Yesterday';
-                if (days < 7) return `${days} days ago`;
-                if (days < 30) return `${Math.ceil(days / 7)} weeks ago`;
-                return d.toLocaleDateString();
-            }
+        // --- UTILS ---
+        function linkify(text) {
+            const urlRegex = /(https?:\/\/[^\s]+)/g;
+            return text.replace(urlRegex, url => `<a href="${url}" target="_blank" class="text-blue-600 dark:text-blue-400 hover:underline break-all">${url}</a>`);
         }
 
-        // Theme management
-        let isDarkMode = false;
-        function toggleTheme() {
-            isDarkMode = !isDarkMode;
-            const body = document.body;
-            const themeIcon = document.getElementById('theme-icon');
-            if (isDarkMode) {
-                body.classList.add('dark'); themeIcon.className = 'fas fa-sun text-lg'; localStorage.setItem('theme', 'dark'); showNotification('Dark mode enabled', 'info');
+        function getFileIcon(filename) {
+            const ext = filename.split('.').pop().toLowerCase();
+            if (ext === 'pdf') return { icon: 'fa-file-pdf', color: 'text-red-500' };
+            if (['doc', 'docx'].includes(ext)) return { icon: 'fa-file-word', color: 'text-blue-500' };
+            if (['xls', 'xlsx'].includes(ext)) return { icon: 'fa-file-excel', color: 'text-green-500' };
+            if (['ppt', 'pptx'].includes(ext)) return { icon: 'fa-file-powerpoint', color: 'text-orange-500' };
+            if (['jpg', 'jpeg', 'png', 'gif'].includes(ext)) return { icon: 'fa-file-image', color: 'text-purple-500' };
+            if (['zip', 'rar'].includes(ext)) return { icon: 'fa-file-archive', color: 'text-yellow-500' };
+            return { icon: 'fa-file-alt', color: 'text-gray-500 dark:text-gray-400' };
+        }
+
+        // --- APP INITIALIZATION ---
+        document.addEventListener('DOMContentLoaded', async () => {
+            loadTheme();
+            setTimeout(() => {
+                const loader = document.getElementById('loading-screen');
+                if (loader && !loader.classList.contains('hidden')) loader.classList.add('hidden');
+            }, 5000);
+            while (!window.firebaseAuth) await new Promise(r => setTimeout(r, 100));
+            initRealTimeListeners();
+            initDragAndDrop();
+            window.firebaseServices.onAuthStateChanged(window.firebaseAuth, async (user) => {
+                if (user) {
+                    const userDoc = await window.firebaseServices.getDoc(window.firebaseServices.doc(window.firebaseDb, 'users', user.uid));
+                    if (userDoc.exists()) currentUser = { uid: user.uid, email: user.email, ...userDoc.data() };
+                    else currentUser = { uid: user.uid, email: user.email, name: 'Student', role: 'student' };
+                    updateUI(currentUser);
+                } else {
+                    currentUser = null;
+                    updateUI(null);
+                }
+                document.getElementById('loading-screen').classList.add('hidden');
+            });
+        });
+
+        // --- UI LOGIC ---
+        window.updateUI = function(user) {
+            const navbar = document.getElementById('navbar');
+            const authSection = document.getElementById('auth-section');
+            const dashSection = document.getElementById('dashboard-section');
+            if (user) {
+                navbar.classList.remove('hidden');
+                authSection.classList.add('hidden');
+                dashSection.classList.remove('hidden');
+                ['user-name', 'profile-name', 'mobile-user-name'].forEach(id => { const el = document.getElementById(id); if(el) el.textContent = user.name; });
+                ['profile-department', 'mobile-user-dept'].forEach(id => { const el = document.getElementById(id); if(el) el.textContent = user.department || 'Biochemistry'; });
+                const avatarSrc = user.photoURL || `https://ui-avatars.com/api/?name=${encodeURIComponent(user.name)}&background=random&color=fff`;
+                document.getElementById('user-avatar').src = avatarSrc;
+                document.querySelectorAll('[id*="admin-"][id*="-controls"]').forEach(el => user.role === 'admin' ? el.classList.remove('hidden') : el.classList.add('hidden'));
+                updateDashboardStats();
+                loadNextClass();
+                const saved = localStorage.getItem('lastSection') || 'dashboard';
+                showSection(saved);
             } else {
-                body.classList.remove('dark'); themeIcon.className = 'fas fa-moon text-lg'; localStorage.setItem('theme', 'light'); showNotification('Light mode enabled', 'info');
+                navbar.classList.add('hidden');
+                authSection.classList.remove('hidden');
+                dashSection.classList.add('hidden');
+                ['timetable', 'materials', 'announcements', 'profile'].forEach(id => document.getElementById(id + '-section').classList.add('hidden'));
             }
-        }
-        function loadTheme() {
-            const saved = localStorage.getItem('theme');
-            if (saved === 'dark') { isDarkMode = true; document.body.classList.add('dark'); document.getElementById('theme-icon').className = 'fas fa-sun text-lg'; }
-        }
-        function goHome() { if (currentUser) { showSection('dashboard'); showNotification('Welcome back to the homepage!', 'success'); } }
-
-        // App init
-       document.addEventListener('DOMContentLoaded', async function () {
-  // Load saved theme (you already have this)
-  loadTheme();
-
-  // Initialize Firebase & set up auth listener (we must wait for this)
-  await FirebaseBackend.init();
-
-  // Update the UI with the current user info (populates currentUser, etc.)
-  updateUI();
-window.firebaseServices.onAuthStateChanged(window.firebaseAuth, async (user) => {
-  if (user) {
-    currentUser = user;
-    updateUI(user);
-  } else {
-    currentUser = null;
-    updateUI(null);
-  }
-  document.getElementById('loading-screen').classList.add('hidden');
-
-  document.body.classList.remove('loading');
-});
-
-
-  // --- Restde last visited section (Step #2) ---
-  const savedSection = localStorage.getItem('lastSection');
-  if (savedSection && document.getElementById(`${savedSection}-section`)) {
-    // If savedSection exists and the corresponding DOM section exists, show it
-    showSection(savedSection);
-  } else {
-    // Fallback: show dashboard
-    showSection('dashboard');
-  }
-});
-
-
-        // Authh
-        async function handleLogin(e) {
-            e.preventDefault();
-            const email = document.getElementById('login-email').value;
-            const password = document.getElementById('login-password').value;
-            try {
-                await window.firebaseServices.signInWithEmailAndPassword(window.firebaseAuth, email, password);
-                showNotification('Login successful!', 'success');
-                document.getElementById('login-form').classList.add('hidden');
-    document.getElementById('dashboard-section').classList.remove('hidden');
-                document.getElementById('login-password').value = '';
-            } catch (err) {
-                console.error('Login error:', err); showNotification('Invalid email or password', 'error');
-            }
-        }
-        async function handleSignup(e) {
-            e.preventDefault();
-            const name = document.getElementById('signup-name').value;
-              const department = document.getElementById('signup-department').value;
-            const email = document.getElementById('signup-email').value;
-            const password = document.getElementById('signup-password').value;
-            const isAdmin = document.getElementById('admin-signup').checked;
-            const adminCode = document.getElementById('admin-code').value;
-            if (isAdmin && adminCode !== 'HELIX28') { showNotification('Invalid admin code', 'error'); return; }
-            try {
-                const cred = await window.firebaseServices.createUserWithEmailAndPassword(window.firebaseAuth, email, password);
-                await window.firebaseServices.setDoc(window.firebaseServices.doc(window.firebaseDb, 'users', cred.user.uid), { name, email,department, role: isAdmin ? 'admin' : 'student', createdAt: new Date() });
-                showNotification('Account created successfully!', 'success');
-                document.getElementById('signup-name').value = '';
-                document.getElementById('signup-department').value = '';
-                document.getElementById('signup-email').value = '';
-                document.getElementById('signup-password').value = '';
-                document.getElementById('admin-signup').checked = false;
-                document.getElementById('admin-code').value = '';
-                document.getElementById('admin-code-field').classList.add('hidden');
-            } catch (err) {
-                console.error('Signup error:', err);
-                if (err.code === 'auth/email-already-in-use') showNotification('Email already exists', 'error');
-                else if (err.code === 'auth/weak-password') showNotification('Password should be at least 6 characters', 'error');
-                else showNotification('Error creating account: ' + err.message, 'error');
-            }
-        }
-       async function logout() {
-  try {
-    await window.firebaseServices.signOut(window.firebaseAuth);
-    showNotification('Logged out successfully!', 'success');
-
-    document.getElementById('login-form').classList.remove('hidden'); 
-    ['dashboard', 'materials', 'timetable', 'announcements'].forEach(id => {
-      const div = document.getElementById(id);
-      if (div) div.classList.add('hidden');
-    });
-  } catch (err) {
-    console.error('Logout error:', err);
-    showNotification('Error logging out.', 'error');
-  }
-}
-// --- Custom Delete Modal Logic ---
-let pendingDelete = null; // Stores { type: 'material' | 'timetable', id: string, btn: HTMLElement }
-
-function askToDelete(type, id, btn) {
-    // 1. Store the details of what we want to delete
-    pendingDelete = { type, id, btn };
-    
-    // 2. Show the modal
-    document.getElementById('delete-modal').classList.remove('hidden');
-}
-
-function closeDeleteModal() {
-    document.getElementById('delete-modal').classList.add('hidden');
-    pendingDelete = null; // Clear state
-}
-
-function confirmDeleteAction() {
-    if (!pendingDelete) return;
-
-    const { type, id, btn } = pendingDelete;
-
-    // Hide modal
-    document.getElementById('delete-modal').classList.add('hidden');
-
-    // Trigger the REAL delete function
-    if (type === 'material') {
-        deleteMaterial(id, btn);
-    } else if (type === 'timetable') {
-        deleteRow(id, btn);
-    } 
-    // 👇 ADD THIS BLOCK 👇
-    else if (type === 'announcement') {
-        deleteAnnouncement(id, btn);
-    }
-}
-
-  async function loadNextClass() {
-    const display = document.getElementById('next-class');
-    try {
-        const timetable = await FirebaseBackend.getTimetable();
-        const now = new Date();
-        const days = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
-        const currentDayName = days[now.getDay()]; 
-        const currentHour = now.getHours();
-        const currentMin = now.getMinutes();
-        const currentTimeVal = currentHour * 60 + currentMin;
-
-        let upcomingClass = null;
-
-        // Helper to parse time string "9:00 - 10:00" -> start minutes (540)
-        const parseStartTime = (timeStr) => {
-            if (!timeStr || !timeStr.includes('-')) return -1;
-            const startPart = timeStr.split('-')[0].trim();
-            const [h, m] = startPart.split(':').map(Number);
-            return h * 60 + (m || 0);
         };
 
-        // 1. Check for remaining classes today
-        for (let row of timetable) {
-            // Skip exam rows or rows without time
-            if (!row.time || row.time.includes('Exam')) continue;
-            
-            const classInfo = row[currentDayName];
-            if (classInfo && classInfo !== '-' && classInfo.trim() !== '') {
-                const startTimeVal = parseStartTime(row.time);
-                if (startTimeVal > currentTimeVal) {
-                    upcomingClass = { ...row, activeSubject: classInfo, dayDisplay: 'Today' };
-                    break; // Found the next one today
-                }
-            }
-        }
+        window.showSection = function(section) {
+            ['dashboard', 'timetable', 'materials', 'announcements', 'profile'].forEach(id => document.getElementById(id + '-section').classList.add('hidden'));
+            document.getElementById(section + '-section').classList.remove('hidden');
+            localStorage.setItem('lastSection', section);
+            document.getElementById('hamburger-menu').classList.add('hidden');
+            if (section === 'materials') refreshMaterialsList();
+            if (section === 'announcements') refreshAnnouncementsList();
+            if (section === 'timetable') refreshTimetable();
+            if (section === 'profile') loadProfileData();
+        };
 
-        // 2. If no class left today, find the first class tomorrow (or next available day)
-        if (!upcomingClass) {
-            let dayOffset = 1;
-            // Check next 6 days
-            while (dayOffset <= 6 && !upcomingClass) {
-                const checkDayIndex = (now.getDay() + dayOffset) % 7;
-                const checkDayName = days[checkDayIndex];
-                
+        // --- AUTH & PROFILE ---
+        window.handleLogin = async (e) => {
+            e.preventDefault();
+            const email = document.getElementById('login-email').value;
+            const pass = document.getElementById('login-password').value;
+            try { await window.firebaseServices.signInWithEmailAndPassword(window.firebaseAuth, email, pass); showNotification('Login successful', 'success'); } catch (err) { showNotification('Login failed: ' + err.message, 'error'); }
+        };
+        window.handleSignup = async (e) => {
+            e.preventDefault();
+            const name = document.getElementById('signup-name').value;
+            const dept = document.getElementById('signup-department').value;
+            const email = document.getElementById('signup-email').value;
+            const pass = document.getElementById('signup-password').value;
+            const isAdmin = document.getElementById('admin-signup').checked;
+            const code = document.getElementById('admin-code').value;
+            if (isAdmin && code !== 'HELIX28') return showNotification('Invalid Admin Code', 'error');
+            try {
+                const cred = await window.firebaseServices.createUserWithEmailAndPassword(window.firebaseAuth, email, pass);
+                await window.firebaseServices.setDoc(window.firebaseServices.doc(window.firebaseDb, 'users', cred.user.uid), {
+                    name, email, department: dept, role: isAdmin ? 'admin' : 'student', createdAt: new Date()
+                });
+                showNotification('Account created!', 'success');
+            } catch (err) { showNotification(err.message, 'error'); }
+        };
+        window.handleForgotPassword = async (e) => {
+            e.preventDefault(); const email = document.getElementById('forgot-email').value;
+            try { await window.firebaseServices.sendPasswordResetEmail(window.firebaseAuth, email); showNotification(`Reset email sent to ${email}`, 'success'); setTimeout(() => window.showLogin(), 2000); } catch (err) { showNotification(err.message, 'error'); }
+        };
+        window.logout = async () => { await window.firebaseServices.signOut(window.firebaseAuth); showNotification('Logged out', 'success'); };
+        window.showSignup = () => { document.getElementById('login-form').classList.add('hidden'); document.getElementById('forgot-password-form').classList.add('hidden'); document.getElementById('signup-form').classList.remove('hidden'); };
+        window.showLogin = () => { document.getElementById('signup-form').classList.add('hidden'); document.getElementById('forgot-password-form').classList.add('hidden'); document.getElementById('login-form').classList.remove('hidden'); };
+        window.showForgotPassword = () => { document.getElementById('login-form').classList.add('hidden'); document.getElementById('signup-form').classList.add('hidden'); document.getElementById('forgot-password-form').classList.remove('hidden'); };
+        window.toggleAdminCode = () => { document.getElementById('admin-code-field').classList.toggle('hidden'); };
+
+        window.loadProfileData = () => {
+            if (!currentUser) return;
+            document.getElementById('edit-name').value = currentUser.name || '';
+            document.getElementById('edit-dept').value = currentUser.department || '';
+            document.getElementById('edit-email').value = currentUser.email || '';
+            const avatarUrl = currentUser.photoURL || `https://ui-avatars.com/api/?name=${encodeURIComponent(currentUser.name)}&background=random&color=fff`;
+            document.getElementById('edit-profile-avatar').src = avatarUrl;
+        };
+        window.handleAvatarUpload = async (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+            const imgEl = document.getElementById('edit-profile-avatar');
+            imgEl.style.opacity = '0.5';
+            try {
+                const path = `avatars/${currentUser.uid}_${Date.now()}_${file.name}`;
+                const { data, error } = await supabaseClient.storage.from('materials').upload(path, file);
+                if (error) throw error;
+                const { data: pub } = supabaseClient.storage.from('materials').getPublicUrl(path);
+                await window.firebaseServices.updateDoc(window.firebaseServices.doc(window.firebaseDb, 'users', currentUser.uid), { photoURL: pub.publicUrl });
+                currentUser.photoURL = pub.publicUrl;
+                updateUI(currentUser); loadProfileData(); showNotification('Avatar updated!', 'success');
+            } catch (err) { showNotification('Error: ' + err.message, 'error'); } finally { imgEl.style.opacity = '1'; }
+        };
+        window.saveProfile = async (e) => {
+            e.preventDefault();
+            const name = document.getElementById('edit-name').value;
+            const dept = document.getElementById('edit-dept').value;
+            try {
+                await window.firebaseServices.updateDoc(window.firebaseServices.doc(window.firebaseDb, 'users', currentUser.uid), { name, department: dept });
+                currentUser.name = name; currentUser.department = dept;
+                updateUI(currentUser); showNotification('Profile updated!', 'success'); setTimeout(() => showSection('dashboard'), 1000);
+            } catch(err) { showNotification('Error updating profile', 'error'); }
+        };
+
+        // --- DASHBOARD DATA ---
+        async function updateDashboardStats() {
+            try {
+                const matSnap = await window.firebaseServices.getDocs(window.firebaseServices.collection(window.firebaseDb, 'materials'));
+                const annSnap = await window.firebaseServices.getDocs(window.firebaseServices.collection(window.firebaseDb, 'announcements'));
+                document.getElementById('materials-count').textContent = matSnap.size;
+                document.getElementById('announcements-count').textContent = annSnap.size;
+                const anns = annSnap.docs.map(d => d.data()).sort((a,b) => b.date - a.date).slice(0, 3);
+                document.getElementById('dashboard-announcements').innerHTML = anns.map(a => `
+                    <div class="border-l-4 border-purple-500 pl-3 py-1">
+                        <h4 class="font-bold text-gray-800 dark:text-white text-sm">${a.title}</h4>
+                        <p class="text-xs text-gray-500 truncate">${a.message}</p>
+                    </div>
+                `).join('') || '<p class="text-sm text-gray-400">No updates.</p>';
+            } catch(e) { console.error(e); }
+        }
+        async function loadNextClass() {
+            try {
+                const docSnap = await window.firebaseServices.getDoc(window.firebaseServices.doc(window.firebaseDb, 'settings', 'timetable'));
+                if (!docSnap.exists()) return;
+                const timetable = docSnap.data().schedule || [];
+                const now = new Date();
+                const days = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
+                const curDay = days[now.getDay()];
+                const curHour = now.getHours();
+                let next = null;
                 for (let row of timetable) {
                     if (!row.time || row.time.includes('Exam')) continue;
-                    const classInfo = row[checkDayName];
-                    if (classInfo && classInfo !== '-' && classInfo.trim() !== '') {
-                        const dateName = dayOffset === 1 ? 'Tomorrow' : capitalize(checkDayName);
-                        upcomingClass = { ...row, activeSubject: classInfo, dayDisplay: dateName };
+                    const [h] = row.time.split(/[: -]/).map(Number);
+                    if (row[curDay] && row[curDay] !== '-' && h > curHour) {
+                        next = { subject: row[curDay], time: row.time, day: 'Today' };
                         break;
                     }
                 }
-                dayOffset++;
-            }
+                if (next) {
+                    document.getElementById('next-class').innerHTML = `
+                        <div class="text-green-600 dark:text-green-400 font-bold">${next.day} @ ${next.time}</div>
+                        <div class="text-gray-800 dark:text-white font-medium truncate">${next.subject}</div>
+                    `;
+                } else { document.getElementById('next-class').innerHTML = '<span class="text-gray-400">No more classes today</span>'; }
+            } catch(e) { console.error(e); }
         }
 
-        if (upcomingClass) {
-            display.innerHTML = `
-                <div class="flex items-center justify-between">
-                    <div>
-                        <p class="text-xs font-bold text-blue-600 uppercase tracking-wider mb-1">${upcomingClass.dayDisplay}</p>
-                        <h4 class="text-lg font-bold text-gray-800 dark:text-gray-100">${upcomingClass.activeSubject.replace('\n', '<br>')}</h4>
-                        <p class="text-sm text-gray-500 mt-1"><i class="far fa-clock mr-1"></i> ${upcomingClass.time}</p>
-                    </div>
-                    <div class="bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-200 p-3 rounded-full">
-                        <i class="fas fa-chalkboard-teacher text-xl"></i>
-                    </div>
-                </div>
-            `;
-        } else {
-            display.innerHTML = `<p class="text-gray-500 italic">No upcoming classes scheduled this week.</p>`;
-        }
-        
-    } catch (err) {
-        console.error('Next Class Error:', err);
-        display.innerHTML = '<p class="text-red-400 text-sm">Could not load schedule.</p>';
-    }
-}
-
-// Ensure this runs on load
-document.addEventListener('DOMContentLoaded', () => {
-    // ... existing init code ...
-    // Add this line inside your init sequence or after Firebase init:
-    setTimeout(loadNextClass, 2000); // Small delay to ensure data fetch
-});
-  
-// Add new comment
-
-
-
-        // UI updates
-        function updateUI() {
-    const authSection = document.getElementById('auth-section');
-    const dashboardSection = document.getElementById('dashboard-section');
-    const navMenu = document.getElementById('nav-menu');
-    const authButtons = document.getElementById('auth-buttons');
-    const navbar = document.getElementById('navbar');
-
-    if (currentUser) {
-        // 1. Show Navbar & Dashboard, Hide Auth
-        if (navbar) navbar.classList.remove('hidden');
-        if (authSection) authSection.classList.add('hidden');
-        if (dashboardSection) dashboardSection.classList.remove('hidden');
-
-        // 2. Update User Info in Dashboard
-        const userNameEl = document.getElementById('user-name');
-        const profileNameEl = document.getElementById('profile-name');
-        const profileDeptEl = document.getElementById('profile-department');
-        const userAvatarEl = document.getElementById('user-avatar');
-
-        if (userNameEl) userNameEl.textContent = currentUser.name || 'Student';
-        if (profileNameEl) profileNameEl.textContent = currentUser.name || 'Student';
-        if (profileDeptEl) profileDeptEl.textContent = currentUser.department || 'Department not set';
-        if (userAvatarEl) userAvatarEl.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(currentUser.name || 'User')}&background=random`;
-
-        // 3. Update User Info in NEW Header (Desktop & Mobile)
-        const navUserEl = document.getElementById('nav-user-name');
-        const mobUserEl = document.getElementById('mobile-user-name');
-        const mobDeptEl = document.getElementById('mobile-user-dept');
-
-        if (navUserEl) navUserEl.textContent = currentUser.name || 'Student';
-        if (mobUserEl) mobUserEl.textContent = currentUser.name || 'Student';
-        if (mobDeptEl) mobDeptEl.textContent = currentUser.department || 'Biochemistry';
-
-        // 4. Toggle Admin Controls
-        const adminControls = document.querySelectorAll('[id*="admin-"][id*="-controls"]');
-        adminControls.forEach(el => 
-            currentUser.role === 'admin' ? el.classList.remove('hidden') : el.classList.add('hidden')
-        );
-
-        // 5. Initialize Logic
-        updateDashboardStats();
-        if (typeof loadNextClass === 'function') loadNextClass();
-
-        // 6. Restore last visited page
-        const savedPage = localStorage.getItem('lastSection') || 'dashboard';
-        showSection(savedPage);
-
-    } else {
-        // --- LOGGED OUT STATE ---
-        if (navbar) navbar.classList.add('hidden'); // Hide navbar on login
-        if (authSection) authSection.classList.remove('hidden');
-        if (dashboardSection) dashboardSection.classList.add('hidden');
-        
-        // Hide other sections
-        ['timetable', 'materials', 'announcements'].forEach(id => {
-            const el = document.getElementById(id + '-section');
-            if (el) el.classList.add('hidden');
-        });
-    }
-}
-// --- UI UPDATE FUNCTION ---
-window.updateUI = function(user = currentUser) {
-    // Sync global user var
-    currentUser = user; 
-
-    const authSection = document.getElementById('auth-section');
-    const dashboardSection = document.getElementById('dashboard-section');
-    const navbar = document.getElementById('navbar');
-
-    if (user) {
-        // 1. LOGGED IN STATE
-        if (navbar) navbar.classList.remove('hidden');
-        if (authSection) authSection.classList.add('hidden');
-        if (dashboardSection) dashboardSection.classList.remove('hidden');
-
-        // 2. Update Header Info (Desktop & Mobile)
-        const ids = ['nav-user-name', 'mobile-user-name', 'user-name', 'profile-name'];
-        ids.forEach(id => {
-            const el = document.getElementById(id);
-            if (el) el.textContent = user.name || 'Student';
-        });
-
-        // Update Department
-        const deptIds = ['mobile-user-dept', 'profile-department'];
-        deptIds.forEach(id => {
-            const el = document.getElementById(id);
-            if (el) el.textContent = user.department || 'Biochemistry';
-        });
-
-        // Update Avatar
-        const avatarEl = document.getElementById('user-avatar');
-        if (avatarEl) {
-            avatarEl.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(user.name || 'User')}&background=random&color=fff&background=6d28d9`;
-        }
-
-        // 3. Toggle Admin Controls
-        const adminControls = document.querySelectorAll('[id*="admin-"][id*="-controls"]');
-        adminControls.forEach(el => 
-            user.role === 'admin' ? el.classList.remove('hidden') : el.classList.add('hidden')
-        );
-
-        // 4. Refresh Data
-        if (typeof updateDashboardStats === 'function') updateDashboardStats();
-        if (typeof loadNextClass === 'function') loadNextClass();
-
-        // 5. Navigate to last section
-        const savedPage = localStorage.getItem('lastSection') || 'dashboard';
-        if (typeof showSection === 'function') showSection(savedPage);
-
-    } else {
-        // --- LOGGED OUT STATE ---
-        if (navbar) navbar.classList.add('hidden');
-        if (authSection) authSection.classList.remove('hidden');
-        if (dashboardSection) dashboardSection.classList.add('hidden');
-        
-        // Hide internal sections
-        ['timetable', 'materials', 'announcements'].forEach(id => {
-            const el = document.getElementById(id + '-section');
-            if (el) el.classList.add('hidden');
-        });
-    }
-};
-// 👇 Paste this directly below
-async function updateDashboardStats() {
-  try {
-    const materials = await FirebaseBackend.getMaterials();
-    const anns = await FirebaseBackend.getAnnouncements();
-    const timetable = await FirebaseBackend.getTimetable();
-
-    // ✅ Safely update counts
-    const matCount = document.getElementById('materials-count');
-    const annCount = document.getElementById('announcements-count');
-    const timeCount = document.getElementById('timetable-count');
-    const dashContainer = document.getElementById('dashboard-announcements');
-
-    if (matCount) matCount.textContent = materials?.length || 0;
-    if (annCount) annCount.textContent = anns?.length || 0;
-    if (timeCount) timeCount.textContent = timetable?.length || 0;
-
-    if (dashContainer && anns?.length) {
-      dashContainer.innerHTML = anns.slice(0, 3).map(a => `
-        <div class="border-l-4 border-blue-500 pl-3">
-          <h4 class="font-semibold text-gray-800">${a.title}</h4>
-          <p class="text-sm text-gray-600">${a.message.slice(0, 80)}...</p>
-        </div>
-      `).join('');
-    }
-  } catch (err) {
-    console.error('Dashboard stats error:', err);
-  }
-}
-
-        function showSection(section) {
-  hideAllSections();
-  currentSection = section;
-
-  // ✅ Save last visited section in browser
-  localStorage.setItem('lastSection', section);
-
-  if (section === 'dashboard') {
-    document.getElementById('dashboard-section').classList.remove('hidden');
-  } else {
-    document.getElementById('dashboard-section').classList.add('hidden');
-    document.getElementById(`${section}-section`).classList.remove('hidden');
-    if (section === 'materials') refreshMaterialsList();
-    if (section === 'announcements') refreshAnnouncementsList();
-    if (section === 'timetable') refreshTimetable();
-  }
-}
-
-
-        function hideAllSections() { ['dashboard','timetable','materials','announcements'].forEach(s => document.getElementById(`${s}-section`).classList.add('hidden')); }
-
-        function showSignup() { hideAllAuthForms(); document.getElementById('signup-form').classList.remove('hidden'); }
-        function showLogin() { hideAllAuthForms(); document.getElementById('login-form').classList.remove('hidden'); }
-        function showForgotPassword() { hideAllAuthForms(); document.getElementById('forgot-password-form').classList.remove('hidden'); }
-        function hideAllAuthForms() { ['login-form','signup-form','forgot-password-form'].forEach(id => document.getElementById(id).classList.add('hidden')); }
-        function toggleAdminCode() { const f = document.getElementById('admin-code-field'); document.getElementById('admin-signup').checked ? f.classList.remove('hidden') : f.classList.add('hidden'); }
-        async function handleForgotPassword(e) { e.preventDefault(); const email = document.getElementById('forgot-email').value; try { await window.firebaseServices.sendPasswordResetEmail(window.firebaseAuth, email); showNotification(`Password reset email sent to ${email}!`, 'success'); document.getElementById('forgot-email').value = ''; setTimeout(() => showLogin(), 1500); } catch (err) { showNotification('Error sending reset email: ' + err.message, 'error'); } }
-
-        // Materials
-       function downloadFile(url, filename) {
-  const link = document.createElement('a');
-  link.href = url;
-  link.download = filename;
-  link.target = '_blank';
-  document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
-  showNotification(`${filename} is downloading...`, 'success');
-}
-
-
-        document.addEventListener('DOMContentLoaded', () => { const inp = document.getElementById('file-input'); if (inp) inp.setAttribute('accept', '*'); });
-        function uploadMaterial() { document.getElementById('upload-modal').classList.remove('hidden'); }
-      // Upload file to Supabase instead of Firebase Storage
-async function handleFileUpload(e) {
-  e.preventDefault();
-  const btn = document.getElementById('upload-btn');
-  const text = document.getElementById('upload-text');
-  const spinner = document.getElementById('upload-spinner');
-
-  // 1. Show Spinner & Disable Button
-  btn.disabled = true;
-  btn.classList.add('opacity-50', 'cursor-not-allowed');
-  text.textContent = "Uploading...";
-  spinner.classList.remove('hidden');
-
-  const title = document.getElementById('file-title').value;
-  const fileInput = document.getElementById('file-input');
-  const file = fileInput.files[0];
-
-  if (!file) {
-      resetUploadUI(); // Helper to reset UI if error
-      return showNotification('Please select a file', 'error');
-  }
-
-  try {
-    // Upload to Supabase bucket "materials"
-    const { data, error } = await supabaseClient.storage
-      .from('materials')
-      .upload(`uploads/${Date.now()}_${file.name}`, file, { upsert: true }); // Added timestamp to prevent name collisions
-
-    if (error) throw error;
-
-    // Get the public URL
-    const { data: publicData } = supabaseClient.storage
-      .from('materials')
-      .getPublicUrl(`uploads/${Date.now()}_${file.name}`);
-
-    const downloadURL = publicData.publicUrl;
-
-    // Save file info to Firestore
-    const newMaterial = { 
-      title,
-      filename: file.name,
-      url: downloadURL,
-      size: `${(file.size / 1024 / 1024).toFixed(1)} MB`,
-      uploadedByName: currentUser?.name || "Anonymous"
-    };
-
-    await FirebaseBackend.addMaterial(newMaterial);
-    await refreshMaterialsList();
-    closeModal('upload-modal');
-    showNotification('Material uploaded successfully!', 'success');
-  } catch (err) {
-    console.error('Upload error:', err);
-    showNotification('Error uploading: ' + err.message, 'error');
-  } finally {
-    // 2. Reset UI whether success or failure
-    resetUploadUI();
-  }
-
-  function resetUploadUI() {
-      btn.disabled = false;
-      btn.classList.remove('opacity-50', 'cursor-not-allowed');
-      text.textContent = "Upload";
-      spinner.classList.add('hidden');
-      document.getElementById('file-input').value = ""; // Clear input
-      document.getElementById('file-title').value = "";
-  }
-}
-async function deleteRow(index, btn) {
-    // ❌ OLD CONFIRM REMOVED (Handled by the modal now)
-    
-    // 1. Show Spinner on the specific button
-    if (btn) {
-        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
-        btn.disabled = true;
-        btn.classList.add('opacity-50', 'cursor-not-allowed');
-    }
-
-    // 2. Remove the row from the local array
-    currentTimetable.splice(index, 1);
-
-    try {
-        // 3. Save the updated array to Firebase
-        await FirebaseBackend.saveTimetable(currentTimetable);
-        
-        // 4. Refresh the table UI
-        renderTimetable();
-        showNotification('Row deleted successfully', 'success');
-
-    } catch (e) {
-        console.error('Delete error', e);
-        showNotification('Error deleting row', 'error');
-        
-        // 5. Revert button if it failed (optional, since table usually re-renders)
-        if (btn) {
-            btn.innerHTML = '<i class="fas fa-trash-alt"></i>';
-            btn.disabled = false;
-            btn.classList.remove('opacity-50', 'cursor-not-allowed');
-        }
-    }
-}
-       async function deleteMaterial(materialId, btnElement) {
-  // ❌ REMOVED: if (!confirm('Delete this material?')) return; 
-  
-  // The rest stays exactly the same...
-  if (btnElement) {
-    btnElement.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
-    btnElement.disabled = true;
-    // ...
-  }
-
-  try {
-    // Get the Firestore record to find the filename
-    const matSnap = await window.firebaseServices.getDoc(
-      window.firebaseServices.doc(window.firebaseDb, 'materials', materialId)
-    );
-    const mat = matSnap.exists() ? matSnap.data() : null;
-
-    // Delete file from Supabase Storage
-    if (mat && mat.filename) {
-      // Note: Use the exact path you used during upload. 
-      // If you added the timestamp prefix in the upload step, you might need to store the full path in Firestore 
-      // or ensure 'mat.filename' matches what is in the bucket.
-      // Assuming 'mat.filename' is the exact name stored in the bucket:
-      const filePath = `uploads/${mat.filename}`; 
-      
-      const { error } = await supabaseClient.storage
-        .from('materials')
-        .remove([filePath]);
-
-      if (error) {
-        console.error('Supabase delete error:', error);
-        showNotification('Error deleting file from storage', 'error');
-        // Revert button on error
-        if (btnElement) revertDeleteButton(btnElement);
-        return;
-      }
-    }
-
-    // Delete Firestore record
-    await FirebaseBackend.deleteMaterial(materialId);
-    
-    // Refresh list (this removes the button entirely, so no need to revert spinner)
-    await refreshMaterialsList();
-
-    showNotification('Material deleted successfully', 'success');
-
-  } catch (err) {
-    console.error('Delete error:', err);
-    showNotification('Error deleting material', 'error');
-    // Revert button on error
-    if (btnElement) revertDeleteButton(btnElement);
-  }
-}
-
-// Helper to reset button if something fails
-function revertDeleteButton(btn) {
-  btn.innerHTML = '<i class="fas fa-trash"></i>';
-  btn.disabled = false;
-  btn.classList.remove('opacity-50', 'cursor-not-allowed');
-}
+        // --- MATERIALS ---
+        window.uploadMaterial = () => document.getElementById('upload-modal').classList.remove('hidden');
+        window.handleFileUpload = async (e) => {
+            e.preventDefault();
+            const btn = document.getElementById('upload-btn');
+            const spinner = document.getElementById('upload-spinner');
+            const text = document.getElementById('upload-text');
+            const file = document.getElementById('file-input').files[0];
+            const title = document.getElementById('file-title').value;
+            if (!file) return;
+            btn.disabled = true; text.textContent = 'Uploading...'; spinner.classList.remove('hidden');
+            try {
+                const name = `${Date.now()}_${file.name}`;
+                const { data, error } = await supabaseClient.storage.from('materials').upload(`uploads/${name}`, file);
+                if (error) throw error;
+                const { data: pub } = supabaseClient.storage.from('materials').getPublicUrl(`uploads/${name}`);
+                await window.firebaseServices.addDoc(window.firebaseServices.collection(window.firebaseDb, 'materials'), {
+                    title, filename: name, url: pub.publicUrl, size: (file.size/1024/1024).toFixed(2) + ' MB', uploadDate: new Date(), uploadedByName: currentUser.name
+                });
+                refreshMaterialsList(); closeModal('upload-modal'); showNotification('Upload Complete', 'success');
+            } catch (err) { showNotification(err.message, 'error'); }
+            finally { btn.disabled = false; text.textContent = 'Upload'; spinner.classList.add('hidden'); }
+        };
         async function refreshMaterialsList() {
-    const materials = await FirebaseBackend.getMaterials();
-    const list = document.getElementById('materials-list');
-    
-    // 1. Empty State
-    if (materials.length === 0) { 
-        list.innerHTML = `
-        <div class="flex flex-col items-center justify-center py-12 opacity-60">
-            <i class="fas fa-folder-open text-6xl text-gray-300 dark:text-gray-600 mb-4"></i>
-            <h3 class="text-lg font-medium text-gray-500 dark:text-gray-400">No materials yet</h3>
-            <p class="text-sm text-gray-400 dark:text-gray-500">Check back later for new uploads.</p>
-        </div>`; 
-        return; 
-    }
+            const list = document.getElementById('materials-list');
+            list.innerHTML = `<div class="p-4 skeleton rounded-xl h-20"></div>`;
+            const q = window.firebaseServices.query(window.firebaseServices.collection(window.firebaseDb, 'materials'), window.firebaseServices.orderBy('uploadDate', 'desc'));
+            const snap = await window.firebaseServices.getDocs(q);
+            if (snap.empty) { list.innerHTML = `<div class="text-center py-12 opacity-50"><i class="fas fa-folder-open text-4xl mb-2"></i><p>No materials found.</p></div>`; return; }
+            list.innerHTML = snap.docs.map(doc => {
+                const m = { id: doc.id, ...doc.data() };
+                const date = m.uploadDate?.toDate ? m.uploadDate.toDate().toLocaleDateString() : 'Unknown';
+                const fileType = getFileIcon(m.filename);
+                return `
+                <div class="material-item group flex items-center justify-between p-4 bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 rounded-xl hover:shadow-lg hover:border-green-500/30 transition-all">
+                    <div class="flex items-center gap-4 overflow-hidden">
+                        <div class="w-12 h-12 rounded-lg bg-gray-100 dark:bg-gray-700 flex items-center justify-center text-2xl group-hover:bg-green-100 dark:group-hover:bg-green-900/30 transition-colors"><i class="fas ${fileType.icon} ${fileType.color}"></i></div>
+                        <div class="min-w-0"><h4 class="font-bold text-gray-900 dark:text-white truncate">${m.title}</h4><p class="text-xs text-gray-500 dark:text-gray-400">${m.size} • ${date} • ${m.uploadedByName || 'Admin'}</p></div>
+                    </div>
+                    <div class="flex gap-2"><a href="${m.url}" target="_blank" class="p-2 text-blue-500 hover:bg-blue-50 rounded-lg"><i class="fas fa-download"></i></a><button onclick="askToDelete('material', '${m.id}', this)" class="${currentUser.role !== 'admin' ? 'hidden' : ''} p-2 text-red-500 hover:bg-red-50 rounded-lg"><i class="fas fa-trash"></i></button></div>
+                </div>`;
+            }).join('');
+        }
+        window.filterMaterials = () => {
+            const term = document.getElementById('material-search').value.toLowerCase();
+            document.querySelectorAll('.material-item').forEach(el => { el.style.display = el.querySelector('h4').textContent.toLowerCase().includes(term) ? 'flex' : 'none'; });
+        };
 
-    // 2. Render List
-    list.innerHTML = materials.map((m) => {
-        return `
-        <div class="material-item group flex items-center justify-between p-4 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl hover:shadow-md transition-all duration-200">
-            
-            <div class="flex items-center space-x-4 overflow-hidden">
-                <div class="flex-shrink-0 w-12 h-12 flex items-center justify-center rounded-lg bg-gray-50 dark:bg-gray-700 group-hover:bg-blue-50 dark:group-hover:bg-gray-600 transition-colors">
-                    <i class="fas fa-file-${getFileIcon(m.filename)} text-2xl"></i>
-                </div>
-                
-                <div class="min-w-0">
-                    <h3 class="material-title text-base font-bold text-gray-900 dark:text-white truncate pr-4">${m.title}</h3>
-                    <p class="text-xs text-gray-500 dark:text-gray-400 truncate">
-                        ${m.size} • ${FirebaseBackend.formatDate(m.uploadDate)} 
-                        ${m.uploadedByName ? `• by ${m.uploadedByName}` : ''}
-                    </p>
-                </div>
-            </div>
-
-            <div class="flex items-center space-x-2 flex-shrink-0">
-                <button onclick="downloadFile('${m.url}', '${m.filename}')" 
-                        class="p-2 text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/30 rounded-lg transition-colors" 
-                        title="Download">
-                    <i class="fas fa-download"></i>
-                </button>
-                
-                <button class="${currentUser?.role !== 'admin' ? 'hidden' : ''} p-2 text-red-500 hover:bg-red-50 dark:hover:bg-red-900/30 rounded-lg transition-colors" 
-                        onclick="askToDelete('material', '${m.id}', this)" 
-                        title="Delete">
-                    <i class="fas fa-trash-alt"></i>
-                </button>
-            </div>
-        </div>`;
-    }).join('');
-}
-        function getFileIcon(filename) { const ext = filename.split('.').pop().toLowerCase(); if (ext==='pdf') return 'pdf text-red-500'; if (ext==='ppt'||ext==='pptx') return 'powerpoint text-orange-500'; if (ext==='doc'||ext==='docx') return 'word text-blue-500'; return 'alt text-gray-500'; }
-function filterMaterials() {
-  const searchInput = document.getElementById('material-search').value.toLowerCase();
-  const materialItems = document.querySelectorAll('#materials-list .material-item');
-
-  materialItems.forEach(item => {
-    const title = item.querySelector('.material-title').textContent.toLowerCase();
-    if (title.includes(searchInput)) {
-      item.classList.remove('hidden');
-    } else {
-      item.classList.add('hidden');
-    }
-  });
-}
-
-        // Announcements
-        function createAnnouncement() { document.getElementById('announcement-modal').classList.remove('hidden'); }
-        async function handleAnnouncementCreate(e) {
+        // --- ANNOUNCEMENTS ---
+        window.createAnnouncement = () => document.getElementById('announcement-modal').classList.remove('hidden');
+        window.handleAnnouncementCreate = async (e) => {
             e.preventDefault();
             const title = document.getElementById('announcement-title').value;
-            const message = document.getElementById('announcement-message').value;
+            const msg = document.getElementById('announcement-message').value;
             try {
-                await FirebaseBackend.addAnnouncement({ title, message, createdByName: currentUser.name });
-                await refreshAnnouncementsList();
-                closeModal('announcement-modal');
-                showNotification('Announcement posted successfully!', 'success');
-            } catch { showNotification('Error creating announcement', 'error'); }
-        }
-        async function editAnnouncement(id) {
-            try {
-                const anns = await FirebaseBackend.getAnnouncements();
-                const a = anns.find(x => x.id === id);
-                if (a) {
-                    const newTitle = prompt('Edit title:', a.title);
-                    const newMessage = prompt('Edit message:', a.message);
-                    if (newTitle !== null && newMessage !== null) {
-                        await FirebaseBackend.updateAnnouncement(id, { title: newTitle, message: newMessage });
-                        await refreshAnnouncementsList();
-                        showNotification('Announcement updated successfully!', 'success');
-                    }
-                }
-            } catch { showNotification('Error updating announcement', 'error'); }
-        }
-        async function deleteAnnouncement(id, btn) {
-    // ❌ REMOVED: if (!confirm('Delete this announcement?')) return;
-
-    // 1. Show Spinner
-    if (btn) {
-        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
-        btn.disabled = true;
-    }
-
-    try {
-        await FirebaseBackend.deleteAnnouncement(id);
-        await refreshAnnouncementsList();
-        showNotification('Announcement deleted', 'success');
-    } catch (e) {
-        console.error(e);
-        showNotification('Error deleting announcement', 'error');
-        // Revert button on error
-        if (btn) {
-            btn.innerHTML = '<i class="fas fa-trash-alt"></i>';
-            btn.disabled = false;
-        }
-    }
-}
+                await window.firebaseServices.addDoc(window.firebaseServices.collection(window.firebaseDb, 'announcements'), { title, message: msg, date: new Date(), createdByName: currentUser.name });
+                refreshAnnouncementsList(); closeModal('announcement-modal'); showNotification('Posted!', 'success');
+            } catch(err) { showNotification(err.message, 'error'); }
+        };
         async function refreshAnnouncementsList() {
-    const list = document.getElementById('announcements-list');
-    const anns = await FirebaseBackend.getAnnouncements();
-    const colors = ['blue','green','yellow','purple','indigo'];
-    
-    if (anns.length === 0) { 
-        list.innerHTML = `<div class=\"text-center py-8 text-gray-500 dark:text-gray-400\"><i class=\"fas fa-bullhorn text-4xl mb-4\"></i><p>No announcements yet.</p></div>`; 
-        return; 
-    }
-
-    list.innerHTML = anns.map((a, i) => {
-        const color = colors[i % colors.length];
-        // FIX: Added 'dark:bg-gray-800' to override the light colors in dark mode
-        return `
-            <div class="border-l-4 border-${color}-500 bg-${color}-50 dark:bg-gray-800 p-4 rounded-r-lg shadow-sm transition-colors duration-200">
-                <div class="flex justify-between items-start mb-2">
-                    <h3 class="font-bold text-gray-800 dark:text-gray-100 uppercase tracking-wide text-sm">${a.title}</h3>
-                    <div class="flex items-center space-x-2">
-                        <span class="text-xs text-gray-500 dark:text-gray-400 font-mono">${FirebaseBackend.formatDate(a.date)}</span>
-                        
-                        <button class="${currentUser?.role !== 'admin' ? 'hidden' : ''} text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 p-1 rounded hover:bg-blue-100 dark:hover:bg-gray-700 transition" onclick="editAnnouncement('${a.id}')" title="Edit">
-                            <i class="fas fa-edit"></i>
-                        </button>
-                        
-                        <button class="${currentUser?.role !== 'admin' ? 'hidden' : ''} text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300 p-1 rounded hover:bg-red-100 dark:hover:bg-gray-700 transition"onclick="askToDelete('announcement', '${a.id}', this)">
-                            <i class="fas fa-trash-alt"></i>
-                        </button>
-                    </div>
-                </div>
-                
-                <p class="text-gray-700 dark:text-gray-300 text-base leading-relaxed">${a.message}</p>
-                
-                <div class="mt-3 pt-2 border-t border-gray-200 dark:border-gray-700 flex justify-between items-center">
-                     ${a.createdByName ? `<p class="text-xs text-gray-500 dark:text-gray-500">Posted by ${a.createdByName}</p>` : '<span></span>'}
-                     ${a.editedAt ? `<p class="text-xs text-gray-400 italic">Edited ${FirebaseBackend.formatDate(a.editedAt)}</p>` : ''}
-                </div>
-            </div>`;
-    }).join('');
-}
-
-        // ---- Timetable (Firestore-driven + admin-only inline editing) ----
-        function computeAllDays(schedule) {
-            // Collect all keys except 'time', keep preferred order Mon..Sun
-            const pref = ['monday','tuesday','wednesday','thursday','friday','saturday','sunday'];
-            const set = new Set();
-            schedule.forEach(r => Object.keys(r).forEach(k => { if (k !== 'time') set.add(k); }));
-            const days = Array.from(set);
-            // Sort by preferred order, unknowns at end
-            return days.sort((a,b) => (pref.indexOf(a) === -1 ? 99 : pref.indexOf(a)) - (pref.indexOf(b) === -1 ? 99 : pref.indexOf(b)));
-        }
-
-        async function refreshTimetable() {
-            currentTimetable = await FirebaseBackend.getTimetable();
-            renderTimetable();
-        }
-
-       function renderTimetable() {
-    const head = document.getElementById('timetable-head');
-    const body = document.getElementById('timetable-body');
-    const isAdmin = currentUser?.role === 'admin';
-    const days = computeAllDays(currentTimetable);
-
-    // 1. Header: Solid Blue for high contrast
-    head.innerHTML = `
-        <tr class="bg-blue-700 text-white text-sm uppercase tracking-wider">
-            <th class="px-4 py-3 text-left font-semibold border-r border-blue-600">Time</th>
-            ${days.map(d => `<th class="px-4 py-3 text-left font-semibold border-r border-blue-600 last:border-0">${capitalize(d)}</th>`).join('')}
-            ${isAdmin ? '<th class="px-2 py-3 text-center font-semibold w-16">Edit</th>' : ''}
-        </tr>`;
-
-    // 2. Body
-    body.innerHTML = currentTimetable.map((row, rowIndex) => {
-        // "Active Now" Logic
-        let activeClass = "";
-        const now = new Date();
-        const currentDayName = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'][now.getDay()];
-        const [startH] = (row.time || "").split(/[: -]/).map(Number);
-        
-        // If this class is happening NOW
-        if (now.getDay() !== 0 && now.getDay() !== 6 && 
-            now.getHours() === startH && 
-            row[currentDayName] && row[currentDayName] !== '-') {
-            activeClass = "bg-green-50 border-l-4 border-green-500 dark:bg-green-900/20 dark:border-green-500";
-        }
-
-        const cells = days.map(day => {
-            const val = row[day] ?? '';
-
-            // --- ADMIN VIEW ---
-            if (isAdmin) {
-                // We use 'text-black' to FORCE visibility in light mode
+            const list = document.getElementById('announcements-list');
+            list.innerHTML = `<div class="p-4 skeleton rounded-xl h-32"></div>`;
+            const q = window.firebaseServices.query(window.firebaseServices.collection(window.firebaseDb, 'announcements'), window.firebaseServices.orderBy('date', 'desc'));
+            const snap = await window.firebaseServices.getDocs(q);
+            if (snap.empty) { list.innerHTML = `<div class="text-center py-12 opacity-50"><i class="fas fa-bullhorn text-4xl mb-2"></i><p>No announcements yet.</p></div>`; return; }
+            list.innerHTML = snap.docs.map(doc => {
+                const a = { id: doc.id, ...doc.data() };
+                const date = a.date?.toDate ? a.date.toDate().toLocaleDateString() : 'Recent';
                 return `
-                    <td class="border-b border-r border-gray-200 dark:border-gray-700 p-0 h-24 align-top bg-white dark:bg-gray-800">
-                        <textarea 
-                            class="w-full h-full p-3 text-sm text-black dark:text-gray-100 bg-transparent border-0 focus:ring-2 focus:ring-inset focus:ring-blue-500 outline-none" 
-                            placeholder="-"
-                            oninput="debouncedSaveCell(${rowIndex}, '${day}', this.value)">${escapeHtml(val)}</textarea>
-                    </td>`;
-            }
-            
-            // --- STUDENT VIEW ---
-            const parts = (val || '-').split('\n');
-            const subject = parts[0];
-            const room = parts.slice(1).join('<br>');
-            
-            return `
-                <td class="border-b border-r border-gray-200 dark:border-gray-700 px-4 py-3 h-24 align-top hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors bg-white dark:bg-gray-800">
-                    <span class="font-bold text-gray-900 dark:text-gray-100 block">${subject}</span>
-                    ${room ? `<span class="text-xs text-blue-600 dark:text-blue-400 font-mono mt-1 block">${room}</span>` : ''}
-                </td>`;
-        }).join('');
-        
-        // Admin Delete Button
-        const actions = isAdmin ? `
-            <td class="border-b border-gray-200 dark:border-gray-700 p-2 text-center align-middle bg-white dark:bg-gray-800">
-                <button class="text-gray-400 hover:text-red-600 p-2 rounded-full hover:bg-red-50 dark:hover:bg-red-900/30 transition-colors" 
-                        title="Delete row" 
-                        onclick="askToDelete('timetable', ${rowIndex}, this)">
-                    <i class="fas fa-trash-alt"></i>
-                </button>
-            </td>` : '';
+                <div class="relative bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 hover:shadow-md transition">
+                    <div class="absolute left-0 top-6 bottom-6 w-1 bg-gradient-to-b from-purple-500 to-blue-500 rounded-r"></div>
+                    <div class="pl-4">
+                        <div class="flex justify-between items-start mb-2"><h3 class="font-bold text-gray-900 dark:text-white uppercase tracking-wide text-sm">${a.title}</h3><div class="flex items-center gap-2"><span class="text-xs font-mono text-gray-400">${date}</span><button onclick="askToDelete('announcement', '${a.id}', this)" class="${currentUser.role !== 'admin' ? 'hidden' : ''} text-red-400 hover:text-red-600"><i class="fas fa-trash-alt"></i></button></div></div>
+                        <p class="text-gray-600 dark:text-gray-300 leading-relaxed">${linkify(a.message)}</p>
+                        <p class="text-xs text-gray-400 mt-4 pt-2 border-t border-gray-100 dark:border-gray-700">Posted by ${a.createdByName || 'Admin'}</p>
+                    </div>
+                </div>`;
+            }).join('');
+        }
 
-        // Row Output
-        return `
-            <tr class="${activeClass}">
-                <td class="border-b border-r border-gray-200 dark:border-gray-700 px-4 py-3 font-bold text-gray-500 dark:text-gray-400 text-xs uppercase tracking-wider bg-gray-50 dark:bg-gray-900 min-w-[100px]">
-                    ${row.time || ''}
-                </td>
-                ${cells}
-                ${actions}
-            </tr>`;
-    }).join('');
-
-    // Toggle Admin Toolbar
-    const adminBar = document.getElementById('admin-timetable-controls');
-    if (isAdmin) adminBar.classList.remove('hidden'); else adminBar.classList.add('hidden');
-}
-
-        function escapeHtml(str) { return (str ?? '').toString().replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
-        function capitalize(s) { return s.charAt(0).toUpperCase() + s.slice(1); }
-
-        function debouncedSaveCell(rowIndex, day, value) {
-            document.getElementById('autosave-indicator').classList.remove('hidden');
-            // Ensure row exists
-            if (!currentTimetable[rowIndex]) currentTimetable[rowIndex] = { time: '' };
-            currentTimetable[rowIndex][day] = value;
+        // --- TIMETABLE ---
+        async function refreshTimetable() {
+            const doc = await window.firebaseServices.getDoc(window.firebaseServices.doc(window.firebaseDb, 'settings', 'timetable'));
+            currentTimetable = doc.exists() ? doc.data().schedule : [];
+            renderTimetable();
+        }
+        function renderTimetable() {
+            const head = document.getElementById('timetable-head');
+            const body = document.getElementById('timetable-body');
+            const isAdmin = currentUser.role === 'admin';
+            const days = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
+            head.innerHTML = `
+                <tr class="bg-blue-600/10 dark:bg-blue-900/20 text-blue-800 dark:text-blue-100 text-sm uppercase">
+                    <th class="p-4 border-r border-gray-200 dark:border-gray-700 min-w-[100px]">Time</th>
+                    ${days.map(d => `<th class="p-4 border-r border-gray-200 dark:border-gray-700 min-w-[140px]">${d}</th>`).join('')}
+                    ${isAdmin ? '<th class="p-4 text-center w-16">Edit</th>' : ''}
+                </tr>`;
+            body.innerHTML = currentTimetable.map((row, idx) => {
+                const active = isClassActive(row) ? 'bg-green-50 dark:bg-green-900/10 border-l-4 border-green-500' : 'hover:bg-gray-50 dark:hover:bg-gray-700/30';
+                const cells = days.map(d => {
+                    const val = row[d] || '';
+                    if (isAdmin) { return `<td class="p-0 border border-gray-100 dark:border-gray-700 align-top h-24"><textarea oninput="saveCell(${idx}, '${d}', this.value)" class="w-full h-full p-3 bg-transparent outline-none text-sm text-gray-900 dark:text-white resize-none">${val}</textarea></td>`; }
+                    return `<td class="p-4 border border-gray-100 dark:border-gray-700 align-top h-24"><span class="block font-bold text-gray-900 dark:text-white text-sm">${val.split('\n')[0]}</span><span class="block text-xs text-blue-500 mt-1">${val.split('\n').slice(1).join(' ')}</span></td>`;
+                }).join('');
+                const delBtn = isAdmin ? `<td class="p-2 border border-gray-100 dark:border-gray-700 text-center"><button onclick="askToDelete('timetable', ${idx}, this)" class="text-red-400 hover:bg-red-50 p-2 rounded-lg"><i class="fas fa-trash"></i></button></td>` : '';
+                return `<tr class="${active} transition-colors"><td class="p-4 font-bold text-xs text-gray-500 dark:text-gray-400 border border-gray-100 dark:border-gray-700">${row.time}</td>${cells}${delBtn}</tr>`;
+            }).join('');
+            if (isAdmin) document.getElementById('admin-timetable-controls').classList.remove('hidden');
+        }
+        function isClassActive(row) {
+            const now = new Date();
+            const days = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
+            const curDay = days[now.getDay()];
+            const [h] = (row.time || '').split(/[: -]/).map(Number);
+            return row[curDay] && row[curDay] !== '-' && h === now.getHours();
+        }
+        window.saveCell = (idx, day, val) => {
+            currentTimetable[idx][day] = val;
             clearTimeout(debounceTimer);
-            debounceTimer = setTimeout(async () => {
-                try {
-                    await FirebaseBackend.saveTimetable(currentTimetable);
-                    document.getElementById('autosave-indicator').classList.add('hidden');
-                } catch (e) {
-                    console.error('Save error', e); showNotification('Error saving timetable', 'error');
-                }
-            }, 500);
-        }
-
-        function addRow() {
-            currentTimetable.push({ time: prompt('Time (e.g., 12:00 - 1:00):', '') || '' });
-            renderTimetable();
-            FirebaseBackend.saveTimetable(currentTimetable).catch(() => showNotification('Error adding row', 'error'));
-        }
-        function addExamRow() {
-            const base = { time: 'Exam Timetable' };
-            ['monday','tuesday','wednesday','thursday','friday','saturday'].forEach(d => base[d] = '-');
-            currentTimetable.push(base);
-            renderTimetable();
-            FirebaseBackend.saveTimetable(currentTimetable).catch(() => showNotification('Error adding exam row', 'error'));
-        }
-        function deleteRow(index) {
-            if (!confirm('Delete this row?')) return;
-            currentTimetable.splice(index, 1);
-            renderTimetable();
-            FirebaseBackend.saveTimetable(currentTimetable).catch(() => showNotification('Error deleting row', 'error'));
-        }
-        async function resetToDefaults() {
-            if (!confirm('Reset timetable to default seed?')) return;
-            await window.firebaseServices.setDoc(
-                window.firebaseServices.doc(window.firebaseDb, 'settings', 'timetable'),
-                { schedule: [
-                    { time: '9:00 - 10:00', monday: 'Biochemistry Lecture\nRoom A101', tuesday: '-', wednesday: 'Organic Chemistry\nRoom B205', thursday: '-', friday: 'Lab Session\nLab 1' },
-                    { time: '10:00 - 11:00', monday: '-', tuesday: 'Molecular Biology\nRoom C301', wednesday: '-', thursday: 'Biochemistry Lecture\nRoom A101', friday: '-' },
-                    { time: '11:00 - 12:00', monday: 'Tutorial\nRoom D102', tuesday: '-', wednesday: 'Lab Session\nLab 2', thursday: '-', friday: 'Seminar\nRoom E201' },
-                    { time: 'Exam Timetable', monday: 'Aug 9 — GST 103/112\nDLI', tuesday: 'Aug 18 — MTH 102\nDLI', wednesday: 'Aug 20 — CHM 102\nDLI', thursday: 'Aug 21 — BIO 102\nDLI', friday: 'Aug 27 — PHY 102\nDLI', saturday: 'Aug 28 — COS 102\nFaculty of Science' }
-                ]}
-            );
-            await refreshTimetable();
-            showNotification('Timetable reset to defaults', 'success');
-        }
-
-        // Modals & Notifications
-        function closeModal(id) { const el = document.getElementById(id); el.classList.add('hidden'); const form = el.querySelector('form'); if (form) form.reset(); }
-       function showNotification(message, type = 'info') {
-  const n = document.getElementById('notification');
-  if (!n) return;
-
-  // pick a color based on type
-  const colors = {
-    info: 'bg-blue-600',
-    success: 'bg-green-600',
-    error: 'bg-red-600'
-  };
-
-  n.className = `fixed top-20 left-6 z-20 text-white px-3 py-2 rounded-md shadow-md text-sm max-w-[75vw] ${colors[type] || colors.info}`;
-  n.textContent = message;
-  n.classList.remove('hidden');
-
-  setTimeout(() => n.classList.add('hidden'), 3000);
-}
-
-        document.addEventListener('click', (e) => { document.querySelectorAll('[id$="-modal"]').forEach(m => { if (e.target === m) m.classList.add('hidden'); }); });
-    </script>
-  <script>
- const hamburger = document.getElementById('hamburger');
-const menu = document.getElementById('hamburger-menu');
-
-hamburger.addEventListener('click', (e) => {
-  e.stopPropagation();
-  menu.classList.toggle('hidden');
-  hamburger.classList.toggle('active'); // ✅ Toggle the X animation
-});
-
-document.addEventListener('click', (e) => {
-  if (!hamburger.contains(e.target) && !menu.contains(e.target)) {
-    menu.classList.add('hidden');
-    hamburger.classList.remove('active'); // ✅ Reset to hamburger
-  }
-});
-// ✅ Close hamburger after clicking a menu item
-menu.querySelectorAll('button').forEach(btn => {
-  btn.addEventListener('click', () => {
-    menu.classList.add('hidden');       // Hide the dropdown
-    hamburger.classList.remove('active'); // Revert icon to hamburger
-  });
-});
-
-
-  // Close dropdown on click outside
-  document.addEventListener('click', (e) => {
-    if (!hamburger.contains(e.target) && !menu.contains(e.target)) {
-      menu.classList.add('hidden');
-    }
-  });
-
-  
-</script>
-<!-- ... your other HTML sections (dashboard, materials, etc.) ... -->
-
-<!-- 🔥 Place this near the very bottom -->
-<!-- Notification Bar -->
-<!-- Notification Bar (Left Side) -->
-<div id="notification"
-     class="hidden fixed top-20 left-6 z-20 bg-blue-600 text-white px-3 py-2 rounded-md shadow-md text-sm max-w-[75vw]">
-</div>
-<!-- AI Assistant -->
-<button id="ai-toggle"
-        class="fixed bottom-6 right-6 bg-blue-600 text-white p-3 rounded-full shadow-lg hover:bg-blue-700 z-50">
-  <i class="fas fa-robot"></i>
-</button>
-
-<div id="ai-chat"
-     class="hidden fixed bottom-20 right-6 w-80 bg-white border border-gray-300 rounded-lg shadow-lg flex flex-col z-40">
-  <div class="p-3 border-b font-semibold bg-blue-600 text-white rounded-t-lg">AI Course Assistant</div>
-  <div id="chat-body" class="p-3 h-64 overflow-y-auto text-sm flex-1 bg-gray-50"></div>
-  <form id="chat-form" class="flex border-t">
-    <input id="chat-input" class="flex-1 p-2 outline-none text-sm" placeholder="Ask about your course..." />
-    <button type="submit" class="p-2 bg-blue-600 text-white hover:bg-blue-700">
-      <i class="fas fa-paper-plane"></i>
-    </button>
-  </form>
-</div>
-<!-- AI Assistant (dummy version) -->
-<button id="ai-toggle"
-        class="fixed bottom-6 right-6 bg-blue-600 text-white p-3 rounded-full shadow-lg hover:bg-blue-700">
-  <i class="fas fa-robot"></i>
-</button>
-<script type="module">
-// ✅ Gemini chat with conversation memory (fixed format)
-
-const toggleBtn = document.getElementById('ai-toggle');
-const chatBox = document.getElementById('ai-chat');
-const chatForm = document.getElementById('chat-form');
-const input = document.getElementById('chat-input');
-const body = document.getElementById('chat-body');
-
-// 🧠 Keep all messages in memory
-let conversation = [];
-
-toggleBtn.addEventListener('click', () => {
-  chatBox.classList.toggle('hidden');
-});
-
-chatForm.addEventListener('submit', async (e) => {
-  e.preventDefault();
-  const msg = input.value.trim();
-  if (!msg) return;
-
-  input.value = "";
-  body.innerHTML += `<div class="mb-2"><b>You:</b> ${msg}</div>`;
-  body.innerHTML += `<div id="typing" class="mb-2 text-gray-500 italic">AI is thinking...</div>`;
-  body.scrollTop = body.scrollHeight;
-
-  // Add the user's message to the conversation
-  conversation.push({ role: "user", parts: [{ text: msg }] });
-
-  try {
-    const res = await fetch("/api/ask", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ conversation }), // ✅ send correctly
-    });
-
-    const data = await res.json();
-    document.getElementById("typing").remove();
-
-    const text =
-      data?.reply?.text ||
-      data?.reply ||
-      data?.error ||
-      "No response from Gemini.";
-
-    // Add AI reply to conversation memory
-    conversation.push({ role: "model", parts: [{ text }] });
-
-    body.innerHTML += `<div class="mb-2 text-gray-700"><b>AI:</b> ${text}</div>`;
-  } catch (err) {
-    document.getElementById("typing").remove();
-    body.innerHTML += `<div class="mb-2 text-red-600"><b>AI:</b> Connection failed: ${err.message}</div>`;
-    console.error(err);
-  }
-
-  body.scrollTop = body.scrollHeight;
-});
-</script>
-
-
-<script>
-// --- Notification System ---
-
-const notifState = {
-  count: 0,
-  items: [],
-  hasPermission: false,
-  audio: new Audio('https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3') // Simple 'ding' sound
-};
-
-document.addEventListener('DOMContentLoaded', () => {
-  // 1. Ask for permission immediately (or you can move this to a button click)
-  if ("Notification" in window) {
-    if (Notification.permission === "granted") {
-      notifState.hasPermission = true;
-    } else if (Notification.permission !== "denied") {
-      Notification.requestPermission().then(permission => {
-        if (permission === "granted") notifState.hasPermission = true;
-      });
-    }
-  }
-
-  // 2. Start Listeners
-  initRealTimeListeners();
-  initClassReminders();
-});
-
-function initRealTimeListeners() {
-  if (!window.firebaseDb) {
-    console.log("Waiting for Firebase to initialize...");
-    return setTimeout(initRealTimeListeners, 500);
-  }
-
-  console.log("✅ Notification Listeners are ACTIVE!");
-
-  // Use a time slightly in the past to ensure we catch immediate uploads
- // Look back 24 hours (just for testing) to make sure we catch it
-const startTime = new Date(Date.now() - (1 * 10 * 1 * 100)); 
-
-  // 1. Listener for MATERIALS
-  window.firebaseServices.onSnapshot(
-    window.firebaseServices.query(
-      window.firebaseServices.collection(window.firebaseDb, 'materials'), 
-      window.firebaseServices.where('uploadDate', '>', startTime)
-    ), 
-    (snapshot) => {
-      snapshot.docChanges().forEach((change) => {
-        if (change.type === "added") {
-          const data = change.doc.data();
-          console.log("🔥 Material Detected:", data.title); // Debug log
-          
-          // SEND NOTIFICATION (Removed the 'currentUser' check for testing)
-          sendNotification('New Material', `📄 ${data.title} was just uploaded.`, 'materials');
-        }
-      });
-    }
-  );
-
-  // 2. Listener for ANNOUNCEMENTS
-  window.firebaseServices.onSnapshot(
-    window.firebaseServices.query(
-      window.firebaseServices.collection(window.firebaseDb, 'announcements'), 
-      window.firebaseServices.where('date', '>', startTime)
-    ), 
-    (snapshot) => {
-      snapshot.docChanges().forEach((change) => {
-        if (change.type === "added") {
-          const data = change.doc.data();
-          console.log("🔥 Announcement Detected:", data.title); // Debug log
-          
-          sendNotification('New Announcement', `📢 ${data.title}`, 'announcements');
-        }
-      });
-    }
-  );
-}
-
-// 3. Class Reminder Logic (Checks every minute)
-function initClassReminders() {
-  setInterval(async () => {
-    const timetable = await FirebaseBackend.getTimetable(); // Uses your existing method
-    const now = new Date();
-    const days = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
-    const currentDay = days[now.getDay()];
-    
-    timetable.forEach(row => {
-      if (!row.time || row.time.includes('Exam')) return;
-      
-      const classInfo = row[currentDay];
-      if (classInfo && classInfo !== '-') {
-        // Parse time "9:00 - 10:00"
-        const [startStr] = row.time.split('-');
-        const [h, m] = startStr.trim().split(':').map(Number);
+            debounceTimer = setTimeout(() => { window.firebaseServices.setDoc(window.firebaseServices.doc(window.firebaseDb, 'settings', 'timetable'), { schedule: currentTimetable }); }, 1000);
+        };
         
-        // Check if class is in exactly 10 minutes
-        if (now.getHours() === h && now.getMinutes() === (m || 0) - 10) {
-           sendNotification('Class Starting Soon!', `⏳ ${classInfo} starts in 10 minutes.`, 'timetable');
-        }
-        // Check if class is NOW
-        if (now.getHours() === h && now.getMinutes() === (m || 0)) {
-           sendNotification('Class Started', `🔴 ${classInfo} is starting now!`, 'timetable');
-        }
-      }
-    });
-  }, 60000); // Check every 60 seconds
-}
-
-// 4. Trigger the Notification
-function sendNotification(title, body, section) {
-  // A. Browser Notification (System level)
-  if (notifState.hasPermission) {
-    new Notification(title, { body, icon: '/images/favicon-96x96.png' });
-    notifState.audio.play().catch(() => {}); // Play sound if allowed
-  }
-
-  // B. In-App Badge & Dropdown
-  notifState.count++;
-  updateBadge();
-
-  // Add to dropdown list
-  const list = document.getElementById('notification-list');
-  const emptyMsg = list.querySelector('.text-center');
-  if (emptyMsg) emptyMsg.remove();
-
-  const itemHTML = `
-    <div onclick="showSection('${section}'); toggleNotifications();" class="p-3 border-b dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer transition">
-      <p class="text-sm font-bold text-gray-800 dark:text-gray-200">${title}</p>
-      <p class="text-xs text-gray-600 dark:text-gray-400 mt-1">${body}</p>
-      <span class="text-[10px] text-gray-400 block mt-2 text-right">Just now</span>
-    </div>
-  `;
-  list.insertAdjacentHTML('afterbegin', itemHTML);
-}
-
-// UI Helpers
-function updateBadge() {
-  const badge = document.getElementById('notification-badge');
-  if (notifState.count > 0) {
-    badge.textContent = notifState.count;
-    badge.classList.remove('hidden');
-  } else {
-    badge.classList.add('hidden');
-  }
-}
-
-function toggleNotifications() {
-  const dropdown = document.getElementById('notification-dropdown');
-  const btn = document.getElementById('notification-btn');
-  
-  // 1. Toggle the dropdown visibility
-  dropdown.classList.toggle('hidden');
-
-  // 2. Clear badge count when opening
-  if (!dropdown.classList.contains('hidden')) {
-    notifState.count = 0;
-    updateBadge();
-    
-    // 3. 📱 MOBILE FIX: Ask for permission here (User Gesture)
-    if ("Notification" in window && Notification.permission === "default") {
-        Notification.requestPermission().then(permission => {
-            if (permission === "granted") {
-                notifState.hasPermission = true;
-                // Send a test so they know it worked
-                new Notification("Notifications Enabled", { 
-                    body: "You will now receive alerts for new materials!",
-                    icon: '/images/favicon-96x96.png'
-                });
-            }
-        });
-    }
-  }
-}
-
-// Close dropdown if clicking outside
-document.addEventListener('click', (e) => {
-  const btn = document.getElementById('notification-btn');
-  const dropdown = document.getElementById('notification-dropdown');
-  if (!btn.contains(e.target) && !dropdown.contains(e.target)) {
-    dropdown.classList.add('hidden');
-  }
-});
-</script>
-
-
-<script>
-// --- Drag & Drop Logic ---
-document.addEventListener('DOMContentLoaded', () => {
-    const dropZone = document.getElementById('drop-zone');
-    if (!dropZone) return;
-
-    // 1. Prevent default browser behavior (opening the file)
-    ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
-        dropZone.addEventListener(eventName, (e) => {
+        window.openAddRowModal = () => document.getElementById('add-row-modal').classList.remove('hidden');
+        window.handleAddRow = async (e) => {
             e.preventDefault();
-            e.stopPropagation();
-        }, false);
-    });
+            const t = document.getElementById('new-row-time').value;
+            if(!t) return;
+            const newRow = { time: t, monday: '', tuesday: '', wednesday: '', thursday: '', friday: '', saturday: '' };
+            currentTimetable.push(newRow);
+            renderTimetable();
+            try { await window.firebaseServices.setDoc(window.firebaseServices.doc(window.firebaseDb, 'settings', 'timetable'), { schedule: currentTimetable }); closeModal('add-row-modal'); showNotification("Row Added", "success"); } catch(e) { showNotification("Failed to save", "error"); }
+        };
+        window.addExamRow = async () => { 
+            const newRow = { time: 'EXAM', monday: '', tuesday: '', wednesday: '', thursday: '', friday: '', saturday: '' };
+            currentTimetable.push(newRow); renderTimetable(); 
+            try { await window.firebaseServices.setDoc(window.firebaseServices.doc(window.firebaseDb, 'settings', 'timetable'), { schedule: currentTimetable }); } catch(e) { console.error(e); }
+        };
+        window.resetToDefaults = async () => {
+            if(!confirm('Reset?')) return;
+            const def = [{ time: '9:00 - 10:00', monday: 'Class', tuesday: '' }]; 
+            await window.firebaseServices.setDoc(window.firebaseServices.doc(window.firebaseDb, 'settings', 'timetable'), { schedule: def });
+            refreshTimetable();
+        };
 
-    // 2. Highlight effect on drag over
-    ['dragenter', 'dragover'].forEach(eventName => {
-        dropZone.addEventListener(eventName, () => {
-            dropZone.classList.add('border-green-500', 'bg-green-50', 'dark:bg-green-900/10', 'scale-[1.02]');
-        }, false);
-    });
+        // --- GEMINI AI FEATURES ---
+        async function runAI(prompt, title) {
+            const modal = document.getElementById('ai-content-modal');
+            const content = document.getElementById('ai-modal-content');
+            const modalTitle = document.getElementById('ai-modal-title');
+            
+            modal.classList.remove('hidden');
+            modalTitle.innerHTML = `<span class="text-purple-500">✨</span> ${title}`;
+            content.innerHTML = `<div class="flex flex-col items-center justify-center py-12"><i class="fas fa-spinner fa-spin text-3xl text-purple-500 mb-4"></i><p>Thinking...</p></div>`;
 
-    // 3. Remove highlight on drag leave
-    ['dragleave', 'drop'].forEach(eventName => {
-        dropZone.addEventListener(eventName, () => {
-            dropZone.classList.remove('border-green-500', 'bg-green-50', 'dark:bg-green-900/10', 'scale-[1.02]');
-        }, false);
-    });
-
-    // 4. Handle the File Drop
-    dropZone.addEventListener('drop', (e) => {
-        const files = e.dataTransfer.files;
-        if (files.length > 0) {
-            handleDroppedFile(files[0]);
+            try {
+                const res = await fetch('/api/ask', { 
+                    method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({ message: prompt }) 
+                });
+                const data = await res.json();
+                const html = data.reply.replace(/\*\*(.*?)\*\*/g, '<b>$1</b>').replace(/\n/g, '<br>');
+                content.innerHTML = `<div class="p-4 bg-purple-50 dark:bg-purple-900/20 rounded-xl">${html}</div>`;
+            } catch(e) {
+                content.innerHTML = `<p class="text-red-500">Failed to generate content. Please try again.</p>`;
+            }
         }
-    }, false);
-});
 
-function handleDroppedFile(file) {
-    // A. Open the upload modal
-    uploadMaterial(); 
+        window.generateStudyPlan = () => {
+            const timetableData = JSON.stringify(currentTimetable);
+            runAI(`Analyze this student timetable and create a 3-point study strategy for the week. Highlight intense days. Timetable: ${timetableData}`, "AI Study Strategy");
+        };
 
-    // B. Pre-fill the file input (Using DataTransfer API)
-    const fileInput = document.getElementById('file-input');
-    const dataTransfer = new DataTransfer();
-    dataTransfer.items.add(file);
-    fileInput.files = dataTransfer.files;
+        window.generateQuiz = () => {
+            // Extract subjects
+            const subjects = currentTimetable.flatMap(row => Object.values(row)).filter(v => v && v !== '-' && v.length > 2 && !v.includes(':')).join(', ');
+            runAI(`Create a short 3-question multiple choice quiz based on these subjects: ${subjects}. Return format: Question, Options, Correct Answer.`, "Quick Quiz");
+        };
 
-    // C. Pre-fill the title with filename (removing extension)
-    const titleInput = document.getElementById('file-title');
-    const cleanName = file.name.substring(0, file.name.lastIndexOf('.')) || file.name;
-    titleInput.value = cleanName; // Auto-fill title
+        window.analyzeMaterials = () => {
+            // Extract file titles from the DOM
+            const files = Array.from(document.querySelectorAll('.material-item h4')).map(el => el.textContent).join(', ');
+            if(!files) return showNotification("No materials to analyze", "error");
+            runAI(`Based on these file titles: ${files}, list 5 key concepts the student should master.`, "Topic Analysis");
+        };
 
-    // D. Visual Feedback
-    showNotification('File ready to upload!', 'success');
-}
-</script>
+        // --- COMMON UI UTILS ---
+        function initRealTimeListeners() {
+            const start = new Date(Date.now() - 86400000);
+            window.firebaseServices.onSnapshot(window.firebaseServices.query(window.firebaseServices.collection(window.firebaseDb, 'materials'), window.firebaseServices.where('uploadDate', '>', start)), (snap) => {
+                snap.docChanges().forEach(c => { if (c.type === 'added') sendNotification('New Material', c.doc.data().title); });
+            });
+        }
+        function sendNotification(title, body) {
+            notifState.count++;
+            const badge = document.getElementById('notification-badge'); badge.classList.remove('hidden');
+            const list = document.getElementById('notification-list');
+            if (list.children[0]?.textContent === 'No new notifications') list.innerHTML = '';
+            list.insertAdjacentHTML('afterbegin', `<div class="p-3 border-b border-gray-100 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition cursor-pointer"><p class="font-bold text-sm text-gray-800 dark:text-white">${title}</p><p class="text-xs text-gray-500 dark:text-gray-400">${body}</p></div>`);
+            if (notifState.hasPermission) new Notification(title, { body, icon: '/images/favicon-96x96.png' });
+        }
+        window.toggleNotifications = () => {
+            const drop = document.getElementById('notification-dropdown'); drop.classList.toggle('hidden');
+            if (!drop.classList.contains('hidden')) {
+                document.getElementById('notification-badge').classList.add('hidden');
+                if (Notification.permission === 'default') Notification.requestPermission().then(p => { if (p === 'granted') notifState.hasPermission = true; });
+            }
+        };
+        window.clearNotifications = () => { document.getElementById('notification-list').innerHTML = '<div class="p-6 text-center text-gray-400 text-sm">No new notifications</div>'; };
+        window.askToDelete = (type, id, btn) => { pendingDelete = { type, id, btn }; document.getElementById('delete-modal').classList.remove('hidden'); };
+        window.closeDeleteModal = () => document.getElementById('delete-modal').classList.add('hidden');
+        window.confirmDeleteAction = async () => {
+            if (!pendingDelete) return;
+            closeDeleteModal(); const { type, id, btn } = pendingDelete;
+            if (btn) { btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>'; btn.disabled = true; }
+            try {
+                if (type === 'material') {
+                    const doc = await window.firebaseServices.getDoc(window.firebaseServices.doc(window.firebaseDb, 'materials', id));
+                    if (doc.exists()) await supabaseClient.storage.from('materials').remove([`uploads/${doc.data().filename}`]);
+                    await window.firebaseServices.deleteDoc(window.firebaseServices.doc(window.firebaseDb, 'materials', id)); refreshMaterialsList();
+                } else if (type === 'announcement') { await window.firebaseServices.deleteDoc(window.firebaseServices.doc(window.firebaseDb, 'announcements', id)); refreshAnnouncementsList(); } 
+                else if (type === 'timetable') { currentTimetable.splice(id, 1); await window.firebaseServices.setDoc(window.firebaseServices.doc(window.firebaseDb, 'settings', 'timetable'), { schedule: currentTimetable }); refreshTimetable(); }
+                showNotification('Deleted', 'success');
+            } catch(e) { showNotification(e.message, 'error'); if(btn) btn.innerHTML = '<i class="fas fa-trash"></i>'; }
+        };
+        window.closeModal = (id) => document.getElementById(id).classList.add('hidden');
+        window.toggleTheme = () => { document.body.classList.toggle('dark'); const isDark = document.body.classList.contains('dark'); localStorage.setItem('theme', isDark ? 'dark' : 'light'); document.getElementById('theme-icon').className = isDark ? 'fas fa-sun' : 'fas fa-moon'; };
+        function loadTheme() { if (localStorage.getItem('theme') === 'dark') { document.body.classList.add('dark'); document.getElementById('theme-icon').className = 'fas fa-sun'; } }
+        function initDragAndDrop() {
+            const zone = document.getElementById('drop-zone'); if(!zone) return;
+            zone.ondragover = (e) => { e.preventDefault(); zone.classList.add('border-green-500', 'bg-green-50', 'dark:bg-green-900/10'); };
+            zone.ondragleave = () => zone.classList.remove('border-green-500', 'bg-green-50', 'dark:bg-green-900/10');
+            zone.ondrop = (e) => { e.preventDefault(); zone.ondragleave(); if(e.dataTransfer.files[0]) { window.uploadMaterial(); document.getElementById('file-input').files = e.dataTransfer.files; document.getElementById('file-title').value = e.dataTransfer.files[0].name.split('.')[0]; } };
+        }
+        function showNotification(msg, type) {
+            const notif = document.getElementById('notification'); const color = type === 'error' ? 'bg-red-500' : 'bg-green-500';
+            notif.innerHTML = `<div class="${color} text-white px-6 py-3 rounded-xl shadow-2xl flex items-center gap-3"><i class="fas fa-${type === 'error' ? 'exclamation-circle' : 'check-circle'}"></i> ${msg}</div>`;
+            notif.classList.remove('hidden', 'translate-x-full'); setTimeout(() => notif.classList.add('translate-x-full'), 3000);
+        }
+        const hamBtn = document.getElementById('hamburger'); const hamMenu = document.getElementById('hamburger-menu');
+        if(hamBtn) { hamBtn.onclick = (e) => { e.stopPropagation(); hamMenu.classList.toggle('hidden'); }; document.onclick = (e) => { if(!hamBtn.contains(e.target) && !hamMenu.contains(e.target)) hamMenu.classList.add('hidden'); }; }
+        
+        // --- CHAT ---
+        const aiBtn = document.getElementById('ai-toggle'); const aiChat = document.getElementById('ai-chat');
+        if(aiBtn) aiBtn.onclick = () => aiChat.classList.toggle('hidden');
+        document.getElementById('chat-form').onsubmit = async (e) => {
+            e.preventDefault(); 
+            const input = document.getElementById('chat-input'); 
+            const body = document.getElementById('chat-body'); 
+            const txt = input.value.trim(); 
+            if(!txt) return;
+            
+            body.innerHTML += `<div class="self-end bg-helix-600 text-white p-3 rounded-lg text-sm max-w-[85%]">${txt}</div>`; 
+            input.value = ''; 
+            body.scrollTop = body.scrollHeight;
+            
+            try {
+                // Get Materials list for context
+                const materialsList = Array.from(document.querySelectorAll('.material-item h4')).map(el => el.textContent).join(', ');
+                const timetableContext = JSON.stringify(currentTimetable);
+                
+                const fullPrompt = `System: You are an AI assistant for a student portal. Context: The student has these classes: ${timetableContext}. The student has these materials: ${materialsList}. Current User: ${currentUser.name}. User Query: ${txt}`;
 
-<script>
-  // Emergency: Force remove loading screen if it gets stuck
-  setTimeout(() => {
-    const loader = document.getElementById('loading-screen');
-    if (loader && !loader.classList.contains('hidden')) {
-      console.warn("⚠️ Forced loading screen removal.");
-      loader.classList.add('hidden');
-    }
-  }, 4000); // Waits 4 seconds then forces it open
-</script>
-
-
-
-
-
-
-
+                const res = await fetch('/api/ask', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({ message: fullPrompt }) });
+                const data = await res.json();
+                const replyText = data.reply.replace(/\*\*(.*?)\*\*/g, '<b>$1</b>').replace(/\n/g, '<br>');
+                
+                body.innerHTML += `<div class="p-3 rounded-lg bg-white dark:bg-gray-700 shadow-sm text-sm text-gray-700 dark:text-gray-200 max-w-[85%]">${replyText || 'Error'}</div>`;
+            } catch(e) { body.innerHTML += `<div class="text-red-500 text-xs">Error connecting to AI.</div>`; }
+            body.scrollTop = body.scrollHeight;
+        };
+    </script>
 </body>
 </html>
-
-
