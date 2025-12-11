@@ -1,5 +1,6 @@
 {
   "version": 2,
+  "regions": ["iad1"],
   "builds": [
     { "src": "index.html", "use": "@vercel/static" },
     { "src": "api/**/*.js", "use": "@vercel/node" }
@@ -7,11 +8,5 @@
   "routes": [
     { "src": "/api/(.*)", "dest": "/api/$1.js" },
     { "src": "/(.*)", "dest": "/index.html" }
-  ]
-}
-{
-  "rewrites": [
-    { "source": "/reset.html", "destination": "/reset.html" },
-    { "source": "/(.*)", "destination": "/index.html" }
   ]
 }
