@@ -147,7 +147,11 @@
                                 <button onclick="showSection('announcements')" class="w-full text-left px-4 py-2.5 rounded-xl text-gray-700 dark:text-gray-200 hover:bg-purple-50 dark:hover:bg-gray-700/50 hover:text-purple-600 transition flex items-center gap-3 font-medium"><i class="fas fa-bullhorn w-5"></i> Alerts</button>
                                 <button onclick="showSection('profile')" class="w-full text-left px-4 py-2.5 rounded-xl text-gray-700 dark:text-gray-200 hover:bg-purple-50 dark:hover:bg-gray-700/50 hover:text-purple-600 transition flex items-center gap-3 font-medium"><i class="fas fa-user-cog w-5"></i> My Profile</button>
                             </div>
-                            <div class="mt-2 pt-2 border-t border-gray-100 dark:border-gray-700"><button onclick="logout()" class="w-full text-left px-4 py-2.5 rounded-xl text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition flex items-center gap-3 font-medium"><i class="fas fa-sign-out-alt w-5"></i> Logout</button></div>
+                            <!-- Switch Account Button added before Logout -->
+                            <div class="mt-2 pt-2 border-t border-gray-100 dark:border-gray-700 space-y-1">
+                                <button onclick="switchAccount()" class="w-full text-left px-4 py-2.5 rounded-xl text-gray-700 dark:text-gray-200 hover:bg-purple-50 dark:hover:bg-gray-700/50 hover:text-purple-600 transition flex items-center gap-3 font-medium"><i class="fas fa-users-cog w-5"></i> Switch Account</button>
+                                <button onclick="logout()" class="w-full text-left px-4 py-2.5 rounded-xl text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition flex items-center gap-3 font-medium"><i class="fas fa-sign-out-alt w-5"></i> Logout</button>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -169,13 +173,20 @@
                 <div class="w-full md:w-7/12 p-8 md:p-16 bg-white dark:bg-gray-800 flex items-center">
                     <div class="w-full max-w-md mx-auto">
                         <div id="login-form">
-                            <h3 class="text-3xl font-bold mb-2 text-gray-900 dark:text-white">Welcome Back</h3>
-                            <form onsubmit="handleLogin(event)" class="space-y-5">
+                            <h3 id="login-title" class="text-3xl font-bold mb-2 text-gray-900 dark:text-white">Welcome Back</h3>
+                            
+                            <!-- Saved Accounts List (Switch Account Feature) -->
+                            <div id="saved-accounts-container" class="hidden mb-6">
+                                <div id="saved-accounts-list" class="space-y-2 mb-4"></div>
+                                <p class="text-center"><button onclick="showLoginFormInputs()" class="text-sm text-purple-600 font-bold hover:underline">Or sign in with another account</button></p>
+                            </div>
+
+                            <form id="main-login-form" onsubmit="handleLogin(event)" class="space-y-5">
                                 <div><label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Email</label><input type="email" id="login-email" required class="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 focus:ring-2 focus:ring-purple-500 outline-none transition"></div>
                                 <div><label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Password</label><input type="password" id="login-password" required class="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 focus:ring-2 focus:ring-purple-500 outline-none transition"></div>
                                 <button type="submit" class="w-full bg-helix-600 hover:bg-helix-700 text-white font-bold py-3.5 rounded-xl shadow-lg transition">Sign In</button>
                             </form>
-                            <div class="mt-6 flex flex-col items-center gap-2 text-sm"><p class="text-gray-500">Don't have an account? <button onclick="showSignup()" class="text-purple-600 font-bold hover:underline">Sign up</button></p><button onclick="showForgotPassword()" class="text-gray-400 hover:text-gray-600 transition">Forgot Password?</button></div>
+                            <div id="login-footer" class="mt-6 flex flex-col items-center gap-2 text-sm"><p class="text-gray-500">Don't have an account? <button onclick="showSignup()" class="text-purple-600 font-bold hover:underline">Sign up</button></p><button onclick="showForgotPassword()" class="text-gray-400 hover:text-gray-600 transition">Forgot Password?</button></div>
                         </div>
                         <div id="forgot-password-form" class="hidden">
                             <h3 class="text-3xl font-bold mb-2 text-gray-900 dark:text-white">Reset Password</h3>
@@ -186,8 +197,20 @@
                             <p class="mt-6 text-center text-sm text-gray-500"><button onclick="showLogin()" class="text-purple-600 font-bold hover:underline">Login</button></p>
                         </div>
                         <div id="signup-form" class="hidden">
-                            <h3 class="text-3xl font-bold mb-2 text-gray-900 dark:text-white">Create Account</h3>
+                            <h3 class="text-3xl font-bold mb-4 text-gray-900 dark:text-white text-center">Create Account</h3>
                             <form onsubmit="handleSignup(event)" class="space-y-4">
+                                <!-- Avatar Upload -->
+                                <div class="flex justify-center mb-4">
+                                    <div class="relative group cursor-pointer" onclick="document.getElementById('signup-avatar-input').click()">
+                                        <img id="signup-avatar-preview" src="https://ui-avatars.com/api/?name=New+User&background=f3f4f6&color=6b7280" class="w-24 h-24 rounded-full border-4 border-gray-100 dark:border-gray-700 object-cover shadow-inner transition-opacity hover:opacity-80">
+                                        <div class="absolute inset-0 bg-black/40 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                                            <i class="fas fa-camera text-white text-2xl"></i>
+                                        </div>
+                                        <input type="file" id="signup-avatar-input" class="hidden" accept="image/*" onchange="previewSignupAvatar(event)">
+                                    </div>
+                                </div>
+                                <p class="text-center text-xs text-gray-500 dark:text-gray-400 mb-4 -mt-2">Tap to upload profile picture</p>
+                                
                                 <input type="text" id="signup-name" required placeholder="Full Name" class="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 focus:ring-2 focus:ring-purple-500 outline-none">
                                 <input type="text" id="signup-department" required placeholder="Department" class="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 focus:ring-2 focus:ring-purple-500 outline-none">
                                 <input type="email" id="signup-email" required placeholder="Email Address" class="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 focus:ring-2 focus:ring-purple-500 outline-none">
@@ -206,11 +229,23 @@
         <!-- DASHBOARD -->
         <div id="dashboard-section" class="hidden fade-in space-y-8">
             <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-                <div><h2 class="text-3xl md:text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-helix-600 to-blue-500 dark:from-purple-400 dark:to-blue-400">Hello, <span id="user-name">Student</span></h2><p class="text-gray-500 dark:text-gray-400 mt-1">Here is what's happening today.</p></div>
-                <div onclick="showSection('profile')" class="cursor-pointer bg-white dark:bg-gray-800 p-2 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 flex items-center gap-3 pr-4 hover:shadow-md transition">
-                    <img src="" id="user-avatar" class="w-10 h-10 rounded-lg bg-gray-200 object-cover">
-                    <div><p class="text-sm font-bold text-gray-900 dark:text-white" id="profile-name">Student</p><p class="text-xs text-gray-500 dark:text-gray-400" id="profile-department">Dept</p></div>
+                <div>
+                    <h2 class="text-3xl md:text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-helix-600 to-blue-500 dark:from-purple-400 dark:to-blue-400">Hello, <span id="user-name">Student</span></h2>
+                    <p class="text-gray-500 dark:text-gray-400 mt-1">Here is what's happening today.</p>
                 </div>
+                <div class="flex gap-3">
+                    <button onclick="generateDailyBriefing()" class="hidden md:flex bg-gradient-to-r from-purple-600 to-indigo-600 text-white px-4 py-2 rounded-xl shadow-lg hover:shadow-xl transition items-center gap-2 font-bold text-sm">
+                        <i class="fas fa-sparkles"></i> Daily Briefing
+                    </button>
+                    <div onclick="showSection('profile')" class="cursor-pointer bg-white dark:bg-gray-800 p-2 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 flex items-center gap-3 pr-4 hover:shadow-md transition">
+                        <img src="" id="user-avatar" class="w-10 h-10 rounded-lg bg-gray-200 object-cover">
+                        <div><p class="text-sm font-bold text-gray-900 dark:text-white" id="profile-name">Student</p><p class="text-xs text-gray-500 dark:text-gray-400" id="profile-department">Dept</p></div>
+                    </div>
+                </div>
+                <!-- Mobile Only Button -->
+                <button onclick="generateDailyBriefing()" class="md:hidden w-full bg-gradient-to-r from-purple-600 to-indigo-600 text-white px-4 py-3 rounded-xl shadow-lg transition items-center justify-center gap-2 font-bold text-sm flex">
+                    <i class="fas fa-sparkles"></i> Daily Briefing
+                </button>
             </div>
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <div onclick="showSection('materials')" class="group bg-white dark:bg-gray-800 rounded-2xl p-6 border border-gray-100 dark:border-gray-700 shadow-sm hover:shadow-xl hover:border-blue-500/30 transition-all cursor-pointer relative overflow-hidden">
@@ -362,7 +397,13 @@
         <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 w-full max-w-md shadow-2xl border border-gray-100 dark:border-gray-700">
             <h3 class="text-xl font-bold mb-4 text-gray-900 dark:text-white">New Announcement</h3>
             <form onsubmit="handleAnnouncementCreate(event)">
-                <div class="mb-4"><label class="block text-sm font-bold mb-2 text-gray-700 dark:text-gray-300">Title</label><input type="text" id="announcement-title" required class="w-full px-4 py-2 rounded-xl border dark:border-gray-600 bg-gray-50 dark:bg-gray-700 outline-none focus:ring-2 focus:ring-purple-500"></div>
+                <div class="mb-4">
+                    <label class="block text-sm font-bold mb-2 text-gray-700 dark:text-gray-300">Title</label>
+                    <div class="flex gap-2">
+                        <input type="text" id="announcement-title" required class="flex-1 px-4 py-2 rounded-xl border dark:border-gray-600 bg-gray-50 dark:bg-gray-700 outline-none focus:ring-2 focus:ring-purple-500">
+                        <button type="button" onclick="draftAnnouncement()" class="bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-2 rounded-xl text-sm font-bold transition shadow-md" title="Auto-Draft with AI"><i class="fas fa-magic"></i></button>
+                    </div>
+                </div>
                 <div class="mb-6"><label class="block text-sm font-bold mb-2 text-gray-700 dark:text-gray-300">Message</label><textarea id="announcement-message" required rows="4" class="w-full px-4 py-2 rounded-xl border dark:border-gray-600 bg-gray-50 dark:bg-gray-700 outline-none focus:ring-2 focus:ring-purple-500"></textarea></div>
                 <div class="flex justify-end gap-3"><button type="button" onclick="closeModal('announcement-modal')" class="px-4 py-2 text-gray-600 dark:text-gray-400 hover:text-gray-900">Cancel</button><button type="submit" class="bg-purple-600 text-white px-6 py-2 rounded-xl font-bold hover:bg-purple-700">Post</button></div>
             </form>
@@ -398,6 +439,8 @@
 
     <!-- MAIN SCRIPT -->
     <script>
+        // --- CONFIG ---
+        const apiKey = ""; // Injected by environment
         let currentUser = null;
         let currentTimetable = [];
         let pendingDelete = null;
@@ -423,6 +466,46 @@
             return { icon: 'fa-file-alt', color: 'text-gray-500 dark:text-gray-400' };
         }
 
+        // --- ACCOUNT SWITCHING UTILS ---
+        function getSavedAccounts() {
+            try { return JSON.parse(localStorage.getItem('helix_saved_accounts') || '[]'); } catch(e) { return []; }
+        }
+        function saveAccountLocally(user) {
+            let accounts = getSavedAccounts();
+            // Remove if exists to update
+            accounts = accounts.filter(a => a.email !== user.email);
+            accounts.unshift({
+                uid: user.uid,
+                name: user.name || 'User',
+                email: user.email,
+                photoURL: user.photoURL,
+                role: user.role,
+                lastActive: new Date().getTime()
+            });
+            localStorage.setItem('helix_saved_accounts', JSON.stringify(accounts));
+        }
+
+        // --- GEMINI API HELPER ---
+        async function callGemini(prompt, systemInstruction = "You are Helix, a helpful AI assistant for students.") {
+            const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
+            try {
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        contents: [{ parts: [{ text: prompt }] }],
+                        systemInstruction: { parts: [{ text: systemInstruction }] }
+                    })
+                });
+                if (!response.ok) throw new Error('AI Request failed');
+                const data = await response.json();
+                return data.candidates[0].content.parts[0].text;
+            } catch (error) {
+                console.error("Gemini Error:", error);
+                throw new Error("Sorry, I couldn't reach the AI at the moment.");
+            }
+        }
+
         // --- APP INITIALIZATION ---
         document.addEventListener('DOMContentLoaded', async () => {
             loadTheme();
@@ -438,6 +521,10 @@
                     const userDoc = await window.firebaseServices.getDoc(window.firebaseServices.doc(window.firebaseDb, 'users', user.uid));
                     if (userDoc.exists()) currentUser = { uid: user.uid, email: user.email, ...userDoc.data() };
                     else currentUser = { uid: user.uid, email: user.email, name: 'Student', role: 'student' };
+                    
+                    // Save successful login for account switcher
+                    saveAccountLocally(currentUser);
+                    
                     updateUI(currentUser);
                 } else {
                     currentUser = null;
@@ -452,10 +539,16 @@
             const navbar = document.getElementById('navbar');
             const authSection = document.getElementById('auth-section');
             const dashSection = document.getElementById('dashboard-section');
+            
             if (user) {
+                // Logged In
                 navbar.classList.remove('hidden');
                 authSection.classList.add('hidden');
                 dashSection.classList.remove('hidden');
+                
+                // Clear "hidden by user" flag so accounts show up next time we logout
+                document.getElementById('saved-accounts-container')?.classList.remove('hidden-by-user');
+
                 ['user-name', 'profile-name', 'mobile-user-name'].forEach(id => { const el = document.getElementById(id); if(el) el.textContent = user.name; });
                 ['profile-department', 'mobile-user-dept'].forEach(id => { const el = document.getElementById(id); if(el) el.textContent = user.department || 'Biochemistry'; });
                 const avatarSrc = user.photoURL || `https://ui-avatars.com/api/?name=${encodeURIComponent(user.name)}&background=random&color=fff`;
@@ -466,11 +559,78 @@
                 const saved = localStorage.getItem('lastSection') || 'dashboard';
                 showSection(saved);
             } else {
+                // Logged Out
                 navbar.classList.add('hidden');
                 authSection.classList.remove('hidden');
                 dashSection.classList.add('hidden');
+                
+                // Render Saved Accounts for Switching
+                renderLoginScreen();
+
                 ['timetable', 'materials', 'announcements', 'profile'].forEach(id => document.getElementById(id + '-section').classList.add('hidden'));
             }
+        };
+
+        // --- ACCOUNT SWITCHER RENDER LOGIC ---
+        function renderLoginScreen() {
+            const accounts = getSavedAccounts();
+            const container = document.getElementById('saved-accounts-container');
+            const list = document.getElementById('saved-accounts-list');
+            const form = document.getElementById('main-login-form');
+            const title = document.getElementById('login-title'); 
+            const footer = document.getElementById('login-footer');
+
+            if (accounts.length > 0 && !container.classList.contains('hidden-by-user')) {
+                container.classList.remove('hidden');
+                form.classList.add('hidden');
+                footer.classList.add('hidden');
+                title.textContent = 'Choose Account';
+                
+                list.innerHTML = accounts.map(acc => `
+                    <div onclick="selectAccount('${acc.email}')" class="flex items-center gap-3 p-3 rounded-xl bg-gray-50 dark:bg-gray-700/50 border border-gray-200 dark:border-gray-600 hover:border-purple-500 cursor-pointer transition group relative">
+                        <img src="${acc.photoURL || `https://ui-avatars.com/api/?name=${encodeURIComponent(acc.name)}&background=random&color=fff`}" class="w-10 h-10 rounded-full object-cover border border-gray-200 dark:border-gray-600">
+                        <div class="flex-1 min-w-0">
+                            <p class="font-bold text-gray-900 dark:text-white truncate text-sm">${acc.name}</p>
+                            <p class="text-xs text-gray-500 dark:text-gray-400 truncate">${acc.email}</p>
+                        </div>
+                        <button onclick="event.stopPropagation(); removeSavedAccount('${acc.email}')" class="w-8 h-8 flex items-center justify-center text-gray-400 hover:text-red-500 rounded-full hover:bg-gray-200 dark:hover:bg-gray-600 transition" title="Remove account"><i class="fas fa-times"></i></button>
+                    </div>
+                `).join('');
+                
+                // Add "Add Account" styled button
+                list.innerHTML += `
+                    <div onclick="showLoginFormInputs()" class="flex items-center gap-3 p-3 rounded-xl border border-dashed border-gray-300 dark:border-gray-600 hover:border-purple-500 hover:bg-purple-50 dark:hover:bg-purple-900/10 cursor-pointer transition text-gray-500 dark:text-gray-400 hover:text-purple-600">
+                        <div class="w-10 h-10 rounded-full bg-gray-100 dark:bg-gray-700 flex items-center justify-center"><i class="fas fa-plus"></i></div>
+                        <p class="font-medium text-sm">Add another account</p>
+                    </div>
+                `;
+            } else {
+                container.classList.add('hidden');
+                form.classList.remove('hidden');
+                footer.classList.remove('hidden');
+                title.textContent = 'Welcome Back';
+            }
+        }
+
+        window.selectAccount = (email) => {
+            showLoginFormInputs();
+            document.getElementById('login-email').value = email;
+            document.getElementById('login-password').value = ''; // Clear password for security
+            document.getElementById('login-password').focus();
+        };
+
+        window.showLoginFormInputs = () => {
+            document.getElementById('saved-accounts-container').classList.add('hidden');
+            document.getElementById('saved-accounts-container').classList.add('hidden-by-user'); // Prevent re-showing until next logout
+            document.getElementById('main-login-form').classList.remove('hidden');
+            document.getElementById('login-footer').classList.remove('hidden');
+            document.getElementById('login-title').textContent = 'Welcome Back';
+        };
+
+        window.removeSavedAccount = (email) => {
+            let accounts = getSavedAccounts().filter(a => a.email !== email);
+            localStorage.setItem('helix_saved_accounts', JSON.stringify(accounts));
+            renderLoginScreen();
         };
 
         window.showSection = function(section) {
@@ -489,35 +649,106 @@
             e.preventDefault();
             const email = document.getElementById('login-email').value;
             const pass = document.getElementById('login-password').value;
-            try { await window.firebaseServices.signInWithEmailAndPassword(window.firebaseAuth, email, pass); showNotification('Login successful', 'success'); } catch (err) { showNotification('Login failed: ' + err.message, 'error'); }
+            try { 
+                await window.firebaseServices.signInWithEmailAndPassword(window.firebaseAuth, email, pass); 
+                showNotification('Login successful', 'success'); 
+            } catch (err) { showNotification('Login failed: ' + err.message, 'error'); }
         };
+        
+        // Updated Helper for Previewing Signup Avatar
+        window.previewSignupAvatar = (event) => {
+            const file = event.target.files[0];
+            if (file) {
+                document.getElementById('signup-avatar-preview').src = URL.createObjectURL(file);
+            }
+        };
+
         window.handleSignup = async (e) => {
             e.preventDefault();
+            
+            // UI Feedback
+            const btn = e.target.querySelector('button[type="submit"]');
+            const originalBtnText = btn.innerText;
+            btn.disabled = true;
+            btn.innerText = 'Creating Account...';
+
             const name = document.getElementById('signup-name').value;
             const dept = document.getElementById('signup-department').value;
             const email = document.getElementById('signup-email').value;
             const pass = document.getElementById('signup-password').value;
             const isAdmin = document.getElementById('admin-signup').checked;
             const code = document.getElementById('admin-code').value;
-            if (isAdmin && code !== 'HELIX28') return showNotification('Invalid Admin Code', 'error');
+            const fileInput = document.getElementById('signup-avatar-input'); // New input
+            const file = fileInput ? fileInput.files[0] : null;
+
+            if (isAdmin && code !== 'HELIX28') {
+                showNotification('Invalid Admin Code', 'error');
+                btn.disabled = false;
+                btn.innerText = originalBtnText;
+                return;
+            }
+
             try {
                 const cred = await window.firebaseServices.createUserWithEmailAndPassword(window.firebaseAuth, email, pass);
-                await window.firebaseServices.setDoc(window.firebaseServices.doc(window.firebaseDb, 'users', cred.user.uid), {
-                    name, email, department: dept, role: isAdmin ? 'admin' : 'student', createdAt: new Date()
-                });
+                
+                let photoURL = null;
+                
+                // Upload Image if selected
+                if (file) {
+                     try {
+                        const path = `avatars/${cred.user.uid}_${Date.now()}_${file.name}`;
+                        const { data, error } = await supabaseClient.storage.from('materials').upload(path, file);
+                        if (error) throw error;
+                        const { data: pub } = supabaseClient.storage.from('materials').getPublicUrl(path);
+                        photoURL = pub.publicUrl;
+                    } catch (uploadErr) {
+                        console.error("Avatar upload failed:", uploadErr);
+                        showNotification('Image upload failed, using default.', 'error');
+                    }
+                }
+
+                const userData = { 
+                    name, 
+                    email, 
+                    department: dept, 
+                    role: isAdmin ? 'admin' : 'student', 
+                    createdAt: new Date(),
+                    photoURL: photoURL 
+                };
+                
+                await window.firebaseServices.setDoc(window.firebaseServices.doc(window.firebaseDb, 'users', cred.user.uid), userData);
+                
+                // Save locally immediately
+                saveAccountLocally({ ...userData, uid: cred.user.uid });
+                
                 showNotification('Account created!', 'success');
-            } catch (err) { showNotification(err.message, 'error'); }
+                
+            } catch (err) { 
+                showNotification(err.message, 'error'); 
+            } finally {
+                btn.disabled = false;
+                btn.innerText = originalBtnText;
+            }
         };
+
         window.handleForgotPassword = async (e) => {
             e.preventDefault(); const email = document.getElementById('forgot-email').value;
             try { await window.firebaseServices.sendPasswordResetEmail(window.firebaseAuth, email); showNotification(`Reset email sent to ${email}`, 'success'); setTimeout(() => window.showLogin(), 2000); } catch (err) { showNotification(err.message, 'error'); }
         };
+        
         window.logout = async () => { 
             // Cleanup listeners
             Object.values(commentListeners).forEach(unsubscribe => unsubscribe());
             await window.firebaseServices.signOut(window.firebaseAuth); 
             showNotification('Logged out', 'success'); 
         };
+
+        window.switchAccount = async () => {
+            // Logs out, which triggers updateUI(null), which triggers renderLoginScreen() showing the list
+            await window.logout();
+            showNotification('Switching accounts...', 'success');
+        };
+
         window.showSignup = () => { document.getElementById('login-form').classList.add('hidden'); document.getElementById('forgot-password-form').classList.add('hidden'); document.getElementById('signup-form').classList.remove('hidden'); };
         window.showLogin = () => { document.getElementById('signup-form').classList.add('hidden'); document.getElementById('forgot-password-form').classList.add('hidden'); document.getElementById('login-form').classList.remove('hidden'); };
         window.showForgotPassword = () => { document.getElementById('login-form').classList.add('hidden'); document.getElementById('signup-form').classList.add('hidden'); document.getElementById('forgot-password-form').classList.remove('hidden'); };
@@ -877,44 +1108,86 @@
             refreshTimetable();
         };
 
-        // --- GEMINI AI FEATURES ---
-        async function runAI(prompt, title) {
+        // --- GEMINI AI FEATURES IMPLEMENTATION ---
+
+        async function showAIModal(title, contentPromise) {
             const modal = document.getElementById('ai-content-modal');
-            const content = document.getElementById('ai-modal-content');
+            const contentDiv = document.getElementById('ai-modal-content');
             const modalTitle = document.getElementById('ai-modal-title');
             
             modal.classList.remove('hidden');
             modalTitle.innerHTML = `<span class="text-purple-500">✨</span> ${title}`;
-            content.innerHTML = `<div class="flex flex-col items-center justify-center py-12"><i class="fas fa-spinner fa-spin text-3xl text-purple-500 mb-4"></i><p>Thinking...</p></div>`;
+            contentDiv.innerHTML = `<div class="flex flex-col items-center justify-center py-12"><i class="fas fa-spinner fa-spin text-3xl text-purple-500 mb-4"></i><p>Thinking...</p></div>`;
 
             try {
-                const res = await fetch('/api/ask', { 
-                    method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({ message: prompt }) 
-                });
-                const data = await res.json();
-                const html = data.reply.replace(/\*\*(.*?)\*\*/g, '<b>$1</b>').replace(/\n/g, '<br>');
-                content.innerHTML = `<div class="p-4 bg-purple-50 dark:bg-purple-900/20 rounded-xl">${html}</div>`;
+                const text = await contentPromise;
+                // Basic markdown-ish formatting
+                const formatted = text
+                    .replace(/\*\*(.*?)\*\*/g, '<b class="text-purple-600 dark:text-purple-400">$1</b>')
+                    .replace(/\* (.*?)\n/g, '<li class="ml-4 list-disc">$1</li>')
+                    .replace(/\n/g, '<br>');
+                
+                contentDiv.innerHTML = `<div class="p-4 bg-purple-50 dark:bg-purple-900/20 rounded-xl leading-relaxed text-base">${formatted}</div>`;
             } catch(e) {
-                content.innerHTML = `<p class="text-red-500">Failed to generate content. Please try again.</p>`;
+                contentDiv.innerHTML = `<p class="text-red-500 bg-red-50 p-4 rounded-xl">Error: ${e.message}</p>`;
             }
         }
 
+        window.generateDailyBriefing = async () => {
+            const annEl = document.getElementById('dashboard-announcements');
+            const announcementText = annEl.innerText;
+            const nextClassText = document.getElementById('next-class').innerText;
+            const prompt = `Create a short, energetic daily briefing for a student. 
+            Here are the latest announcements: "${announcementText}". 
+            Here is the next class: "${nextClassText}".
+            Structure it as: "Good Morning!", "Updates", and "Action Item". Keep it brief.`;
+            
+            showAIModal("Daily Briefing", callGemini(prompt));
+        };
+
+        window.draftAnnouncement = async () => {
+            const title = document.getElementById('announcement-title').value;
+            if(!title) return showNotification("Enter a title first", "error");
+            
+            const btn = document.querySelector('button[onclick="draftAnnouncement()"]');
+            const originalHTML = btn.innerHTML;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+            btn.disabled = true;
+
+            try {
+                const prompt = `Write a professional, clear announcement body for a university portal with the title: "${title}". Keep it under 50 words.`;
+                const text = await callGemini(prompt, "You are a professional university administrator.");
+                document.getElementById('announcement-message').value = text;
+            } catch(e) {
+                showNotification("AI failed to draft", "error");
+            } finally {
+                btn.innerHTML = originalHTML;
+                btn.disabled = false;
+            }
+        };
+
         window.generateStudyPlan = () => {
             const timetableData = JSON.stringify(currentTimetable);
-            runAI(`Analyze this student timetable and create a 3-point study strategy for the week. Highlight intense days. Timetable: ${timetableData}`, "AI Study Strategy");
+            const prompt = `Analyze this student timetable: ${timetableData}. Create a specific 3-point study strategy for the upcoming days. Identify the busiest day and suggest a break time.`;
+            showAIModal("AI Study Strategy", callGemini(prompt));
         };
 
         window.generateQuiz = () => {
-            // Extract subjects
             const subjects = currentTimetable.flatMap(row => Object.values(row)).filter(v => v && v !== '-' && v.length > 2 && !v.includes(':')).join(', ');
-            runAI(`Create a short 3-question multiple choice quiz based on these subjects: ${subjects}. Return format: Question, Options, Correct Answer.`, "Quick Quiz");
+            const prompt = `Create a short 3-question multiple choice quiz based on these subjects: ${subjects}. Format: 
+            1. Question
+            A) Option
+            B) Option
+            C) Option
+            Answer: X`;
+            showAIModal("Quick Quiz", callGemini(prompt));
         };
 
         window.analyzeMaterials = () => {
-            // Extract file titles from the DOM
             const files = Array.from(document.querySelectorAll('.material-item h4')).map(el => el.textContent).join(', ');
             if(!files) return showNotification("No materials to analyze", "error");
-            runAI(`Based on these file titles: ${files}, list 5 key concepts the student should master.`, "Topic Analysis");
+            const prompt = `Based on these file titles: ${files}, list 5 key concepts the student should master to succeed in these topics.`;
+            showAIModal("Topic Analysis", callGemini(prompt));
         };
 
         // --- COMMON UI UTILS ---
@@ -1020,13 +1293,14 @@
                 const materialsList = Array.from(document.querySelectorAll('.material-item h4')).map(el => el.textContent).join(', ');
                 const timetableContext = JSON.stringify(currentTimetable);
                 
-                const fullPrompt = `System: You are an AI assistant for a student portal. Context: The student has these classes: ${timetableContext}. The student has these materials: ${materialsList}. Current User: ${currentUser.name}. User Query: ${txt}`;
+                const fullPrompt = `Context: The student has these classes: ${timetableContext}. The student has these materials: ${materialsList}. Current User: ${currentUser.name}. User Query: ${txt}`;
 
-                const res = await fetch('/api/ask', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({ message: fullPrompt }) });
-                const data = await res.json();
-                const replyText = data.reply.replace(/\*\*(.*?)\*\*/g, '<b>$1</b>').replace(/\n/g, '<br>');
+                const replyText = await callGemini(fullPrompt);
                 
-                body.innerHTML += `<div class="p-3 rounded-lg bg-white dark:bg-gray-700 shadow-sm text-sm text-gray-700 dark:text-gray-200 max-w-[85%]">${replyText || 'Error'}</div>`;
+                // Format links if any
+                const formattedReply = replyText.replace(/\n/g, '<br>').replace(/\*\*(.*?)\*\*/g, '<b>$1</b>');
+                
+                body.innerHTML += `<div class="p-3 rounded-lg bg-white dark:bg-gray-700 shadow-sm text-sm text-gray-700 dark:text-gray-200 max-w-[85%]">${formattedReply}</div>`;
             } catch(e) { body.innerHTML += `<div class="text-red-500 text-xs">Error connecting to AI.</div>`; }
             body.scrollTop = body.scrollHeight;
         };
