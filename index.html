@@ -318,13 +318,23 @@
                     <h2 class="text-2xl font-bold text-gray-900 dark:text-white flex items-center gap-3"><span class="w-10 h-10 rounded-lg bg-green-100 dark:bg-green-900/30 flex items-center justify-center text-green-600"><i class="fas fa-book"></i></span>Course Materials</h2>
                     <div class="flex gap-2">
                         <button onclick="analyzeMaterials()" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-bold shadow-lg transition flex items-center gap-2"><i class="fas fa-lightbulb"></i> ✨ Analyze Topics</button>
-                        <div id="admin-materials-controls" class="hidden">
+                        <div id="admin-materials-controls" class="hidden flex gap-2">
+                            <button onclick="document.getElementById('create-folder-modal').classList.remove('hidden')" class="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-lg font-bold shadow-lg transition"><i class="fas fa-folder-plus mr-2"></i>Folder</button>
                             <button onclick="uploadMaterial()" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-bold shadow-lg transition"><i class="fas fa-upload mr-2"></i>Upload</button>
                         </div>
                     </div>
                 </div>
+
+                <!-- Breadcrumb Navigation -->
+                <div id="materials-breadcrumb" class="hidden mb-4 flex items-center text-sm font-medium text-gray-500 dark:text-gray-400">
+                    <button onclick="navigateToFolder(null)" class="hover:text-gray-900 dark:hover:text-white flex items-center"><i class="fas fa-home mr-1"></i> Home</button>
+                    <span class="mx-2">/</span>
+                    <span id="current-folder-name" class="text-gray-900 dark:text-white font-bold">Folder Name</span>
+                </div>
+
                 <div id="admin-drag-drop-controls" class="hidden mb-6"><div id="drop-zone" onclick="uploadMaterial()" class="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-xl p-8 text-center transition hover:border-green-500 hover:bg-green-50 dark:hover:bg-green-900/10 cursor-pointer"><i class="fas fa-cloud-upload-alt text-3xl text-gray-400 mb-2"></i><p class="text-gray-600 dark:text-gray-300 font-medium">Drag & Drop files here</p></div></div>
                 <div class="mb-6 relative"><i class="fas fa-search absolute left-4 top-3.5 text-gray-400"></i><input type="text" id="material-search" oninput="filterMaterials()" placeholder="Search documents..." class="w-full pl-10 pr-4 py-3 rounded-xl bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 focus:ring-2 focus:ring-green-500 outline-none transition"></div>
+                
                 <div id="materials-list" class="space-y-3"></div>
             </div>
         </div>
@@ -373,7 +383,7 @@
         <div class="fixed inset-0 z-10 w-screen overflow-y-auto">
             <div class="flex min-h-full items-center justify-center p-4">
                 <div class="relative transform overflow-hidden rounded-2xl bg-white dark:bg-gray-800 text-left shadow-2xl transition-all sm:w-full sm:max-w-md border border-gray-100 dark:border-gray-700 p-6">
-                    <div class="text-center"><div class="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-red-100 dark:bg-red-900/30 mb-4"><i class="fas fa-exclamation-triangle text-red-600 dark:text-red-400 text-xl"></i></div><h3 class="text-xl font-bold text-gray-900 dark:text-white">Delete Item?</h3><p class="text-sm text-gray-500 dark:text-gray-400 mt-2">This action is permanent.</p></div>
+                    <div class="text-center"><div class="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-red-100 dark:bg-red-900/30 mb-4"><i class="fas fa-exclamation-triangle text-red-600 dark:text-red-400 text-xl"></i></div><h3 class="text-xl font-bold text-gray-900 dark:text-white">Delete Item?</h3><p class="text-sm text-gray-500 dark:text-gray-400 mt-2" id="delete-warning-text">This action is permanent.</p></div>
                     <div class="mt-6 flex gap-3"><button onclick="closeDeleteModal()" class="flex-1 py-2.5 rounded-xl border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 font-semibold hover:bg-gray-50 dark:hover:bg-gray-700 transition">Cancel</button><button onclick="confirmDeleteAction()" class="flex-1 py-2.5 rounded-xl bg-red-600 text-white font-semibold hover:bg-red-700 transition shadow-lg shadow-red-500/20">Delete</button></div>
                 </div>
             </div>
@@ -388,6 +398,47 @@
                 <div class="mb-4"><label class="block text-sm font-bold mb-2 text-gray-700 dark:text-gray-300">Title</label><input type="text" id="file-title" required class="w-full px-4 py-2 rounded-xl border dark:border-gray-600 bg-gray-50 dark:bg-gray-700 outline-none focus:ring-2 focus:ring-green-500"></div>
                 <div class="mb-6"><label class="block text-sm font-bold mb-2 text-gray-700 dark:text-gray-300">File</label><input type="file" id="file-input" required class="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-green-50 file:text-green-700 hover:file:bg-green-100 transition"></div>
                 <div class="flex justify-end gap-3"><button type="button" onclick="closeModal('upload-modal')" class="px-4 py-2 text-gray-600 dark:text-gray-400 hover:text-gray-900">Cancel</button><button type="submit" id="upload-btn" class="bg-green-600 text-white px-6 py-2 rounded-xl font-bold hover:bg-green-700 flex items-center gap-2"><span id="upload-text">Upload</span> <i id="upload-spinner" class="fas fa-spinner fa-spin hidden"></i></button></div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Create Folder Modal -->
+    <div id="create-folder-modal" class="fixed inset-0 z-[90] hidden flex items-center justify-center bg-gray-900/60 backdrop-blur-sm">
+        <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 w-full max-w-md shadow-2xl border border-gray-100 dark:border-gray-700">
+            <h3 class="text-xl font-bold mb-4 text-gray-900 dark:text-white">Create New Folder</h3>
+            <form onsubmit="createFolder(event)">
+                <div class="mb-6"><label class="block text-sm font-bold mb-2 text-gray-700 dark:text-gray-300">Folder Name</label><input type="text" id="folder-name-input" required placeholder="e.g., BCH 201" class="w-full px-4 py-2 rounded-xl border dark:border-gray-600 bg-gray-50 dark:bg-gray-700 outline-none focus:ring-2 focus:ring-green-500 dark:text-white"></div>
+                <div class="flex justify-end gap-3"><button type="button" onclick="closeModal('create-folder-modal')" class="px-4 py-2 text-gray-600 dark:text-gray-400 hover:text-gray-900">Cancel</button><button type="submit" class="bg-gray-700 text-white px-6 py-2 rounded-xl font-bold hover:bg-gray-800 dark:bg-gray-600 dark:hover:bg-gray-500">Create</button></div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Rename Folder Modal -->
+    <div id="rename-folder-modal" class="fixed inset-0 z-[90] hidden flex items-center justify-center bg-gray-900/60 backdrop-blur-sm">
+        <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 w-full max-w-md shadow-2xl border border-gray-100 dark:border-gray-700">
+            <h3 class="text-xl font-bold mb-4 text-gray-900 dark:text-white">Rename Folder</h3>
+            <form onsubmit="handleRenameFolder(event)">
+                <input type="hidden" id="rename-folder-id">
+                <div class="mb-6"><label class="block text-sm font-bold mb-2 text-gray-700 dark:text-gray-300">New Name</label><input type="text" id="rename-folder-input" required class="w-full px-4 py-2 rounded-xl border dark:border-gray-600 bg-gray-50 dark:bg-gray-700 outline-none focus:ring-2 focus:ring-blue-500 dark:text-white"></div>
+                <div class="flex justify-end gap-3"><button type="button" onclick="closeModal('rename-folder-modal')" class="px-4 py-2 text-gray-600 dark:text-gray-400 hover:text-gray-900">Cancel</button><button type="submit" class="bg-blue-600 text-white px-6 py-2 rounded-xl font-bold hover:bg-blue-700">Save</button></div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Move File Modal -->
+    <div id="move-file-modal" class="fixed inset-0 z-[90] hidden flex items-center justify-center bg-gray-900/60 backdrop-blur-sm">
+        <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 w-full max-w-md shadow-2xl border border-gray-100 dark:border-gray-700">
+            <h3 class="text-xl font-bold mb-4 text-gray-900 dark:text-white">Move File</h3>
+            <form onsubmit="handleMoveFile(event)">
+                <input type="hidden" id="move-file-id">
+                <div class="mb-6">
+                    <label class="block text-sm font-bold mb-2 text-gray-700 dark:text-gray-300">Select Destination</label>
+                    <select id="move-folder-select" class="w-full px-4 py-3 rounded-xl border dark:border-gray-600 bg-gray-50 dark:bg-gray-700 outline-none focus:ring-2 focus:ring-blue-500 dark:text-white">
+                        <option value="">Home (Root)</option>
+                        <!-- Options populated via JS -->
+                    </select>
+                </div>
+                <div class="flex justify-end gap-3"><button type="button" onclick="closeModal('move-file-modal')" class="px-4 py-2 text-gray-600 dark:text-gray-400 hover:text-gray-900">Cancel</button><button type="submit" class="bg-blue-600 text-white px-6 py-2 rounded-xl font-bold hover:bg-blue-700">Move</button></div>
             </form>
         </div>
     </div>
@@ -444,7 +495,8 @@
         let currentUser = null;
         let currentTimetable = [];
         let pendingDelete = null;
-        let debounceTimer = null;
+        let currentFolderId = null; // Track current folder (null = root)
+        let allFolders = []; // Cache folders
         const notifState = { count: 0, items: [], hasPermission: false };
         // Store unsubscriptions
         const commentListeners = {};
@@ -655,7 +707,6 @@
             } catch (err) { showNotification('Login failed: ' + err.message, 'error'); }
         };
         
-        // Updated Helper for Previewing Signup Avatar
         window.previewSignupAvatar = (event) => {
             const file = event.target.files[0];
             if (file) {
@@ -665,8 +716,6 @@
 
         window.handleSignup = async (e) => {
             e.preventDefault();
-            
-            // UI Feedback
             const btn = e.target.querySelector('button[type="submit"]');
             const originalBtnText = btn.innerText;
             btn.disabled = true;
@@ -678,7 +727,7 @@
             const pass = document.getElementById('signup-password').value;
             const isAdmin = document.getElementById('admin-signup').checked;
             const code = document.getElementById('admin-code').value;
-            const fileInput = document.getElementById('signup-avatar-input'); // New input
+            const fileInput = document.getElementById('signup-avatar-input');
             const file = fileInput ? fileInput.files[0] : null;
 
             if (isAdmin && code !== 'HELIX28') {
@@ -690,10 +739,7 @@
 
             try {
                 const cred = await window.firebaseServices.createUserWithEmailAndPassword(window.firebaseAuth, email, pass);
-                
                 let photoURL = null;
-                
-                // Upload Image if selected
                 if (file) {
                      try {
                         const path = `avatars/${cred.user.uid}_${Date.now()}_${file.name}`;
@@ -706,26 +752,14 @@
                         showNotification('Image upload failed, using default.', 'error');
                     }
                 }
-
                 const userData = { 
-                    name, 
-                    email, 
-                    department: dept, 
-                    role: isAdmin ? 'admin' : 'student', 
-                    createdAt: new Date(),
-                    photoURL: photoURL 
+                    name, email, department: dept, role: isAdmin ? 'admin' : 'student', 
+                    createdAt: new Date(), photoURL: photoURL 
                 };
-                
                 await window.firebaseServices.setDoc(window.firebaseServices.doc(window.firebaseDb, 'users', cred.user.uid), userData);
-                
-                // Save locally immediately
                 saveAccountLocally({ ...userData, uid: cred.user.uid });
-                
                 showNotification('Account created!', 'success');
-                
-            } catch (err) { 
-                showNotification(err.message, 'error'); 
-            } finally {
+            } catch (err) { showNotification(err.message, 'error'); } finally {
                 btn.disabled = false;
                 btn.innerText = originalBtnText;
             }
@@ -737,14 +771,12 @@
         };
         
         window.logout = async () => { 
-            // Cleanup listeners
             Object.values(commentListeners).forEach(unsubscribe => unsubscribe());
             await window.firebaseServices.signOut(window.firebaseAuth); 
             showNotification('Logged out', 'success'); 
         };
 
         window.switchAccount = async () => {
-            // Logs out, which triggers updateUI(null), which triggers renderLoginScreen() showing the list
             await window.logout();
             showNotification('Switching accounts...', 'success');
         };
@@ -831,7 +863,86 @@
             } catch(e) { console.error(e); }
         }
 
-        // --- MATERIALS ---
+        // --- MATERIALS & FOLDERS LOGIC ---
+        
+        // 1. Create Folder
+        window.createFolder = async (e) => {
+            e.preventDefault();
+            const name = document.getElementById('folder-name-input').value.trim();
+            if(!name) return;
+            try {
+                await window.firebaseServices.addDoc(window.firebaseServices.collection(window.firebaseDb, 'folders'), {
+                    name: name,
+                    createdAt: new Date(),
+                    createdBy: currentUser.uid
+                });
+                closeModal('create-folder-modal');
+                showNotification('Folder created', 'success');
+                refreshMaterialsList();
+            } catch(e) {
+                showNotification(e.message, 'error');
+            }
+        };
+
+        // 2. Navigation
+        window.navigateToFolder = (folderId) => {
+            currentFolderId = folderId;
+            refreshMaterialsList();
+        };
+
+        // 3. Rename Folder
+        window.openRenameModal = (id, currentName) => {
+            document.getElementById('rename-folder-id').value = id;
+            document.getElementById('rename-folder-input').value = currentName;
+            document.getElementById('rename-folder-modal').classList.remove('hidden');
+        };
+
+        window.handleRenameFolder = async (e) => {
+            e.preventDefault();
+            const id = document.getElementById('rename-folder-id').value;
+            const newName = document.getElementById('rename-folder-input').value.trim();
+            if(!newName) return;
+            try {
+                await window.firebaseServices.updateDoc(window.firebaseServices.doc(window.firebaseDb, 'folders', id), { name: newName });
+                closeModal('rename-folder-modal');
+                showNotification('Renamed successfully', 'success');
+                refreshMaterialsList();
+            } catch(e) { showNotification('Failed to rename', 'error'); }
+        };
+
+        // 4. Move File
+        window.openMoveModal = (fileId) => {
+            document.getElementById('move-file-id').value = fileId;
+            const select = document.getElementById('move-folder-select');
+            select.innerHTML = '<option value="">Home (Root)</option>';
+            // Populate folders excluding current if possible, but simplest is just all
+            allFolders.forEach(f => {
+                select.innerHTML += `<option value="${f.id}">${f.name}</option>`;
+            });
+            document.getElementById('move-file-modal').classList.remove('hidden');
+        };
+
+        window.handleMoveFile = async (e) => {
+            e.preventDefault();
+            const fileId = document.getElementById('move-file-id').value;
+            const folderId = document.getElementById('move-folder-select').value || null;
+            try {
+                await window.firebaseServices.updateDoc(window.firebaseServices.doc(window.firebaseDb, 'materials', fileId), { folderId: folderId });
+                closeModal('move-file-modal');
+                showNotification('Moved successfully', 'success');
+                refreshMaterialsList();
+            } catch(e) { showNotification('Failed to move', 'error'); }
+        };
+
+        // 5. Delete Folder
+        // Modified askToDelete to handle folders
+        window.askToDeleteFolder = async (folderId) => {
+            pendingDelete = { type: 'folder', id: folderId };
+            document.getElementById('delete-warning-text').textContent = "Files inside will be moved to Home.";
+            document.getElementById('delete-modal').classList.remove('hidden');
+        };
+
+        // 6. Modified Upload to support folders
         window.uploadMaterial = () => document.getElementById('upload-modal').classList.remove('hidden');
         window.handleFileUpload = async (e) => {
             e.preventDefault();
@@ -847,33 +958,112 @@
                 const { data, error } = await supabaseClient.storage.from('materials').upload(`uploads/${name}`, file);
                 if (error) throw error;
                 const { data: pub } = supabaseClient.storage.from('materials').getPublicUrl(`uploads/${name}`);
+                
+                // Add folderId if inside a folder
                 await window.firebaseServices.addDoc(window.firebaseServices.collection(window.firebaseDb, 'materials'), {
-                    title, filename: name, url: pub.publicUrl, size: (file.size/1024/1024).toFixed(2) + ' MB', uploadDate: new Date(), uploadedByName: currentUser.name
+                    title, 
+                    filename: name, 
+                    url: pub.publicUrl, 
+                    size: (file.size/1024/1024).toFixed(2) + ' MB', 
+                    uploadDate: new Date(), 
+                    uploadedByName: currentUser.name,
+                    folderId: currentFolderId // <-- Added this
                 });
                 refreshMaterialsList(); closeModal('upload-modal'); showNotification('Upload Complete', 'success');
             } catch (err) { showNotification(err.message, 'error'); }
             finally { btn.disabled = false; text.textContent = 'Upload'; spinner.classList.add('hidden'); }
         };
+
+        // 7. Refresh List (Core Logic)
         async function refreshMaterialsList() {
             const list = document.getElementById('materials-list');
+            const breadcrumb = document.getElementById('materials-breadcrumb');
             list.innerHTML = `<div class="p-4 skeleton rounded-xl h-20"></div>`;
-            const q = window.firebaseServices.query(window.firebaseServices.collection(window.firebaseDb, 'materials'), window.firebaseServices.orderBy('uploadDate', 'desc'));
-            const snap = await window.firebaseServices.getDocs(q);
-            if (snap.empty) { list.innerHTML = `<div class="text-center py-12 opacity-50"><i class="fas fa-folder-open text-4xl mb-2"></i><p>No materials found.</p></div>`; return; }
-            list.innerHTML = snap.docs.map(doc => {
-                const m = { id: doc.id, ...doc.data() };
-                const date = m.uploadDate?.toDate ? m.uploadDate.toDate().toLocaleDateString() : 'Unknown';
-                const fileType = getFileIcon(m.filename);
-                return `
-                <div class="material-item group flex items-center justify-between p-4 bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 rounded-xl hover:shadow-lg hover:border-green-500/30 transition-all">
-                    <div class="flex items-center gap-4 overflow-hidden">
-                        <div class="w-12 h-12 rounded-lg bg-gray-100 dark:bg-gray-700 flex items-center justify-center text-2xl group-hover:bg-green-100 dark:group-hover:bg-green-900/30 transition-colors"><i class="fas ${fileType.icon} ${fileType.color}"></i></div>
-                        <div class="min-w-0"><h4 class="font-bold text-gray-900 dark:text-white truncate">${m.title}</h4><p class="text-xs text-gray-500 dark:text-gray-400">${m.size} • ${date} • ${m.uploadedByName || 'Admin'}</p></div>
-                    </div>
-                    <div class="flex gap-2"><a href="${m.url}" target="_blank" class="p-2 text-blue-500 hover:bg-blue-50 rounded-lg"><i class="fas fa-download"></i></a><button onclick="askToDelete('material', '${m.id}')" class="${currentUser.role !== 'admin' ? 'hidden' : ''} p-2 text-red-500 hover:bg-red-50 rounded-lg"><i class="fas fa-trash"></i></button></div>
-                </div>`;
-            }).join('');
+            
+            try {
+                // Fetch Folders and Materials
+                // Using memory filtering to avoid complex composite indexes for this scale
+                const fSnap = await window.firebaseServices.getDocs(window.firebaseServices.query(window.firebaseServices.collection(window.firebaseDb, 'folders'), window.firebaseServices.orderBy('name')));
+                const mSnap = await window.firebaseServices.getDocs(window.firebaseServices.query(window.firebaseServices.collection(window.firebaseDb, 'materials'), window.firebaseServices.orderBy('uploadDate', 'desc')));
+
+                allFolders = fSnap.docs.map(d => ({id: d.id, ...d.data()}));
+                let materials = mSnap.docs.map(d => ({id: d.id, ...d.data()}));
+
+                // Update Breadcrumb
+                if (currentFolderId) {
+                    const currentFolder = allFolders.find(f => f.id === currentFolderId);
+                    breadcrumb.classList.remove('hidden');
+                    document.getElementById('current-folder-name').textContent = currentFolder ? currentFolder.name : 'Unknown';
+                } else {
+                    breadcrumb.classList.add('hidden');
+                }
+
+                list.innerHTML = '';
+
+                // Show Folders (Only at root for now, or if nested logic added later)
+                // Assuming flat folders at root for simplicity as requested "Bch 201 folders"
+                if (!currentFolderId) {
+                    if (allFolders.length === 0 && materials.length === 0) {
+                        list.innerHTML = `<div class="text-center py-12 opacity-50"><i class="fas fa-folder-open text-4xl mb-2"></i><p>No materials found.</p></div>`;
+                        return;
+                    }
+                    
+                    allFolders.forEach(folder => {
+                        const isAdmin = currentUser.role === 'admin';
+                        const count = materials.filter(m => m.folderId === folder.id).length;
+                        list.innerHTML += `
+                        <div class="flex items-center justify-between p-4 bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 rounded-xl hover:shadow-lg transition-all cursor-pointer group" onclick="navigateToFolder('${folder.id}')">
+                            <div class="flex items-center gap-4">
+                                <div class="w-12 h-12 rounded-lg bg-yellow-100 dark:bg-yellow-900/30 flex items-center justify-center text-2xl text-yellow-600"><i class="fas fa-folder"></i></div>
+                                <div><h4 class="font-bold text-gray-900 dark:text-white">${folder.name}</h4><p class="text-xs text-gray-500">${count} items</p></div>
+                            </div>
+                            ${isAdmin ? `
+                            <div class="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity" onclick="event.stopPropagation()">
+                                <button onclick="openRenameModal('${folder.id}', '${folder.name}')" class="p-2 text-blue-500 hover:bg-blue-50 rounded-lg"><i class="fas fa-edit"></i></button>
+                                <button onclick="askToDeleteFolder('${folder.id}')" class="p-2 text-red-500 hover:bg-red-50 rounded-lg"><i class="fas fa-trash"></i></button>
+                            </div>` : ''}
+                        </div>`;
+                    });
+                } else {
+                    // Inside a folder: Filter materials
+                    materials = materials.filter(m => m.folderId === currentFolderId);
+                    if (materials.length === 0) {
+                        list.innerHTML = `<div class="text-center py-12 opacity-50"><i class="fas fa-box-open text-4xl mb-2"></i><p>Empty Folder</p></div>`;
+                    }
+                }
+
+                // Show Files (Filtered by currentFolderId)
+                const visibleFiles = materials.filter(m => {
+                    // If root: show files with no folderId or null
+                    if (!currentFolderId) return !m.folderId;
+                    // If folder: matches are filtered above
+                    return m.folderId === currentFolderId;
+                });
+
+                visibleFiles.forEach(m => {
+                    const date = m.uploadDate?.toDate ? m.uploadDate.toDate().toLocaleDateString() : 'Unknown';
+                    const fileType = getFileIcon(m.filename);
+                    const isAdmin = currentUser.role === 'admin';
+                    
+                    list.innerHTML += `
+                    <div class="material-item group flex items-center justify-between p-4 bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 rounded-xl hover:shadow-lg hover:border-green-500/30 transition-all">
+                        <div class="flex items-center gap-4 overflow-hidden">
+                            <div class="w-12 h-12 rounded-lg bg-gray-100 dark:bg-gray-700 flex items-center justify-center text-2xl group-hover:bg-green-100 dark:group-hover:bg-green-900/30 transition-colors"><i class="fas ${fileType.icon} ${fileType.color}"></i></div>
+                            <div class="min-w-0"><h4 class="font-bold text-gray-900 dark:text-white truncate">${m.title}</h4><p class="text-xs text-gray-500 dark:text-gray-400">${m.size} • ${date} • ${m.uploadedByName || 'Admin'}</p></div>
+                        </div>
+                        <div class="flex gap-2">
+                            <a href="${m.url}" target="_blank" class="p-2 text-blue-500 hover:bg-blue-50 rounded-lg"><i class="fas fa-download"></i></a>
+                            ${isAdmin ? `
+                                <button onclick="openMoveModal('${m.id}')" class="p-2 text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg" title="Move File"><i class="fas fa-folder-open"></i></button>
+                                <button onclick="askToDelete('material', '${m.id}')" class="p-2 text-red-500 hover:bg-red-50 rounded-lg"><i class="fas fa-trash"></i></button>
+                            ` : ''}
+                        </div>
+                    </div>`;
+                });
+
+            } catch(e) { console.error(e); list.innerHTML = `<p class="text-red-500">Error loading materials.</p>`; }
         }
+
         window.filterMaterials = () => {
             const term = document.getElementById('material-search').value.toLowerCase();
             document.querySelectorAll('.material-item').forEach(el => { el.style.display = el.querySelector('h4').textContent.toLowerCase().includes(term) ? 'flex' : 'none'; });
@@ -1217,6 +1407,7 @@
         // Modified askToDelete to accept parentId for comments
         window.askToDelete = (type, id, btn, parentId = null) => { 
             pendingDelete = { type, id, btn, parentId }; 
+            document.getElementById('delete-warning-text').textContent = "This action is permanent.";
             document.getElementById('delete-modal').classList.remove('hidden'); 
         };
         
@@ -1239,6 +1430,13 @@
                     if (doc.exists()) await supabaseClient.storage.from('materials').remove([`uploads/${doc.data().filename}`]);
                     await window.firebaseServices.deleteDoc(window.firebaseServices.doc(window.firebaseDb, 'materials', id)); 
                     refreshMaterialsList();
+                } else if (type === 'folder') {
+                    // Delete folder AND move contents to root
+                    await window.firebaseServices.deleteDoc(window.firebaseServices.doc(window.firebaseDb, 'folders', id));
+                    const snap = await window.firebaseServices.getDocs(window.firebaseServices.query(window.firebaseServices.collection(window.firebaseDb, 'materials'), window.firebaseServices.where('folderId', '==', id)));
+                    const updates = snap.docs.map(d => window.firebaseServices.updateDoc(d.ref, { folderId: null }));
+                    await Promise.all(updates);
+                    refreshMaterialsList();
                 } else if (type === 'announcement') { 
                     await window.firebaseServices.deleteDoc(window.firebaseServices.doc(window.firebaseDb, 'announcements', id)); 
                     refreshAnnouncementsList(); 
@@ -1248,7 +1446,6 @@
                     refreshTimetable(); 
                 } else if (type === 'comment' && parentId) {
                     await window.firebaseServices.deleteDoc(window.firebaseServices.doc(window.firebaseDb, 'announcements', parentId, 'comments', id));
-                    // No manual refresh needed as onSnapshot handles it
                 }
                 showNotification('Deleted', 'success');
             } catch(e) { 
